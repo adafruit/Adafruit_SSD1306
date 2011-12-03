@@ -3,7 +3,6 @@
 
 //#include <Wire.h>
 #include <avr/pgmspace.h>
-#include <WProgram.h>
 #include <util/delay.h>
 #include <stdlib.h>
 

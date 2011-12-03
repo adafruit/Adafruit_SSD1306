@@ -1,4 +1,8 @@
-#include <WProgram.h>
+#if ARDUINO >= 100
+ #include "Arduino.h"
+#else
+ #include "WProgram.h"
+#endif
 
 #define swap(a, b) { uint8_t t = a; a = b; b = t; }
 
