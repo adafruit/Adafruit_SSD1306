@@ -11,9 +11,6 @@
 
 static uint8_t is_reversed = 0;
 
-// a handy reference to where the pages are on the screen
-const uint8_t pagemap[] = { 0, 1, 2, 3, 4, 5, 6, 7};
-
 // a 5x7 font table
 extern uint8_t PROGMEM font[];
 
@@ -264,11 +261,10 @@ void SSD1306::setpixel(uint8_t x, uint8_t y, uint8_t color) {
 
   // x is which column
   if (color == WHITE) 
-    buffer[x+ (y/8)*128] |= _BV((y%8));  
+    buffer[x+ (y/8)*SSD1306_LCDWIDTH] |= _BV((y%8));  
   else
-    buffer[x+ (y/8)*128] &= ~_BV((y%8)); 
+    buffer[x+ (y/8)*SSD1306_LCDWIDTH] &= ~_BV((y%8)); 
 }
-
 
 void SSD1306::ssd1306_init(uint8_t vccstate) {
   // set pin directions
@@ -277,7 +273,6 @@ void SSD1306::ssd1306_init(uint8_t vccstate) {
   pinMode(dc, OUTPUT);
   pinMode(rst, OUTPUT);
   pinMode(cs, OUTPUT);
-
 
   digitalWrite(rst, HIGH);
   // VDD (3.3V) goes high at start, lets just chill for a ms
@@ -290,61 +285,77 @@ void SSD1306::ssd1306_init(uint8_t vccstate) {
   digitalWrite(rst, HIGH);
   // turn on VCC (9V?)
 
-  ssd1306_command(SSD1306_DISPLAYOFF);  // 0xAE
-  ssd1306_command(SSD1306_SETLOWCOLUMN | 0x0);  // low col = 0
-  ssd1306_command(SSD1306_SETHIGHCOLUMN | 0x0);  // hi col = 0
-  
-  ssd1306_command(SSD1306_SETSTARTLINE | 0x0); // line #0
+   #if defined SSD1306_128_32
+    // Init sequence for 128x32 OLED module
+    ssd1306_command(SSD1306_DISPLAYOFF);                    // 0xAE
+    ssd1306_command(SSD1306_SETDISPLAYCLOCKDIV);            // 0xD5
+    ssd1306_command(0x80);                                  // the suggested ratio 0x80
+    ssd1306_command(SSD1306_SETMULTIPLEX);                  // 0xA8
+    ssd1306_command(0x1F);
+    ssd1306_command(SSD1306_SETDISPLAYOFFSET);              // 0xD3
+    ssd1306_command(0x0);                                   // no offset
+    ssd1306_command(SSD1306_SETSTARTLINE | 0x0);            // line #0
+    ssd1306_command(SSD1306_CHARGEPUMP);                    // 0x8D
+    if (vccstate == SSD1306_EXTERNALVCC) 
+      { ssd1306_command(0x10); }
+    else 
+      { ssd1306_command(0x14); }
+    ssd1306_command(SSD1306_MEMORYMODE);                    // 0x20
+    ssd1306_command(0x00);                                  // 0x0 act like ks0108
+	ssd1306_command(SSD1306_SEGREMAP | 0x1);
+    ssd1306_command(SSD1306_COMSCANDEC);
+    ssd1306_command(SSD1306_SETCOMPINS);                    // 0xDA
+    ssd1306_command(0x02);
+    ssd1306_command(SSD1306_SETCONTRAST);                   // 0x81
+    ssd1306_command(0x8F);
+    ssd1306_command(SSD1306_SETPRECHARGE);                  // 0xd9
+    if (vccstate == SSD1306_EXTERNALVCC) 
+      { ssd1306_command(0x22); }
+    else 
+      { ssd1306_command(0xF1); }
+    ssd1306_command(SSD1306_SETVCOMDETECT);                 // 0xDB
+    ssd1306_command(0x40);
+    ssd1306_command(SSD1306_DISPLAYALLON_RESUME);           // 0xA4
+    ssd1306_command(SSD1306_NORMALDISPLAY);                 // 0xA6
+  #endif
 
-  ssd1306_command(SSD1306_SETCONTRAST);  // 0x81
-  if (vccstate == SSD1306_EXTERNALVCC) {
-    ssd1306_command(0x9F);  // external 9V
-  } else {
-    ssd1306_command(0xCF);  // chargepump
-  }
-    
-  ssd1306_command(0xa1);  // setment remap 95 to 0 (?)
-
-  ssd1306_command(SSD1306_NORMALDISPLAY); // 0xA6
-
-  ssd1306_command(SSD1306_DISPLAYALLON_RESUME); // 0xA4
-
-  ssd1306_command(SSD1306_SETMULTIPLEX); // 0xA8
-  ssd1306_command(0x3F);  // 0x3F 1/64 duty
+  #if defined SSD1306_128_64
+    // Init sequence for 128x64 OLED module
+    ssd1306_command(SSD1306_DISPLAYOFF);                    // 0xAE
+    ssd1306_command(SSD1306_SETDISPLAYCLOCKDIV);            // 0xD5
+    ssd1306_command(0x80);                                  // the suggested ratio 0x80
+    ssd1306_command(SSD1306_SETMULTIPLEX);                  // 0xA8
+    ssd1306_command(0x3F);
+    ssd1306_command(SSD1306_SETDISPLAYOFFSET);              // 0xD3
+    ssd1306_command(0x0);                                   // no offset
+    ssd1306_command(SSD1306_SETSTARTLINE | 0x0);            // line #0
+    ssd1306_command(SSD1306_CHARGEPUMP);                    // 0x8D
+    if (vccstate == SSD1306_EXTERNALVCC) 
+      { ssd1306_command(0x10); }
+    else 
+      { ssd1306_command(0x14); }
+    ssd1306_command(SSD1306_MEMORYMODE);                    // 0x20
+    ssd1306_command(0x00);                                  // 0x0 act like ks0108
+    ssd1306_command(SSD1306_SEGREMAP | 0x1);
+    ssd1306_command(SSD1306_COMSCANDEC);
+    ssd1306_command(SSD1306_SETCOMPINS);                    // 0xDA
+    ssd1306_command(0x12);
+    ssd1306_command(SSD1306_SETCONTRAST);                   // 0x81
+    if (vccstate == SSD1306_EXTERNALVCC) 
+      { ssd1306_command(0x9F); }
+    else 
+      { ssd1306_command(0xCF); }
+    ssd1306_command(SSD1306_SETPRECHARGE);                  // 0xd9
+    if (vccstate == SSD1306_EXTERNALVCC) 
+      { ssd1306_command(0x22); }
+    else 
+      { ssd1306_command(0xF1); }
+    ssd1306_command(SSD1306_SETVCOMDETECT);                 // 0xDB
+    ssd1306_command(0x40);
+    ssd1306_command(SSD1306_DISPLAYALLON_RESUME);           // 0xA4
+    ssd1306_command(SSD1306_NORMALDISPLAY);                 // 0xA6
+  #endif
   
-  ssd1306_command(SSD1306_SETDISPLAYOFFSET); // 0xD3
-  ssd1306_command(0x0); // no offset
-  
-  ssd1306_command(SSD1306_SETDISPLAYCLOCKDIV);  // 0xD5
-  ssd1306_command(0x80);  // the suggested ratio 0x80
-  
-  ssd1306_command(SSD1306_SETPRECHARGE); // 0xd9
-  if (vccstate == SSD1306_EXTERNALVCC) {
-    ssd1306_command(0x22); // external 9V
-  } else {
-    ssd1306_command(0xF1); // DC/DC
-  }
-  
-  ssd1306_command(SSD1306_SETCOMPINS); // 0xDA
-  ssd1306_command(0x12); // disable COM left/right remap
-  
-  ssd1306_command(SSD1306_SETVCOMDETECT); // 0xDB
-  ssd1306_command(0x40); // 0x20 is default?
-
-  ssd1306_command(SSD1306_MEMORYMODE); // 0x20
-  ssd1306_command(0x00); // 0x0 act like ks0108
-  
-  // left to right scan
-  ssd1306_command(SSD1306_SEGREMAP | 0x1);
-
-  ssd1306_command(SSD1306_COMSCANDEC);
-
-  ssd1306_command(SSD1306_CHARGEPUMP); //0x8D
-  if (vccstate == SSD1306_EXTERNALVCC) {
-    ssd1306_command(0x10);  // disable
-  } else {
-    ssd1306_command(0x14);  // disable    
-  }
   ssd1306_command(SSD1306_DISPLAYON);//--turn on oled panel
 }
 
@@ -387,7 +398,7 @@ void SSD1306::display(void) {
   ssd1306_command(SSD1306_SETHIGHCOLUMN | 0x0);  // hi col = 0
   ssd1306_command(SSD1306_SETSTARTLINE | 0x0); // line #0
 
-  for (uint16_t i=0; i<1024; i++) {
+  for (uint16_t i=0; i<(SSD1306_LCDWIDTH*SSD1306_LCDHEIGHT/8); i++) {
     ssd1306_data(buffer[i]);
   }
 
@@ -395,7 +406,7 @@ void SSD1306::display(void) {
 
 // clear everything
 void SSD1306::clear(void) {
-  memset(buffer, 0, 1024);
+  memset(buffer, 0, (SSD1306_LCDWIDTH*SSD1306_LCDHEIGHT/8));
 }
 
 void SSD1306::clear_display(void) {

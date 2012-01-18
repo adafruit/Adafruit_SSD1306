@@ -32,14 +32,14 @@ void setup()   {
 
   // init done
   
-  // this is the test command, turns on all the pixels
-  //SSD1306_command(SSD1306_DISPLAYALLON); 
-  // then you can clear the display
-  //oled.clear_display();
-  
   oled.display(); // show splashscreen
   delay(2000);
   oled.clear();   // clears the screen and buffer
+
+  // Fill screen
+  oled.fillrect(0, 0, SSD1306_LCDWIDTH-1, SSD1306_LCDHEIGHT-1, WHITE);
+  oled.display();
+  delay(2000);
 
   // draw a single pixel
   oled.setpixel(10, 10, WHITE);
@@ -90,7 +90,7 @@ void setup()   {
   oled.clear();
 
   // miniature bitmap display
-  oled.drawbitmap(30, 30,  logo16_glcd_bmp, 16, 16, 1);
+  oled.drawbitmap(30, 16,  logo16_glcd_bmp, 16, 16, 1);
   oled.display();
 
   // invert the display
@@ -106,8 +106,8 @@ void setup()   {
 
 void loop()                     
 {
-  for (uint8_t i=0; i<128; i++) {
-    for (uint8_t j=0; j<64; j++) {
+  for (uint8_t i=0; i<SSD1306_LCDWIDTH; i++) {
+    for (uint8_t j=0; j<SSD1306_LCDHEIGHT; j++) {
       oled.setpixel(i, j, WHITE);
       oled.display();
     }
@@ -123,7 +123,7 @@ void testdrawbitmap(const uint8_t *bitmap, uint8_t w, uint8_t h) {
  
   // initialize
   for (uint8_t f=0; f< NUMFLAKES; f++) {
-    icons[f][XPOS] = random() % 128;
+    icons[f][XPOS] = random() % SSD1306_LCDWIDTH;
     icons[f][YPOS] = 0;
     icons[f][DELTAY] = random() % 5 + 1;
     
@@ -149,8 +149,8 @@ void testdrawbitmap(const uint8_t *bitmap, uint8_t w, uint8_t h) {
       // move it
       icons[f][YPOS] += icons[f][DELTAY];
       // if its gone, reinit
-      if (icons[f][YPOS] > 64) {
-	icons[f][XPOS] = random() % 128;
+      if (icons[f][YPOS] > SSD1306_LCDHEIGHT) {
+	icons[f][XPOS] = random() % SSD1306_LCDWIDTH;
 	icons[f][YPOS] = 0;
 	icons[f][DELTAY] = random() % 5 + 1;
       }
@@ -166,42 +166,42 @@ void testdrawchar(void) {
 }
 
 void testdrawcircle(void) {
-  for (uint8_t i=0; i<64; i+=2) {
+  for (uint8_t i=0; i<SSD1306_LCDHEIGHT; i+=2) {
     oled.drawcircle(63, 31, i, WHITE);
   }
 }
 
 void testdrawrect(void) {
-  for (uint8_t i=0; i<64; i+=2) {
-    oled.drawrect(i, i, 128-i, 64-i, WHITE);
+  for (uint8_t i=0; i<SSD1306_LCDHEIGHT; i+=2) {
+    oled.drawrect(i, i, SSD1306_LCDWIDTH-i, SSD1306_LCDHEIGHT-i, WHITE);
   }
 }
 
 void testfillrect(void) {
-  for (uint8_t i=0; i<64; i++) {
+  for (uint8_t i=0; i<SSD1306_LCDHEIGHT; i++) {
       // alternate colors for moire effect
-    oled.fillrect(i, i, 128-i, 64-i, i%2);
+    oled.fillrect(i, i, SSD1306_LCDWIDTH-i, SSD1306_LCDHEIGHT-i, i%2);
   }
 }
 
 void testdrawline() {
-  for (uint8_t i=0; i<128; i+=4) {
-    oled.drawline(0, 0, i, 63, WHITE);
+  for (uint8_t i=0; i<SSD1306_LCDWIDTH; i+=4) {
+    oled.drawline(0, 0, i, SSD1306_LCDHEIGHT-1, WHITE);
     oled.display();
   }
-  for (uint8_t i=0; i<64; i+=4) {
-    oled.drawline(0, 0, 127, i, WHITE);
+  for (uint8_t i=0; i<SSD1306_LCDHEIGHT; i+=4) {
+    oled.drawline(0, 0, SSD1306_LCDWIDTH-1, i, WHITE);
     oled.display();
   }
 
   delay(1000);
 
-  for (uint8_t i=0; i<128; i+=4) {
-    oled.drawline(i, 63, 0, 0, BLACK);
+  for (uint8_t i=0; i<SSD1306_LCDWIDTH; i+=4) {
+    oled.drawline(i, SSD1306_LCDHEIGHT-1, 0, 0, BLACK);
     oled.display();
   }
-  for (uint8_t i=0; i<64; i+=4) {
-    oled.drawline(127, i, 0, 0, BLACK);
+  for (uint8_t i=0; i<SSD1306_LCDHEIGHT; i+=4) {
+    oled.drawline(SSD1306_LCDWIDTH - 1, i, 0, 0, BLACK);
     oled.display();
   }
 }
