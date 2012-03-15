@@ -26,8 +26,6 @@ All text above, and the splash screen below must be included in any redistributi
 
 #include "glcdfont.c"
 
-static uint8_t is_reversed = 0;
-
 // a 5x7 font table
 extern uint8_t PROGMEM font[];
 
@@ -105,7 +103,7 @@ static uint8_t buffer[SSD1306_LCDHEIGHT * SSD1306_LCDWIDTH / 8] = {
 
 
 // the most basic function, set a single pixel
-void Adafruit_SSD1306::drawPixel(uint8_t x, uint8_t y, uint8_t color) {
+void Adafruit_SSD1306::drawPixel(uint16_t x, uint16_t y, uint16_t color) {
   if ((x >= SSD1306_LCDWIDTH) || (y >= SSD1306_LCDHEIGHT))
     return;
 

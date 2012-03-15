@@ -27,7 +27,6 @@ void setup()   {
   
   // by default, we'll generate the high voltage from the 3.3v line internally! (neat!)
   display.begin(SSD1306_SWITCHCAPVCC);
-
   // init done
   
   display.display(); // show splashscreen
@@ -70,20 +69,50 @@ void setup()   {
   delay(2000);
   display.clearDisplay();
 
+  testdrawroundrect();
+  delay(2000);
+  display.clearDisplay();
+
+  testfillroundrect();
+  delay(2000);
+  display.clearDisplay();
+
+  testdrawtriangle();
+  delay(2000);
+  display.clearDisplay();
+   
+  testfilltriangle();
+  delay(2000);
+  display.clearDisplay();
+
   // draw the first ~12 characters in the font
   testdrawchar();
   display.display();
   delay(2000);
   display.clearDisplay();
 
+  // text display tests
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+  display.setCursor(0,0);
+  display.println("Hello, world!");
+  display.setTextColor(BLACK, WHITE); // 'inverted' text
+  display.println(3.141592);
+  display.setTextSize(2);
+  display.setTextColor(WHITE);
+  display.print("0x"); display.println(0xDEADBEEF, HEX);
+  display.display();
+  delay(2000);
+
   // miniature bitmap display
+  display.clearDisplay();
   display.drawBitmap(30, 16,  logo16_glcd_bmp, 16, 16, 1);
   display.display();
 
   // invert the display
-  display.ssd1306_command(SSD1306_INVERTDISPLAY);
+  display.invertDisplay(true);
   delay(1000); 
-  display.ssd1306_command(SSD1306_NORMALDISPLAY);
+  display.invertDisplay(false);
   delay(1000); 
 
   // draw a bitmap icon and 'animate' movement
@@ -169,6 +198,44 @@ void testfillrect(void) {
   }
 }
 
+void testdrawtriangle(void) {
+  for (uint16_t i=0; i<min(display.width(),display.height())/2; i+=5) {
+    display.drawTriangle(display.width()/2, display.height()/2-i,
+                     display.width()/2-i, display.height()/2+i,
+                     display.width()/2+i, display.height()/2+i, WHITE);
+    display.display();
+  }
+}
+
+void testfilltriangle(void) {
+  uint8_t color = WHITE;
+  for (int16_t i=min(display.width(),display.height())/2; i>0; i-=5) {
+    display.fillTriangle(display.width()/2, display.height()/2-i,
+                     display.width()/2-i, display.height()/2+i,
+                     display.width()/2+i, display.height()/2+i, WHITE);
+    if (color == WHITE) color = BLACK;
+    else color = WHITE;
+    display.display();
+  }
+}
+
+void testdrawroundrect(void) {
+  for (uint8_t i=0; i<display.height()/2-2; i+=2) {
+    display.drawRoundRect(i, i, display.width()-2*i, display.height()-2*i, display.height()/4, WHITE);
+    display.display();
+  }
+}
+
+void testfillroundrect(void) {
+  uint8_t color = WHITE;
+  for (uint8_t i=0; i<display.height()/2-2; i+=2) {
+    display.fillRoundRect(i, i, display.width()-2*i, display.height()-2*i, display.height()/4, color);
+    if (color == WHITE) color = BLACK;
+    else color = WHITE;
+    display.display();
+  }
+}
+   
 void testdrawrect(void) {
   for (uint8_t i=0; i<display.height()/2; i+=2) {
     display.drawRect(i, i, display.width()-2*i, display.height()-2*i, WHITE);
@@ -176,10 +243,7 @@ void testdrawrect(void) {
   }
 }
 
-void testdrawline() {
-  Serial.println(display.width());
-  Serial.println(display.height());
-  
+void testdrawline() {  
   for (uint8_t i=0; i<display.width(); i+=4) {
     display.drawLine(0, 0, i, display.height()-1, WHITE);
     display.display();

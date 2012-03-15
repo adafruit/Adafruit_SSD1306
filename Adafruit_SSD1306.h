@@ -114,7 +114,7 @@ class Adafruit_SSD1306 : public Adafruit_GFX {
   void invertDisplay(uint8_t i);
   void display();
 
-  void drawPixel(uint8_t x, uint8_t y, uint8_t color);
+  void drawPixel(uint16_t x, uint16_t y, uint16_t color);
 
  private:
   int8_t sid, sclk, dc, rst, cs;
