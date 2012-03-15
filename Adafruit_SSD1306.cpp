@@ -6,7 +6,9 @@
 #include <util/delay.h>
 #include <stdlib.h>
 
-#include "SSD1306.h"
+#include "Adafruit_GFX.h"
+#include "Adafruit_SSD1306.h"
+
 #include "glcdfont.c"
 
 static uint8_t is_reversed = 0;
@@ -86,181 +88,9 @@ static uint8_t buffer[SSD1306_LCDHEIGHT * SSD1306_LCDWIDTH / 8] = {
 };
 
 
-void SSD1306::drawbitmap(uint8_t x, uint8_t y, 
-			const uint8_t *bitmap, uint8_t w, uint8_t h,
-			uint8_t color) {
-  for (uint8_t j=0; j<h; j++) {
-    for (uint8_t i=0; i<w; i++ ) {
-      if (pgm_read_byte(bitmap + i + (j/8)*w) & _BV(j%8)) {
-	setpixel(x+i, y+j, color);
-      }
-    }
-  }
-}
-
-void SSD1306::drawstring(uint8_t x, uint8_t line, char *c) {
-  while (c[0] != 0) {
-    drawchar(x, line, c[0]);
-    c++;
-    x += 6; // 6 pixels wide
-    if (x + 6 >= SSD1306_LCDWIDTH) {
-      x = 0;    // ran out of this line
-      line++;
-    }
-    if (line >= (SSD1306_LCDHEIGHT/8))
-      return;        // ran out of space :(
-  }
-
-}
-
-void  SSD1306::drawchar(uint8_t x, uint8_t line, uint8_t c) {
-  if ((line >= SSD1306_LCDHEIGHT/8) || (x >= (SSD1306_LCDWIDTH - 6)))
-      return;
-  for (uint8_t i =0; i<5; i++ ) {
-    buffer[x + (line*128) ] = pgm_read_byte(font+(c*5)+i);
-    x++;
-  }
-}
-
-
-// bresenham's algorithm - thx wikpedia
-void SSD1306::drawline(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, 
-		      uint8_t color) {
-  uint8_t steep = abs(y1 - y0) > abs(x1 - x0);
-  if (steep) {
-    swap(x0, y0);
-    swap(x1, y1);
-  }
-
-  if (x0 > x1) {
-    swap(x0, x1);
-    swap(y0, y1);
-  }
-
-  uint8_t dx, dy;
-  dx = x1 - x0;
-  dy = abs(y1 - y0);
-
-  int8_t err = dx / 2;
-  int8_t ystep;
-
-  if (y0 < y1) {
-    ystep = 1;
-  } else {
-    ystep = -1;}
-
-  for (; x0<x1; x0++) {
-    if (steep) {
-      setpixel(y0, x0, color);
-    } else {
-      setpixel(x0, y0, color);
-    }
-    err -= dy;
-    if (err < 0) {
-      y0 += ystep;
-      err += dx;
-    }
-  }
-}
-
-// filled rectangle
-void SSD1306::fillrect(uint8_t x, uint8_t y, uint8_t w, uint8_t h, 
-		      uint8_t color) {
-
-  // stupidest version - just pixels - but fast with internal buffer!
-  for (uint8_t i=x; i<x+w; i++) {
-    for (uint8_t j=y; j<y+h; j++) {
-      setpixel(i, j, color);
-    }
-  }
-}
-
-// draw a rectangle
-void SSD1306::drawrect(uint8_t x, uint8_t y, uint8_t w, uint8_t h, 
-		      uint8_t color) {
-  // stupidest version - just pixels - but fast with internal buffer!
-  for (uint8_t i=x; i<x+w; i++) {
-    setpixel(i, y, color);
-    setpixel(i, y+h-1, color);
-  }
-  for (uint8_t i=y; i<y+h; i++) {
-    setpixel(x, i, color);
-    setpixel(x+w-1, i, color);
-  } 
-}
-
-// draw a circle outline
-void SSD1306::drawcircle(uint8_t x0, uint8_t y0, uint8_t r, 
-			uint8_t color) {
-  int8_t f = 1 - r;
-  int8_t ddF_x = 1;
-  int8_t ddF_y = -2 * r;
-  int8_t x = 0;
-  int8_t y = r;
-
-  setpixel(x0, y0+r, color);
-  setpixel(x0, y0-r, color);
-  setpixel(x0+r, y0, color);
-  setpixel(x0-r, y0, color);
-
-  while (x<y) {
-    if (f >= 0) {
-      y--;
-      ddF_y += 2;
-      f += ddF_y;
-    }
-    x++;
-    ddF_x += 2;
-    f += ddF_x;
-  
-    setpixel(x0 + x, y0 + y, color);
-    setpixel(x0 - x, y0 + y, color);
-    setpixel(x0 + x, y0 - y, color);
-    setpixel(x0 - x, y0 - y, color);
-    
-    setpixel(x0 + y, y0 + x, color);
-    setpixel(x0 - y, y0 + x, color);
-    setpixel(x0 + y, y0 - x, color);
-    setpixel(x0 - y, y0 - x, color);
-    
-  }
-}
-
-void SSD1306::fillcircle(uint8_t x0, uint8_t y0, uint8_t r, 
-			uint8_t color) {
-  int8_t f = 1 - r;
-  int8_t ddF_x = 1;
-  int8_t ddF_y = -2 * r;
-  int8_t x = 0;
-  int8_t y = r;
-
-  for (uint8_t i=y0-r; i<=y0+r; i++) {
-    setpixel(x0, i, color);
-  }
-
-  while (x<y) {
-    if (f >= 0) {
-      y--;
-      ddF_y += 2;
-      f += ddF_y;
-    }
-    x++;
-    ddF_x += 2;
-    f += ddF_x;
-  
-    for (uint8_t i=y0-y; i<=y0+y; i++) {
-      setpixel(x0+x, i, color);
-      setpixel(x0-x, i, color);
-    } 
-    for (uint8_t i=y0-x; i<=y0+x; i++) {
-      setpixel(x0+y, i, color);
-      setpixel(x0-y, i, color);
-    }    
-  }
-}
 
 // the most basic function, set a single pixel
-void SSD1306::setpixel(uint8_t x, uint8_t y, uint8_t color) {
+void Adafruit_SSD1306::drawPixel(uint8_t x, uint8_t y, uint8_t color) {
   if ((x >= SSD1306_LCDWIDTH) || (y >= SSD1306_LCDHEIGHT))
     return;
 
@@ -271,13 +101,31 @@ void SSD1306::setpixel(uint8_t x, uint8_t y, uint8_t color) {
     buffer[x+ (y/8)*SSD1306_LCDWIDTH] &= ~_BV((y%8)); 
 }
 
-void SSD1306::ssd1306_init(uint8_t vccstate) {
+void Adafruit_SSD1306::begin(uint8_t vccstate) {
+#ifdef SSD1306_128_64
+  this->WIDTH = 128;
+  this->HEIGHT = 64;
+#endif
+#ifdef SSD1306_128_32
+  this->WIDTH = 128;
+  this->HEIGHT = 32;
+#endif
+
   // set pin directions
   pinMode(sid, OUTPUT);
   pinMode(sclk, OUTPUT);
   pinMode(dc, OUTPUT);
   pinMode(rst, OUTPUT);
   pinMode(cs, OUTPUT);
+
+  clkport     = portOutputRegister(digitalPinToPort(sclk));
+  clkpinmask  = digitalPinToBitMask(sclk);
+  mosiport    = portOutputRegister(digitalPinToPort(sid));
+  mosipinmask = digitalPinToBitMask(sid);
+  csport    = portOutputRegister(digitalPinToPort(cs));
+  cspinmask = digitalPinToBitMask(cs);
+  dcport    = portOutputRegister(digitalPinToPort(dc));
+  dcpinmask = digitalPinToBitMask(dc);
 
   digitalWrite(rst, HIGH);
   // VDD (3.3V) goes high at start, lets just chill for a ms
@@ -365,7 +213,7 @@ void SSD1306::ssd1306_init(uint8_t vccstate) {
 }
 
 
-void SSD1306::invert(uint8_t i) {
+void Adafruit_SSD1306::invertDisplay(uint8_t i) {
   if (i) {
     ssd1306_command(SSD1306_INVERTDISPLAY);
   } else {
@@ -373,52 +221,79 @@ void SSD1306::invert(uint8_t i) {
   }
 }
 
-inline void SSD1306::spiwrite(uint8_t c) {
-  shiftOut(sid, sclk, MSBFIRST, c);
-
-}
-void SSD1306::ssd1306_command(uint8_t c) { 
-  digitalWrite(cs, HIGH);
-  digitalWrite(dc, LOW);
-  digitalWrite(cs, LOW);
-  spiwrite(c);
-  digitalWrite(cs, HIGH);
-}
-
-void SSD1306::ssd1306_data(uint8_t c) {
-  digitalWrite(cs, HIGH);
-  digitalWrite(dc, HIGH);
-  digitalWrite(cs, LOW);
-  spiwrite(c);
-  digitalWrite(cs, HIGH);
+void Adafruit_SSD1306::ssd1306_command(uint8_t c) { 
+  //digitalWrite(cs, HIGH);
+  *csport |= cspinmask;
+  //digitalWrite(dc, LOW);
+  *dcport &= ~dcpinmask;
+  //digitalWrite(cs, LOW);
+  *csport &= ~cspinmask;
+  fastSPIwrite(c);
+  //digitalWrite(cs, HIGH);
+  *csport |= cspinmask;
 }
 
-void SSD1306::ssd1306_set_brightness(uint8_t val) {
-  
+void Adafruit_SSD1306::ssd1306_data(uint8_t c) {
+  //digitalWrite(cs, HIGH);
+  *csport |= cspinmask;
+  //digitalWrite(dc, HIGH);
+  *dcport |= dcpinmask;
+  //digitalWrite(cs, LOW);
+  *csport &= ~cspinmask;
+  fastSPIwrite(c);
+  //digitalWrite(cs, HIGH);
+  *csport |= cspinmask;
 }
 
-
-void SSD1306::display(void) {
+void Adafruit_SSD1306::display(void) {
   ssd1306_command(SSD1306_SETLOWCOLUMN | 0x0);  // low col = 0
   ssd1306_command(SSD1306_SETHIGHCOLUMN | 0x0);  // hi col = 0
   ssd1306_command(SSD1306_SETSTARTLINE | 0x0); // line #0
 
+  *csport |= cspinmask;
+  *dcport |= dcpinmask;
+  *csport &= ~cspinmask;
+
   for (uint16_t i=0; i<(SSD1306_LCDWIDTH*SSD1306_LCDHEIGHT/8); i++) {
-    ssd1306_data(buffer[i]);
+    fastSPIwrite(buffer[i]);
+    //ssd1306_data(buffer[i]);
   }
   // i wonder why we have to do this (check datasheet)
   if (SSD1306_LCDHEIGHT == 32) {
     for (uint16_t i=0; i<(SSD1306_LCDWIDTH*SSD1306_LCDHEIGHT/8); i++) {
-      ssd1306_data(0);
+      //ssd1306_data(0);
+      fastSPIwrite(0);
     }
   }
+  *csport |= cspinmask;
 }
 
 // clear everything
-void SSD1306::clear(void) {
+void Adafruit_SSD1306::clearDisplay(void) {
   memset(buffer, 0, (SSD1306_LCDWIDTH*SSD1306_LCDHEIGHT/8));
 }
 
-void SSD1306::clear_display(void) {
- 
+
+inline void Adafruit_SSD1306::fastSPIwrite(uint8_t d) {
+  
+  for(uint8_t bit = 0x80; bit; bit >>= 1) {
+    *clkport &= ~clkpinmask;
+    if(d & bit) *mosiport |=  mosipinmask;
+    else        *mosiport &= ~mosipinmask;
+    *clkport |=  clkpinmask;
+  }
+  //*csport |= cspinmask;
 }
+
+inline void Adafruit_SSD1306::slowSPIwrite(uint8_t d) {
+ for (int8_t i=7; i>=0; i--) {
+   digitalWrite(sclk, LOW);
+   if (d & _BV(i)) {
+     digitalWrite(sid, HIGH);
+   } else {
+     digitalWrite(sid, LOW);
+   }
+   digitalWrite(sclk, HIGH);
+ }
+}
+

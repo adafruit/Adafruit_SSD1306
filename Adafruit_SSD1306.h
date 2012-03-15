@@ -4,6 +4,8 @@
  #include "WProgram.h"
 #endif
 
+#include <Adafruit_GFX.h>
+
 #define swap(a, b) { uint8_t t = a; a = b; b = t; }
 
 #define BLACK 0
@@ -24,8 +26,8 @@
     appropriate size
 
     -----------------------------------------------------------------------*/
-#define SSD1306_128_64
-//     #define SSD1306_128_32
+//#define SSD1306_128_64
+     #define SSD1306_128_32
 /*=========================================================================*/
 
 #if defined SSD1306_128_64 && defined SSD1306_128_32
@@ -79,42 +81,28 @@
 #define SSD1306_EXTERNALVCC 0x1
 #define SSD1306_SWITCHCAPVCC 0x2
 
-class SSD1306 {
+class Adafruit_SSD1306 : public Adafruit_GFX {
  public:
-  SSD1306(int8_t SID, int8_t SCLK, int8_t DC, int8_t RST, int8_t CS) :sid(SID), sclk(SCLK), dc(DC), rst(RST), cs(CS) {}
-  SSD1306(int8_t SID, int8_t SCLK, int8_t DC, int8_t RST) :sid(SID), sclk(SCLK), dc(DC), rst(RST), cs(-1) {}
+  Adafruit_SSD1306(int8_t SID, int8_t SCLK, int8_t DC, int8_t RST, int8_t CS) :sid(SID), sclk(SCLK), dc(DC), rst(RST), cs(CS) {}
+    Adafruit_SSD1306(int8_t SID, int8_t SCLK, int8_t DC, int8_t RST) :sid(SID), sclk(SCLK), dc(DC), rst(RST), cs(-1) {}
 
 
-  void ssd1306_init(uint8_t switchvcc);
+  void begin(uint8_t switchvcc);
   void ssd1306_command(uint8_t c);
   void ssd1306_data(uint8_t c);
-  void ssd1306_set_brightness(uint8_t val);
-  void clear_display(void);
-  void clear();
-  void invert(uint8_t i);
+
+  void clearDisplay(void);
+  void invertDisplay(uint8_t i);
   void display();
 
-  void setpixel(uint8_t x, uint8_t y, uint8_t color);
-  void fillcircle(uint8_t x0, uint8_t y0, uint8_t r, 
-		  uint8_t color);
-  void drawcircle(uint8_t x0, uint8_t y0, uint8_t r, 
-		  uint8_t color);
-  void drawrect(uint8_t x, uint8_t y, uint8_t w, uint8_t h, 
-		uint8_t color);
-  void fillrect(uint8_t x, uint8_t y, uint8_t w, uint8_t h, 
-		uint8_t color);
-  void drawline(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, 
-		uint8_t color);
-  void drawchar(uint8_t x, uint8_t line, uint8_t c);
-  void drawstring(uint8_t x, uint8_t line, char *c);
-
-  void drawbitmap(uint8_t x, uint8_t y, 
-		  const uint8_t *bitmap, uint8_t w, uint8_t h,
-		  uint8_t color);
+  void drawPixel(uint8_t x, uint8_t y, uint8_t color);
 
  private:
   int8_t sid, sclk, dc, rst, cs;
-  void spiwrite(uint8_t c);
+  void fastSPIwrite(uint8_t c);
+  void slowSPIwrite(uint8_t c);
 
-  //uint8_t buffer[128*64/8]; 
+  volatile uint8_t *mosiport, *clkport, *csport, *dcport;
+  uint8_t mosipinmask, clkpinmask, cspinmask, dcpinmask;
+
 };

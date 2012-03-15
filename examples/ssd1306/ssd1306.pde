@@ -4,9 +4,10 @@
 #define OLED_MOSI 9
 #define OLED_RESET 13
 
-#include <SSD1306.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
 
-SSD1306 oled(OLED_MOSI, OLED_CLK, OLED_DC, OLED_RESET, OLED_CS);
+Adafruit_SSD1306 display(OLED_MOSI, OLED_CLK, OLED_DC, OLED_RESET, OLED_CS);
 
 #define NUMFLAKES 10
 #define XPOS 0
@@ -24,79 +25,65 @@ static unsigned char __attribute__ ((progmem)) logo16_glcd_bmp[]={
 void setup()   {                
   Serial.begin(9600);
   
-  // If you want to provide external 7-9V VCC, uncomment next line and comment the one after
-  //oled.ssd1306_init(SSD1306_EXTERNALVCC);
-  
   // by default, we'll generate the high voltage from the 3.3v line internally! (neat!)
-  oled.ssd1306_init(SSD1306_SWITCHCAPVCC);
+  display.begin(SSD1306_SWITCHCAPVCC);
 
   // init done
   
-  oled.display(); // show splashscreen
+  display.display(); // show splashscreen
   delay(2000);
-  oled.clear();   // clears the screen and buffer
-
-  // Fill screen
-  oled.fillrect(0, 0, SSD1306_LCDWIDTH-1, SSD1306_LCDHEIGHT-1, WHITE);
-  oled.display();
-  delay(2000);
+  display.clearDisplay();   // clears the screen and buffer
 
   // draw a single pixel
-  oled.setpixel(10, 10, WHITE);
-  oled.display();
+  display.drawPixel(10, 10, WHITE);
+  display.display();
   delay(2000);
-  oled.clear();
+  display.clearDisplay();
 
   // draw many lines
   testdrawline();
-  oled.display();
+  display.display();
   delay(2000);
-  oled.clear();
+  display.clearDisplay();
 
   // draw rectangles
   testdrawrect();
-  oled.display();
+  display.display();
   delay(2000);
-  oled.clear();
+  display.clearDisplay();
 
   // draw multiple rectangles
   testfillrect();
-  oled.display();
+  display.display();
   delay(2000);
-  oled.clear();
+  display.clearDisplay();
 
   // draw mulitple circles
   testdrawcircle();
-  oled.display();
+  display.display();
   delay(2000);
-  oled.clear();
+  display.clearDisplay();
 
-  // draw a white circle, 10 pixel radius, at location (32,32)
-  oled.fillcircle(32, 32, 10, WHITE);
-  oled.display();
+  // draw a white circle, 10 pixel radius
+  display.fillCircle(display.width()/2, display.height()/2, 10, WHITE);
+  display.display();
   delay(2000);
-  oled.clear();
+  display.clearDisplay();
 
   // draw the first ~12 characters in the font
   testdrawchar();
-  oled.display();
+  display.display();
   delay(2000);
-  oled.clear();
-
-  // draw a string at location (0,0)
-  oled.drawstring(0, 0, "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation");
-  oled.display();
-  delay(2000);
-  oled.clear();
+  display.clearDisplay();
 
   // miniature bitmap display
-  oled.drawbitmap(30, 16,  logo16_glcd_bmp, 16, 16, 1);
-  oled.display();
+  display.drawBitmap(30, 16,  logo16_glcd_bmp, 16, 16, 1);
+  display.display();
 
   // invert the display
-  oled.ssd1306_command(SSD1306_INVERTDISPLAY);
+  display.ssd1306_command(SSD1306_INVERTDISPLAY);
   delay(1000); 
-  oled.ssd1306_command(SSD1306_NORMALDISPLAY);
+  display.ssd1306_command(SSD1306_NORMALDISPLAY);
   delay(1000); 
 
   // draw a bitmap icon and 'animate' movement
@@ -104,16 +91,8 @@ void setup()   {
 }
 
 
-void loop()                     
-{
-  for (uint8_t i=0; i<SSD1306_LCDWIDTH; i++) {
-    for (uint8_t j=0; j<SSD1306_LCDHEIGHT; j++) {
-      oled.setpixel(i, j, WHITE);
-      oled.display();
-    }
-  }
+void loop() {
   
-
 }
 
 
@@ -123,7 +102,7 @@ void testdrawbitmap(const uint8_t *bitmap, uint8_t w, uint8_t h) {
  
   // initialize
   for (uint8_t f=0; f< NUMFLAKES; f++) {
-    icons[f][XPOS] = random() % SSD1306_LCDWIDTH;
+    icons[f][XPOS] = random() % display.width();
     icons[f][YPOS] = 0;
     icons[f][DELTAY] = random() % 5 + 1;
     
@@ -138,70 +117,109 @@ void testdrawbitmap(const uint8_t *bitmap, uint8_t w, uint8_t h) {
   while (1) {
     // draw each icon
     for (uint8_t f=0; f< NUMFLAKES; f++) {
-      oled.drawbitmap(icons[f][XPOS], icons[f][YPOS], logo16_glcd_bmp, w, h, WHITE);
+      display.drawBitmap(icons[f][XPOS], icons[f][YPOS], logo16_glcd_bmp, w, h, WHITE);
     }
-    oled.display();
+    display.display();
     delay(200);
     
     // then erase it + move it
     for (uint8_t f=0; f< NUMFLAKES; f++) {
-      oled.drawbitmap(icons[f][XPOS], icons[f][YPOS],  logo16_glcd_bmp, w, h, BLACK);
+      display.drawBitmap(icons[f][XPOS], icons[f][YPOS],  logo16_glcd_bmp, w, h, BLACK);
       // move it
       icons[f][YPOS] += icons[f][DELTAY];
       // if its gone, reinit
-      if (icons[f][YPOS] > SSD1306_LCDHEIGHT) {
-	icons[f][XPOS] = random() % SSD1306_LCDWIDTH;
+      if (icons[f][YPOS] > display.height()) {
+	icons[f][XPOS] = random() % display.width();
 	icons[f][YPOS] = 0;
 	icons[f][DELTAY] = random() % 5 + 1;
       }
     }
-  }
+   }
 }
 
 
 void testdrawchar(void) {
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+  display.setCursor(0,0);
+
   for (uint8_t i=0; i < 168; i++) {
-    oled.drawchar((i % 21) * 6, i/21, i);
+    if (i == '\n') continue;
+    display.write(i);
+    if ((i > 0) && (i % 21 == 0))
+      display.println();
   }    
+  display.display();
 }
 
 void testdrawcircle(void) {
-  for (uint8_t i=0; i<SSD1306_LCDHEIGHT; i+=2) {
-    oled.drawcircle(63, 31, i, WHITE);
-  }
-}
-
-void testdrawrect(void) {
-  for (uint8_t i=0; i<SSD1306_LCDHEIGHT; i+=2) {
-    oled.drawrect(i, i, SSD1306_LCDWIDTH-i, SSD1306_LCDHEIGHT-i, WHITE);
+  for (uint8_t i=0; i<display.height(); i+=2) {
+    display.drawCircle(display.width()/2, display.height()/2, i, WHITE);
+    display.display();
   }
 }
 
 void testfillrect(void) {
-  for (uint8_t i=0; i<SSD1306_LCDHEIGHT; i++) {
-      // alternate colors for moire effect
-    oled.fillrect(i, i, SSD1306_LCDWIDTH-i, SSD1306_LCDHEIGHT-i, i%2);
+  uint8_t color = 1;
+  for (uint8_t i=0; i<display.height()/2; i+=3) {
+    // alternate colors
+    display.fillRect(i, i, display.width()-i*2, display.height()-i*2, color%2);
+    display.display();
+    color++;
+  }
+}
+
+void testdrawrect(void) {
+  for (uint8_t i=0; i<display.height()/2; i+=2) {
+    display.drawRect(i, i, display.width()-2*i, display.height()-2*i, WHITE);
+    display.display();
   }
 }
 
 void testdrawline() {
-  for (uint8_t i=0; i<SSD1306_LCDWIDTH; i+=4) {
-    oled.drawline(0, 0, i, SSD1306_LCDHEIGHT-1, WHITE);
-    oled.display();
+  Serial.println(display.width());
+  Serial.println(display.height());
+  
+  for (uint8_t i=0; i<display.width(); i+=4) {
+    display.drawLine(0, 0, i, display.height()-1, WHITE);
+    display.display();
   }
-  for (uint8_t i=0; i<SSD1306_LCDHEIGHT; i+=4) {
-    oled.drawline(0, 0, SSD1306_LCDWIDTH-1, i, WHITE);
-    oled.display();
+  for (uint8_t i=0; i<display.height(); i+=4) {
+    display.drawLine(0, 0, display.width()-1, i, WHITE);
+    display.display();
   }
+  delay(250);
+  
+  display.clearDisplay();
+  for (uint8_t i=0; i<display.width(); i+=4) {
+    display.drawLine(0, display.height()-1, i, 0, WHITE);
+    display.display();
+  }
+  for (int8_t i=display.height()-1; i>=0; i-=4) {
+    display.drawLine(0, display.height()-1, display.width()-1, i, WHITE);
+    display.display();
+  }
+  delay(250);
+  
+  display.clearDisplay();
+  for (int8_t i=display.width()-1; i>=0; i-=4) {
+    display.drawLine(display.width()-1, display.height()-1, i, 0, WHITE);
+    display.display();
+  }
+  for (int8_t i=display.height()-1; i>=0; i-=4) {
+    display.drawLine(display.width()-1, display.height()-1, 0, i, WHITE);
+    display.display();
+  }
+  delay(250);
 
-  delay(1000);
-
-  for (uint8_t i=0; i<SSD1306_LCDWIDTH; i+=4) {
-    oled.drawline(i, SSD1306_LCDHEIGHT-1, 0, 0, BLACK);
-    oled.display();
+  display.clearDisplay();
+  for (uint8_t i=0; i<display.height(); i+=4) {
+    display.drawLine(display.width()-1, 0, 0, i, WHITE);
+    display.display();
   }
-  for (uint8_t i=0; i<SSD1306_LCDHEIGHT; i+=4) {
-    oled.drawline(SSD1306_LCDWIDTH - 1, i, 0, 0, BLACK);
-    oled.display();
+  for (uint8_t i=0; i<display.width(); i+=4) {
+    display.drawLine(display.width()-1, 0, i, display.height()-1, WHITE); 
+    display.display();
   }
+  delay(250);
 }
