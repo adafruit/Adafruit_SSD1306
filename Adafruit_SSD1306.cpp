@@ -104,8 +104,24 @@ static uint8_t buffer[SSD1306_LCDHEIGHT * SSD1306_LCDWIDTH / 8] = {
 
 // the most basic function, set a single pixel
 void Adafruit_SSD1306::drawPixel(uint16_t x, uint16_t y, uint16_t color) {
-  if ((x >= SSD1306_LCDWIDTH) || (y >= SSD1306_LCDHEIGHT))
+  if ((x >= width()) || (y >= height()))
     return;
+
+  // check rotation, move pixel around if necessary
+  switch (getRotation()) {
+  case 1:
+    swap(x, y);
+    x = WIDTH - x - 1;
+    break;
+  case 2:
+    x = WIDTH - x - 1;
+    y = HEIGHT - y - 1;
+    break;
+  case 3:
+    swap(x, y);
+    y = HEIGHT - y - 1;
+    break;
+  }  
 
   // x is which column
   if (color == WHITE) 
@@ -116,13 +132,12 @@ void Adafruit_SSD1306::drawPixel(uint16_t x, uint16_t y, uint16_t color) {
 
 void Adafruit_SSD1306::begin(uint8_t vccstate) {
 #ifdef SSD1306_128_64
-  this->WIDTH = 128;
-  this->HEIGHT = 64;
+  constructor(128, 64);
 #endif
 #ifdef SSD1306_128_32
-  this->WIDTH = 128;
-  this->HEIGHT = 32;
+  constructor(128, 32);
 #endif
+
 
   // set pin directions
   pinMode(sid, OUTPUT);
@@ -143,7 +158,7 @@ void Adafruit_SSD1306::begin(uint8_t vccstate) {
   digitalWrite(rst, HIGH);
   // VDD (3.3V) goes high at start, lets just chill for a ms
   delay(1);
-  // bring0xset low
+  // bring reset low
   digitalWrite(rst, LOW);
   // wait 10ms
   delay(10);

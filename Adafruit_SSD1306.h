@@ -106,7 +106,7 @@ class Adafruit_SSD1306 : public Adafruit_GFX {
     Adafruit_SSD1306(int8_t SID, int8_t SCLK, int8_t DC, int8_t RST) :sid(SID), sclk(SCLK), dc(DC), rst(RST), cs(-1) {}
 
 
-  void begin(uint8_t switchvcc);
+  void begin(uint8_t switchvcc = SSD1306_SWITCHCAPVCC);
   void ssd1306_command(uint8_t c);
   void ssd1306_data(uint8_t c);
 
