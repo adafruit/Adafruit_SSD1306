@@ -103,8 +103,8 @@ static uint8_t buffer[SSD1306_LCDHEIGHT * SSD1306_LCDWIDTH / 8] = {
 
 
 // the most basic function, set a single pixel
-void Adafruit_SSD1306::drawPixel(uint16_t x, uint16_t y, uint16_t color) {
-  if ((x >= width()) || (y >= height()))
+void Adafruit_SSD1306::drawPixel(int16_t x, int16_t y, uint16_t color) {
+  if ((x < 0) || (x >= width()) || (y < 0) || (y >= height()))
     return;
 
   // check rotation, move pixel around if necessary
