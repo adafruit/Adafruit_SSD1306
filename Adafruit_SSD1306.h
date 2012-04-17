@@ -16,7 +16,6 @@ BSD license, check license.txt for more information
 All text above, and the splash screen must be included in any redistribution
 *********************************************************************/
 
-
 #if ARDUINO >= 100
  #include "Arduino.h"
 #else
@@ -27,6 +26,8 @@ All text above, and the splash screen must be included in any redistribution
 
 #define BLACK 0
 #define WHITE 1
+
+#define SSD1306_I2C_ADDRESS   0x3C	// 011110+SA0+RW
 
 /*=========================================================================
     SSD1306 Displays
@@ -43,8 +44,8 @@ All text above, and the splash screen must be included in any redistribution
     appropriate size
 
     -----------------------------------------------------------------------*/
-//#define SSD1306_128_64
-     #define SSD1306_128_32
+   #define SSD1306_128_64
+//   #define SSD1306_128_32
 /*=========================================================================*/
 
 #if defined SSD1306_128_64 && defined SSD1306_128_32
@@ -101,8 +102,8 @@ All text above, and the splash screen must be included in any redistribution
 class Adafruit_SSD1306 : public Adafruit_GFX {
  public:
   Adafruit_SSD1306(int8_t SID, int8_t SCLK, int8_t DC, int8_t RST, int8_t CS) :sid(SID), sclk(SCLK), dc(DC), rst(RST), cs(CS) {}
-    Adafruit_SSD1306(int8_t SID, int8_t SCLK, int8_t DC, int8_t RST) :sid(SID), sclk(SCLK), dc(DC), rst(RST), cs(-1) {}
-
+  Adafruit_SSD1306(int8_t SID, int8_t SCLK, int8_t DC, int8_t RST) :sid(SID), sclk(SCLK), dc(DC), rst(RST), cs(-1) {}
+  Adafruit_SSD1306(int8_t RST) :sid(-1), sclk(-1), dc(-1), rst(RST), cs(-1) {}
 
   void begin(uint8_t switchvcc = SSD1306_SWITCHCAPVCC);
   void ssd1306_command(uint8_t c);
@@ -121,5 +122,4 @@ class Adafruit_SSD1306 : public Adafruit_GFX {
 
   volatile uint8_t *mosiport, *clkport, *csport, *dcport;
   uint8_t mosipinmask, clkpinmask, cspinmask, dcpinmask;
-
 };
