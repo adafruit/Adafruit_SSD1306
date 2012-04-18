@@ -4,6 +4,7 @@
 #define OLED_MOSI 9
 #define OLED_RESET 13
 
+#include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
