@@ -335,6 +335,12 @@ void Adafruit_SSD1306::display(void) {
   }
   else
   {
+    // save I2C bitrate
+    uint8_t twbrbackup = TWBR;
+    TWBR = 12; // upgrade to 400KHz!
+
+    Serial.println(TWBR, DEC);
+    Serial.println(TWSR & 0x3, DEC);
 
     // I2C
     for (uint16_t i=0; i<(SSD1306_LCDWIDTH*SSD1306_LCDHEIGHT/8); i++) {
@@ -362,7 +368,7 @@ void Adafruit_SSD1306::display(void) {
 	Wire.endTransmission();
       }
     }
-
+    TWBR = twbrbackup;
   }
 }
 
