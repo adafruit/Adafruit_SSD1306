@@ -335,16 +335,34 @@ void Adafruit_SSD1306::display(void) {
   }
   else
   {
+
     // I2C
     for (uint16_t i=0; i<(SSD1306_LCDWIDTH*SSD1306_LCDHEIGHT/8); i++) {
-      ssd1306_data(buffer[i]);
+      // send a bunch of data in one xmission
+      Wire.beginTransmission(SSD1306_I2C_ADDRESS);
+      Wire.write(0x40);
+      for (uint8_t x=0; x<16; x++) {
+	Wire.write(buffer[i]);
+	i++;
+      }
+      i--;
+      Wire.endTransmission();
     }
     // i wonder why we have to do this (check datasheet)
     if (SSD1306_LCDHEIGHT == 32) {
       for (uint16_t i=0; i<(SSD1306_LCDWIDTH*SSD1306_LCDHEIGHT/8); i++) {
-        ssd1306_data(0);
+	// send a bunch of data in one xmission
+	Wire.beginTransmission(SSD1306_I2C_ADDRESS);
+	Wire.write(0x40);
+	for (uint8_t x=0; x<16; x++) {
+	  Wire.write((uint8_t)0x00);
+	  i++;
+	}
+	i--;
+	Wire.endTransmission();
       }
     }
+
   }
 }
 

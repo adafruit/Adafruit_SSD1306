@@ -27,7 +27,7 @@ All text above, and the splash screen must be included in any redistribution
 #define BLACK 0
 #define WHITE 1
 
-#define SSD1306_I2C_ADDRESS   0x3C	// 011110+SA0+RW
+#define SSD1306_I2C_ADDRESS   0x3D	// 011110+SA0+RW
 
 /*=========================================================================
     SSD1306 Displays
