@@ -27,7 +27,9 @@ All text above, and the splash screen must be included in any redistribution
 #define BLACK 0
 #define WHITE 1
 
-#define SSD1306_I2C_ADDRESS   0x3D	// 011110+SA0+RW
+#define SSD1306_I2C_ADDRESS   0x3C	// 011110+SA0+RW - 0x3C or 0x3D
+// Address for 128x32 is 0x3C
+// Address for 128x32 is 0x3D (default) or 0x3C (if SA0 is grounded)
 
 /*=========================================================================
     SSD1306 Displays
@@ -44,8 +46,8 @@ All text above, and the splash screen must be included in any redistribution
     appropriate size
 
     -----------------------------------------------------------------------*/
-   #define SSD1306_128_64
-//   #define SSD1306_128_32
+//   #define SSD1306_128_64
+   #define SSD1306_128_32
 /*=========================================================================*/
 
 #if defined SSD1306_128_64 && defined SSD1306_128_32
@@ -101,11 +103,10 @@ All text above, and the splash screen must be included in any redistribution
 
 class Adafruit_SSD1306 : public Adafruit_GFX {
  public:
-  Adafruit_SSD1306(int8_t SID, int8_t SCLK, int8_t DC, int8_t RST, int8_t CS) :sid(SID), sclk(SCLK), dc(DC), rst(RST), cs(CS) {}
-  Adafruit_SSD1306(int8_t SID, int8_t SCLK, int8_t DC, int8_t RST) :sid(SID), sclk(SCLK), dc(DC), rst(RST), cs(-1) {}
-  Adafruit_SSD1306(int8_t RST) :sid(-1), sclk(-1), dc(-1), rst(RST), cs(-1) {}
+  Adafruit_SSD1306(int8_t SID, int8_t SCLK, int8_t DC, int8_t RST, int8_t CS);
+  Adafruit_SSD1306(int8_t RST);
 
-  void begin(uint8_t switchvcc = SSD1306_SWITCHCAPVCC);
+  void begin(uint8_t switchvcc = SSD1306_SWITCHCAPVCC, uint8_t i2caddr = SSD1306_I2C_ADDRESS);
   void ssd1306_command(uint8_t c);
   void ssd1306_data(uint8_t c);
 
@@ -116,7 +117,7 @@ class Adafruit_SSD1306 : public Adafruit_GFX {
   void drawPixel(int16_t x, int16_t y, uint16_t color);
 
  private:
-  int8_t sid, sclk, dc, rst, cs;
+  int8_t _i2caddr, sid, sclk, dc, rst, cs;
   void fastSPIwrite(uint8_t c);
   void slowSPIwrite(uint8_t c);
 

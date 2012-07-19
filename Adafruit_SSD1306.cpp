@@ -131,13 +131,31 @@ void Adafruit_SSD1306::drawPixel(int16_t x, int16_t y, uint16_t color) {
     buffer[x+ (y/8)*SSD1306_LCDWIDTH] &= ~_BV((y%8)); 
 }
 
-void Adafruit_SSD1306::begin(uint8_t vccstate) {
+Adafruit_SSD1306::Adafruit_SSD1306(int8_t SID, int8_t SCLK, int8_t DC, int8_t RST, int8_t CS) {
+  cs = CS;
+  rst = RST;
+  dc = DC;
+  sclk = SCLK;
+  sid = SID;
+}
+
+// initializer for I2C - we only indicate the reset pin!
+Adafruit_SSD1306::Adafruit_SSD1306(int8_t reset) {
+  sclk = dc = cs = sid = -1;
+  rst = reset;
+}
+  
+
+void Adafruit_SSD1306::begin(uint8_t vccstate, uint8_t i2caddr) {
 #ifdef SSD1306_128_64
   constructor(128, 64);
 #endif
 #ifdef SSD1306_128_32
   constructor(128, 32);
 #endif
+
+  _i2caddr = i2caddr;
+
 
   // set pin directions
   if (sid != -1)
@@ -276,7 +294,7 @@ void Adafruit_SSD1306::ssd1306_command(uint8_t c) {
   {
     // I2C
     uint8_t control = 0x00;   // Co = 0, D/C = 0
-    Wire.beginTransmission(SSD1306_I2C_ADDRESS);
+    Wire.beginTransmission(_i2caddr);
     Wire.write(control);
     Wire.write(c);
     Wire.endTransmission();
@@ -301,7 +319,7 @@ void Adafruit_SSD1306::ssd1306_data(uint8_t c) {
   {
     // I2C
     uint8_t control = 0x40;   // Co = 0, D/C = 1
-    Wire.beginTransmission(SSD1306_I2C_ADDRESS);
+    Wire.beginTransmission(_i2caddr);
     Wire.write(control);
     Wire.write(c);
     Wire.endTransmission();
@@ -339,13 +357,13 @@ void Adafruit_SSD1306::display(void) {
     uint8_t twbrbackup = TWBR;
     TWBR = 12; // upgrade to 400KHz!
 
-    Serial.println(TWBR, DEC);
-    Serial.println(TWSR & 0x3, DEC);
+    //Serial.println(TWBR, DEC);
+    //Serial.println(TWSR & 0x3, DEC);
 
     // I2C
     for (uint16_t i=0; i<(SSD1306_LCDWIDTH*SSD1306_LCDHEIGHT/8); i++) {
       // send a bunch of data in one xmission
-      Wire.beginTransmission(SSD1306_I2C_ADDRESS);
+      Wire.beginTransmission(_i2caddr);
       Wire.write(0x40);
       for (uint8_t x=0; x<16; x++) {
 	Wire.write(buffer[i]);
@@ -358,7 +376,7 @@ void Adafruit_SSD1306::display(void) {
     if (SSD1306_LCDHEIGHT == 32) {
       for (uint16_t i=0; i<(SSD1306_LCDWIDTH*SSD1306_LCDHEIGHT/8); i++) {
 	// send a bunch of data in one xmission
-	Wire.beginTransmission(SSD1306_I2C_ADDRESS);
+	Wire.beginTransmission(_i2caddr);
 	Wire.write(0x40);
 	for (uint8_t x=0; x<16; x++) {
 	  Wire.write((uint8_t)0x00);
