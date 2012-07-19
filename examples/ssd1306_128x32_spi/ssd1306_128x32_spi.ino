@@ -1,3 +1,21 @@
+/*********************************************************************
+This is an example for our Monochrome OLEDs based on SSD1306 drivers
+
+  Pick one up today in the adafruit shop!
+  ------> http://www.adafruit.com/category/63_98
+
+This example is for a 128x32 size display using SPI to communicate
+4 or 5 pins are required to interface
+
+Adafruit invests time and resources providing this open source code, 
+please support Adafruit and open-source hardware by purchasing 
+products from Adafruit!
+
+Written by Limor Fried/Ladyada  for Adafruit Industries.  
+BSD license, check license.txt for more information
+All text above, and the splash screen must be included in any redistribution
+*********************************************************************/
+
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
