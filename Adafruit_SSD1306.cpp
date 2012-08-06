@@ -301,6 +301,74 @@ void Adafruit_SSD1306::ssd1306_command(uint8_t c) {
   }
 }
 
+// startscrollright
+// Activate a right handed scroll for rows start through stop
+// Hint, the display is 16 rows tall. To scroll the whole display, run:
+// display.scrollright(0x00, 0x0F) 
+void Adafruit_SSD1306::startscrollright(uint8_t start, uint8_t stop){
+	ssd1306_command(SSD1306_RIGHT_HORIZONTAL_SCROLL);
+	ssd1306_command(0X00);
+	ssd1306_command(start);
+	ssd1306_command(0X00);
+	ssd1306_command(stop);
+	ssd1306_command(0X01);
+	ssd1306_command(0XFF);
+	ssd1306_command(SSD1306_ACTIVATE_SCROLL);
+}
+
+// startscrollleft
+// Activate a right handed scroll for rows start through stop
+// Hint, the display is 16 rows tall. To scroll the whole display, run:
+// display.scrollright(0x00, 0x0F) 
+void Adafruit_SSD1306::startscrollleft(uint8_t start, uint8_t stop){
+	ssd1306_command(SSD1306_LEFT_HORIZONTAL_SCROLL);
+	ssd1306_command(0X00);
+	ssd1306_command(start);
+	ssd1306_command(0X00);
+	ssd1306_command(stop);
+	ssd1306_command(0X01);
+	ssd1306_command(0XFF);
+	ssd1306_command(SSD1306_ACTIVATE_SCROLL);
+}
+
+// startscrolldiagright
+// Activate a diagonal scroll for rows start through stop
+// Hint, the display is 16 rows tall. To scroll the whole display, run:
+// display.scrollright(0x00, 0x0F) 
+void Adafruit_SSD1306::startscrolldiagright(uint8_t start, uint8_t stop){
+	ssd1306_command(SSD1306_SET_VERTICAL_SCROLL_AREA);	
+	ssd1306_command(0X00);
+	ssd1306_command(SSD1306_LCDHEIGHT);
+	ssd1306_command(SSD1306_VERTICAL_AND_RIGHT_HORIZONTAL_SCROLL);
+	ssd1306_command(0X00);
+	ssd1306_command(start);
+	ssd1306_command(0X00);
+	ssd1306_command(stop);
+	ssd1306_command(0X01);
+	ssd1306_command(SSD1306_ACTIVATE_SCROLL);
+}
+
+// startscrolldiagleft
+// Activate a diagonal scroll for rows start through stop
+// Hint, the display is 16 rows tall. To scroll the whole display, run:
+// display.scrollright(0x00, 0x0F) 
+void Adafruit_SSD1306::startscrolldiagleft(uint8_t start, uint8_t stop){
+	ssd1306_command(SSD1306_SET_VERTICAL_SCROLL_AREA);	
+	ssd1306_command(0X00);
+	ssd1306_command(SSD1306_LCDHEIGHT);
+	ssd1306_command(SSD1306_VERTICAL_AND_LEFT_HORIZONTAL_SCROLL);
+	ssd1306_command(0X00);
+	ssd1306_command(start);
+	ssd1306_command(0X00);
+	ssd1306_command(stop);
+	ssd1306_command(0X01);
+	ssd1306_command(SSD1306_ACTIVATE_SCROLL);
+}
+
+void Adafruit_SSD1306::stopscroll(void){
+	ssd1306_command(SSD1306_DEACTIVATE_SCROLL);
+}
+
 void Adafruit_SSD1306::ssd1306_data(uint8_t c) {
   if (sid != -1)
   {

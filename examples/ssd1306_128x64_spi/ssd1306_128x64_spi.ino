@@ -111,6 +111,11 @@ void setup()   {
   delay(2000);
   display.clearDisplay();
 
+  // draw scrolling text
+  testscrolltext();
+  delay(2000);
+  display.clearDisplay();
+  
   // text display tests
   display.setTextSize(1);
   display.setTextColor(WHITE);
@@ -307,3 +312,27 @@ void testdrawline() {
   }
   delay(250);
 }
+
+void testscrolltext(void) {
+  display.setTextSize(2);
+  display.setTextColor(WHITE);
+  display.setCursor(10,0);
+  display.clearDisplay();
+  display.println("scroll");
+  display.display();
+ 
+  display.startscrollright(0x00, 0x0F);
+  delay(2000);
+  display.stopscroll();
+  delay(1000);
+  display.startscrollleft(0x00, 0x0F);
+  delay(2000);
+  display.stopscroll();
+  delay(1000);    
+  display.startscrolldiagright(0x00, 0x07);
+  delay(2000);
+  display.startscrolldiagleft(0x00, 0x07);
+  delay(2000);
+  display.stopscroll();
+}
+
