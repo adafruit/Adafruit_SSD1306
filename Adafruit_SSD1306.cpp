@@ -147,6 +147,7 @@ Adafruit_SSD1306::Adafruit_SSD1306(int8_t reset) {
   
 
 void Adafruit_SSD1306::begin(uint8_t vccstate, uint8_t i2caddr) {
+  _vccstate = vccstate;
 #ifdef SSD1306_128_64
   constructor(128, 64);
 #endif
@@ -367,6 +368,27 @@ void Adafruit_SSD1306::startscrolldiagleft(uint8_t start, uint8_t stop){
 
 void Adafruit_SSD1306::stopscroll(void){
 	ssd1306_command(SSD1306_DEACTIVATE_SCROLL);
+}
+
+// setContrast
+// Set the contrast of the display
+// contrast should be between 0 and 100
+void Adafruit_SSD1306::setContrast(uint8_t contrast) {
+  uint8_t maxContrast;
+
+  if (contrast < 0) {
+    contrast = 0;
+  } else if (contrast > 100) {
+    contrast = 100;
+  }
+  if (_vccstate == SSD1306_EXTERNALVCC) {
+    maxContrast = 0x9F;
+  } else {
+    maxContrast = 0xCF;
+  }
+  contrast = contrast * maxContrast / 100;
+  ssd1306_command(SSD1306_SETCONTRAST);
+  ssd1306_command(contrast);
 }
 
 void Adafruit_SSD1306::ssd1306_data(uint8_t c) {
