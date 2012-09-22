@@ -51,7 +51,6 @@ void setup()   {
   
   display.display(); // show splashscreen
   delay(2000);
-  /*
   display.clearDisplay();   // clears the screen and buffer
 
   // draw a single pixel
@@ -115,43 +114,23 @@ void setup()   {
   // draw scrolling text
   testscrolltext();
   delay(2000);
-  */
   display.clearDisplay();
   
   // text display tests
   display.setTextSize(1);
   display.setTextColor(WHITE);
   display.setCursor(0,0);
-  display.println("Leora en Rosalie");
+  display.println("Hello, world!");
   display.setTextColor(BLACK, WHITE); // 'inverted' text
   display.println(3.141592);
   display.setTextSize(2);
   display.setTextColor(WHITE);
-  display.print("0x");
-  display.println(0xDEADBEEF, HEX);
+  display.print("0x"); display.println(0xDEADBEEF, HEX);
   display.display();
   delay(2000);
-  display.setContrast(0);
-  delay(500);
-  display.setContrast(10);
-  delay(500);
-  display.setContrast(20);
-  delay(500);
-  display.setContrast(30);
-  delay(500);
-  display.setContrast(40);
-  delay(500);
-  display.setContrast(50);
-  delay(500);
-  display.setContrast(60);
-  delay(500);
-  display.setContrast(70);
-  delay(500);
-  display.setContrast(80);
-  delay(500);
-  display.setContrast(90);
-  delay(500);
-  display.setContrast(100);
+
+  // test dimming of display
+  testDim();
   delay(2000);
 
   // miniature bitmap display
@@ -359,5 +338,19 @@ void testscrolltext(void) {
   display.startscrolldiagleft(0x00, 0x07);
   delay(2000);
   display.stopscroll();
+}
+
+void testDim(void) {
+  display.dim(true);
+  delay(200);
+  display.dim(false);
+  delay(200);
+  display.dim(true);
+  delay(200);
+  display.dim(false);
+  delay(200);
+  display.dim(true);
+  delay(200);
+  display.dim(false);
 }
 

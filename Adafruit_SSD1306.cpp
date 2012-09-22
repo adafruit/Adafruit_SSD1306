@@ -370,23 +370,24 @@ void Adafruit_SSD1306::stopscroll(void){
 	ssd1306_command(SSD1306_DEACTIVATE_SCROLL);
 }
 
-// setContrast
-// Set the contrast of the display
-// contrast should be between 0 and 100
-void Adafruit_SSD1306::setContrast(uint8_t contrast) {
-  uint8_t maxContrast;
+// dim
+// Dim the display
+// dim = true: display is dimmed
+// dim = false: display is normal
+void Adafruit_SSD1306::dim(boolean dim) {
+  uint8_t contrast;
 
-  if (contrast < 0) {
-    contrast = 0;
-  } else if (contrast > 100) {
-    contrast = 100;
-  }
-  if (_vccstate == SSD1306_EXTERNALVCC) {
-    maxContrast = 0x9F;
+  if (dim) {
+    contrast = 0; // Dimmed display
   } else {
-    maxContrast = 0xCF;
+    if (_vccstate == SSD1306_EXTERNALVCC) {
+      contrast = 0x9F;
+    } else {
+      contrast = 0xCF;
+    }
   }
-  contrast = contrast * maxContrast / 100;
+  // the range of contrast to too small to be really useful
+  // it is useful to dim the display
   ssd1306_command(SSD1306_SETCONTRAST);
   ssd1306_command(contrast);
 }
