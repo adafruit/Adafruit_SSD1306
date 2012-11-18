@@ -143,6 +143,10 @@ void setup()   {
   display.display();
   delay(2000);
 
+  // test dimming of display
+  testDim();
+  delay(2000);
+
   // miniature bitmap display
   display.clearDisplay();
   display.drawBitmap(30, 16,  logo16_glcd_bmp, 16, 16, 1);
@@ -348,5 +352,19 @@ void testscrolltext(void) {
   display.startscrolldiagleft(0x00, 0x07);
   delay(2000);
   display.stopscroll();
+}
+
+void testDim(void) {
+  display.dim(true);
+  delay(200);
+  display.dim(false);
+  delay(200);
+  display.dim(true);
+  delay(200);
+  display.dim(false);
+  delay(200);
+  display.dim(true);
+  delay(200);
+  display.dim(false);
 }
 
