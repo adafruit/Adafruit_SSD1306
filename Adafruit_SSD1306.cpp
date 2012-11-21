@@ -311,7 +311,7 @@ void Adafruit_SSD1306::startscrollright(uint8_t start, uint8_t stop){
 	ssd1306_command(start);
 	ssd1306_command(0X00);
 	ssd1306_command(stop);
-	ssd1306_command(0X01);
+	ssd1306_command(0X00);
 	ssd1306_command(0XFF);
 	ssd1306_command(SSD1306_ACTIVATE_SCROLL);
 }
@@ -326,7 +326,7 @@ void Adafruit_SSD1306::startscrollleft(uint8_t start, uint8_t stop){
 	ssd1306_command(start);
 	ssd1306_command(0X00);
 	ssd1306_command(stop);
-	ssd1306_command(0X01);
+	ssd1306_command(0X00);
 	ssd1306_command(0XFF);
 	ssd1306_command(SSD1306_ACTIVATE_SCROLL);
 }
