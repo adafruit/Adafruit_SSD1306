@@ -14,13 +14,22 @@ products from Adafruit!
 Written by Limor Fried/Ladyada  for Adafruit Industries.  
 BSD license, check license.txt for more information
 All text above, and the splash screen below must be included in any redistribution
-*********************************************************************/
 
+***
+  * Manfred Brauchle <manfred.brauchle@gmail.com>
+  *
+  * changes made: choose between hardware and software SPI
+  *               code fragments lent from the Adafruit-ST7735-Library
+  *
+
+*********************************************************************/
+  
 #include <avr/pgmspace.h>
 #include <util/delay.h>
 #include <stdlib.h>
 
 #include <Wire.h>
+#include <SPI.h>
 
 #include "Adafruit_GFX.h"
 #include "Adafruit_SSD1306.h"
@@ -137,9 +146,18 @@ Adafruit_SSD1306::Adafruit_SSD1306(int8_t SID, int8_t SCLK, int8_t DC, int8_t RS
   dc = DC;
   sclk = SCLK;
   sid = SID;
+  hwSPI = false;
 }
 
-// initializer for I2C - we only indicate the reset pin!
+// initializer for hardware SPI - we indicate DataCommand, ChipSelect, Reset 
+Adafruit_SSD1306::Adafruit_SSD1306(int8_t DC, int8_t RST, int8_t CS) {
+  dc = DC;
+  rst = RST;
+  cs = CS;
+  hwSPI = true;
+}
+
+// initializer for I2C - we only indicate the reset pin
 Adafruit_SSD1306::Adafruit_SSD1306(int8_t reset) {
   sclk = dc = cs = sid = -1;
   rst = reset;
@@ -158,22 +176,27 @@ void Adafruit_SSD1306::begin(uint8_t vccstate, uint8_t i2caddr) {
 
 
   // set pin directions
-  if (sid != -1)
-  {
-    // SPI
-    pinMode(sid, OUTPUT);
-    pinMode(sclk, OUTPUT);
+  if (sid != -1){
     pinMode(dc, OUTPUT);
     pinMode(cs, OUTPUT);
-    clkport     = portOutputRegister(digitalPinToPort(sclk));
-    clkpinmask  = digitalPinToBitMask(sclk);
-    mosiport    = portOutputRegister(digitalPinToPort(sid));
-    mosipinmask = digitalPinToBitMask(sid);
     csport      = portOutputRegister(digitalPinToPort(cs));
     cspinmask   = digitalPinToBitMask(cs);
     dcport      = portOutputRegister(digitalPinToPort(dc));
     dcpinmask   = digitalPinToBitMask(dc);
-  }
+    if (!hwSPI){
+    	// set pins for software-SPI
+    	pinMode(sid, OUTPUT);
+    	pinMode(sclk, OUTPUT);
+    	clkport     = portOutputRegister(digitalPinToPort(sclk));
+    	clkpinmask  = digitalPinToBitMask(sclk);
+    	mosiport    = portOutputRegister(digitalPinToPort(sid));
+    	mosipinmask = digitalPinToBitMask(sid);
+    	}
+    if (hwSPI){
+    	SPI.begin ();
+    	SPI.setClockDivider (SPI_CLOCK_DIV2);
+    	}
+    }
   else
   {
     // I2C Init
@@ -466,12 +489,21 @@ void Adafruit_SSD1306::clearDisplay(void) {
 
 inline void Adafruit_SSD1306::fastSPIwrite(uint8_t d) {
   
-  for(uint8_t bit = 0x80; bit; bit >>= 1) {
-    *clkport &= ~clkpinmask;
-    if(d & bit) *mosiport |=  mosipinmask;
-    else        *mosiport &= ~mosipinmask;
-    *clkport |=  clkpinmask;
+  if (hwSPI)
+  {
+    SPDR = d;
+  	while(!(SPSR & _BV(SPIF)));
   }
+  else 
+  {
+    for (uint8_t bit = 0x80; bit; bit >>= 1) {
+      *clkport &= ~clkpinmask;
+      if (d & bit) *mosiport |=  mosipinmask;
+      else        *mosiport &= ~mosipinmask;
+      *clkport |=  clkpinmask;
+  	}
+  }
+  	
   //*csport |= cspinmask;
 }
 
@@ -486,4 +518,3 @@ inline void Adafruit_SSD1306::slowSPIwrite(uint8_t d) {
    digitalWrite(sclk, HIGH);
  }
 }
-
