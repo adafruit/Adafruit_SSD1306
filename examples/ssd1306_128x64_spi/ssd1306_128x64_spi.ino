@@ -14,18 +14,43 @@ products from Adafruit!
 Written by Limor Fried/Ladyada  for Adafruit Industries.  
 BSD license, check license.txt for more information
 All text above, and the splash screen must be included in any redistribution
+
+***
+  * Manfred Brauchle <manfred.brauchle@gmail.com>
+  *
+  * changes made: choose between hardware and software SPI
+  *               code fragments lent from the Adafruit-ST7735-Library
+  *
+
 *********************************************************************/
 
 #include <Wire.h>
+#include <SPI.h>
+
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
+// BOF software SPI
 #define OLED_DC 11
 #define OLED_CS 12
 #define OLED_CLK 10
 #define OLED_MOSI 9
 #define OLED_RESET 13
 Adafruit_SSD1306 display(OLED_MOSI, OLED_CLK, OLED_DC, OLED_RESET, OLED_CS);
+//EOF software SPI
+
+
+// uncomment the following block to use hardware SPI
+/*
+// BOF hardware SPI
+#define OLED_DC 6
+#define OLED_CS 7
+#define OLED_CLK 13
+#define OLED_MOSI 11
+#define OLED_RESET 8
+Adafruit_SSD1306 display(OLED_DC, OLED_RESET, OLED_CS);
+*/
+// EOF hardware SPI
 
 #define NUMFLAKES 10
 #define XPOS 0
@@ -349,4 +374,3 @@ void testscrolltext(void) {
   delay(2000);
   display.stopscroll();
 }
-
