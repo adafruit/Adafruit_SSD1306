@@ -46,8 +46,8 @@ All text above, and the splash screen must be included in any redistribution
     appropriate size
 
     -----------------------------------------------------------------------*/
-   #define SSD1306_128_64
-//   #define SSD1306_128_32
+//   #define SSD1306_128_64
+   #define SSD1306_128_32
 /*=========================================================================*/
 
 #if defined SSD1306_128_64 && defined SSD1306_128_32
@@ -133,7 +133,7 @@ class Adafruit_SSD1306 : public Adafruit_GFX {
   void drawPixel(int16_t x, int16_t y, uint16_t color);
 
   virtual void drawFastVLine(int16_t x, int16_t __y, int16_t __h, uint16_t color);
-  
+
  private:
   int8_t _i2caddr, sid, sclk, dc, rst, cs;
   void fastSPIwrite(uint8_t c);

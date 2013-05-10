@@ -488,6 +488,21 @@ inline void Adafruit_SSD1306::slowSPIwrite(uint8_t d) {
 }
 
 void Adafruit_SSD1306::drawFastVLine(int16_t x, int16_t __y, int16_t __h, uint16_t color) {
+  if(getRotation() != 0) {
+    if(getRotation() == 2) { 
+      // 180 degree rotation, swap around x and y - then shift y around for height.
+      x = WIDTH - x - 1;
+      __y = HEIGHT - __y - 1;
+
+      // now scale y back by height so that we're walking in a positive direction from __y when drawing
+      __y -= (h-1);
+    } else {  
+      // 90 degree rotations we don't handle here - that's because drawFastVLine becomes drawFastHLine
+      Adafruit_GFX::drawFastVLine(x, __y, __h, color);
+    }
+    return;
+  }
+  
   // do nothing if we're off the left or right side of the screen
   if(x < 0 || x >= width()) { return; }
 
