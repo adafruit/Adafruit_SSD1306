@@ -487,3 +487,97 @@ inline void Adafruit_SSD1306::slowSPIwrite(uint8_t d) {
  }
 }
 
+void Adafruit_SSD1306::drawFastVLine(int16_t x, int16_t __y, int16_t __h, uint16_t color) {
+  // do nothing if we're off the left or right side of the screen
+  if(x < 0 || x >= width()) { return; }
+
+  // make sure we don't try to draw below 0
+  if(__y < 0) { 
+    // __y is negative, this will subtract enough from __h to account for __y being 0
+    __h += __y;
+    __y = 0;
+
+  } 
+
+  // make sure we don't go past the height of the display
+  if( (__y + __h) > height()) { 
+    __h = (height() - __y);
+  }
+
+  // if our height is now negative, punt 
+  if(__h <= 0) { 
+    return;
+  }
+
+  // this display doesn't need ints for coordinates, use local byte registers for faster juggling
+  register uint8_t y = __y;
+  register uint8_t h = __h;
+
+  // set up the pointer for fast movement through the buffer
+  uint8_t *pBuf = buffer;
+  // adjust the buffer pointer for the current row
+  pBuf += ((y/8) * SSD1306_LCDWIDTH);
+  // and offset x columns in
+  pBuf += x;
+
+  uint8_t oldval = *pBuf;
+  uint8_t newval = 0;
+
+  // do the first partial byte, if necessary - this requires some masking
+  register uint8_t mod = (y%8);
+  if(mod) {
+    // mask off the high n bits we want to set 
+    mod = 8-mod;
+    register uint8_t mask = ~(0xFF >> (mod));
+
+    // adjust the mask if we're not going to reach the end of this byte
+    if( h < mod) { 
+      mask &= (0XFF >> (mod-h));
+    }
+
+    if(color == WHITE) { 
+      *pBuf |= mask;
+    } else {
+      *pBuf &= ~mask;
+    }
+
+    // fast exit if we're done here!
+    if(h<mod) { return; }
+
+    h -= mod;
+    y += mod;
+
+    pBuf += SSD1306_LCDWIDTH;
+  }
+
+
+  // write solid bytes while we can - effectively doing 8 rows at a time
+  if(h >= 8) { 
+    // store a local value to work with 
+    register uint8_t val = (color == WHITE) ? 255 : 0;
+
+    do  {
+      // write our value in
+      *pBuf = val;
+
+      // adjust the buffer forward 8 rows worth of data
+      pBuf += SSD1306_LCDWIDTH;
+
+      // adjust h & y (there's got to be a faster way for me to do this, but this should still help a fair bit for now)
+      h -= 8; y+= 8;
+    } while(h >= 8);
+  }
+
+  // now do the final partial byte, if necessary
+  mod = h % 8;
+  if(mod) {
+    // this time we want to mask the low bits of the byte, vs the high bits we did above
+    register uint8_t mask = (1 << mod) - 1;
+    if(color == WHITE) { 
+      *pBuf |= mask;
+    } else { 
+      *pBuf &= ~mask;
+    }
+  }
+}
+
