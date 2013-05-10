@@ -487,22 +487,113 @@ inline void Adafruit_SSD1306::slowSPIwrite(uint8_t d) {
  }
 }
 
-void Adafruit_SSD1306::drawFastVLine(int16_t x, int16_t __y, int16_t __h, uint16_t color) {
-  if(getRotation() != 0) {
-    if(getRotation() == 2) { 
-      // 180 degree rotation, swap around x and y - then shift y around for height.
+void Adafruit_SSD1306::drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color) {
+  switch(getRotation()) { 
+    case 0:
+      // No changes, delegate right to worker function
+      drawFastHLineInternal(x, y, w, color);
+      break;
+    case 1:
+      // 90 degree rotation, swap x & y for rotation, then invert x
+      swap(x, y);
       x = WIDTH - x - 1;
-      __y = HEIGHT - __y - 1;
 
-      // now scale y back by height so that we're walking in a positive direction from __y when drawing
-      __y -= (h-1);
-    } else {  
-      // 90 degree rotations we don't handle here - that's because drawFastVLine becomes drawFastHLine
-      Adafruit_GFX::drawFastVLine(x, __y, __h, color);
-    }
-    return;
+      // now call the internal drawing function, since we're swapped around
+      drawFastVLineInternal(x, y, w, color);
+      break;
+    case 2:
+      // 180 degree rotation, invert x and y - then shift y around for height.
+      x = WIDTH - x - 1;
+      y = HEIGHT - y - 1;
+      x -= (w-1);
+
+      drawFastHLineInternal(x, y, w, color);
+      break;
+    case 3:
+      // 270 degree rotation, swap x & y for rotation, then invert y  and adjust y for w (not to become h)
+      swap(x, y);
+      y = HEIGHT - y - 1;
+      y -= (w-1);
+      drawFastVLineInternal(x, y, w, color);
+      break;
+    default:
+      // no idea wth is happening here, punt to superclass
+      Adafruit_GFX::drawFastHLine(x, y, w, color);
   }
-  
+}
+
+void Adafruit_SSD1306::drawFastHLineInternal(int16_t x, int16_t y, int16_t w, uint16_t color) {
+  // Do bounds/limit checks
+  if(y < 0 || y >= height()) { return; }
+
+  // make sure we don't try to draw below 0
+  if(x < 0) { 
+    w += x;
+    x = 0;
+  }
+
+  // make sure we don't go off the edge of the display
+  if( (x + w) > width()) { 
+    w = (width() - x);
+  }
+
+  // if our width is now negative, punt
+  if(w <= 0) { return; }
+
+  // set up the pointer for  movement through the buffer
+  register uint8_t *pBuf = buffer;
+  // adjust the buffer pointer for the current row
+  pBuf += ((y/8) * SSD1306_LCDWIDTH);
+  // and offset x columns in
+  pBuf += x;
+
+  register uint8_t mask = 1 << (y%8);
+
+  if(color == WHITE) { 
+    while(w--) { *pBuf++ |= mask; }
+  } else {
+    mask = ~mask;
+    while(w--) { *pBuf++ &= mask; }
+  }
+}
+
+void Adafruit_SSD1306::drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color) {
+  switch(getRotation()) { 
+    case 0:
+      // No changes, delegate right to worker function
+      drawFastVLineInternal(x, y, h, color);
+      break;
+    case 1:
+      // 90 degree rotation, swap x & y for rotation, then invert x and adjust x for h (now to become w)
+      swap(x, y);
+      x = WIDTH - x - 1;
+      x -= (h-1);
+
+      // now call the internal drawing function, since we're swapped around
+      drawFastHLineInternal(x, y, h, color);
+      break;
+    case 2:
+      // 180 degree rotation, invert x and y - then shift y around for height.
+      x = WIDTH - x - 1;
+      y = HEIGHT - y - 1;
+      y -= (h-1);
+
+      drawFastVLineInternal(x, y, h, color);
+      break;
+    case 3:
+      // 270 degree rotation, swap x & y for rotation, then invert y 
+      swap(x, y);
+      y = HEIGHT - y - 1;
+      drawFastHLineInternal(x, y, h, color);
+      break;
+    default:
+      // no idea wth is happening here, punt to superclass
+      Adafruit_GFX::drawFastVLine(x, y, h, color);
+  }
+}
+
+void Adafruit_SSD1306::drawFastVLineInternal(int16_t x, int16_t __y, int16_t __h, uint16_t color) {
+
   // do nothing if we're off the left or right side of the screen
   if(x < 0 || x >= width()) { return; }
 
@@ -529,14 +620,11 @@ void Adafruit_SSD1306::drawFastVLine(int16_t x, int16_t __y, int16_t __h, uint16
   register uint8_t h = __h;
 
   // set up the pointer for fast movement through the buffer
-  uint8_t *pBuf = buffer;
+  register uint8_t *pBuf = buffer;
   // adjust the buffer pointer for the current row
   pBuf += ((y/8) * SSD1306_LCDWIDTH);
   // and offset x columns in
   pBuf += x;
-
-  uint8_t oldval = *pBuf;
-  uint8_t newval = 0;
 
   // do the first partial byte, if necessary - this requires some masking
   register uint8_t mod = (y%8);
