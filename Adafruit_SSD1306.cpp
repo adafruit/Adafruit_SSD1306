@@ -488,43 +488,42 @@ inline void Adafruit_SSD1306::slowSPIwrite(uint8_t d) {
 }
 
 void Adafruit_SSD1306::drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color) {
-  switch(getRotation()) { 
+  boolean bSwap = false;
+  switch(rotation) { 
     case 0:
-      // No changes, delegate right to worker function
-      drawFastHLineInternal(x, y, w, color);
+      // 0 degree rotation, do nothing
       break;
     case 1:
       // 90 degree rotation, swap x & y for rotation, then invert x
+      bSwap = true;
       swap(x, y);
       x = WIDTH - x - 1;
-
-      // now call the internal drawing function, since we're swapped around
-      drawFastVLineInternal(x, y, w, color);
       break;
     case 2:
       // 180 degree rotation, invert x and y - then shift y around for height.
       x = WIDTH - x - 1;
       y = HEIGHT - y - 1;
       x -= (w-1);
-
-      drawFastHLineInternal(x, y, w, color);
       break;
     case 3:
       // 270 degree rotation, swap x & y for rotation, then invert y  and adjust y for w (not to become h)
+      bSwap = true;
       swap(x, y);
       y = HEIGHT - y - 1;
       y -= (w-1);
-      drawFastVLineInternal(x, y, w, color);
       break;
-    default:
-      // no idea wth is happening here, punt to superclass
-      Adafruit_GFX::drawFastHLine(x, y, w, color);
+  }
+
+  if(bSwap) { 
+    drawFastVLineInternal(x, y, w, color);
+  } else { 
+    drawFastHLineInternal(x, y, w, color);
   }
 }
 
 void Adafruit_SSD1306::drawFastHLineInternal(int16_t x, int16_t y, int16_t w, uint16_t color) {
   // Do bounds/limit checks
-  if(y < 0 || y >= height()) { return; }
+  if(y < 0 || y >= HEIGHT) { return; }
 
   // make sure we don't try to draw below 0
   if(x < 0) { 
@@ -533,8 +532,8 @@ void Adafruit_SSD1306::drawFastHLineInternal(int16_t x, int16_t y, int16_t w, ui
   }
 
   // make sure we don't go off the edge of the display
-  if( (x + w) > width()) { 
-    w = (width() - x);
+  if( (x + w) > WIDTH) { 
+    w = (HEIGHT- x);
   }
 
   // if our width is now negative, punt
@@ -558,44 +557,43 @@ void Adafruit_SSD1306::drawFastHLineInternal(int16_t x, int16_t y, int16_t w, ui
 }
 
 void Adafruit_SSD1306::drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color) {
-  switch(getRotation()) { 
+  bool bSwap = false;
+  switch(rotation) { 
     case 0:
-      // No changes, delegate right to worker function
-      drawFastVLineInternal(x, y, h, color);
       break;
     case 1:
       // 90 degree rotation, swap x & y for rotation, then invert x and adjust x for h (now to become w)
+      bSwap = true;
       swap(x, y);
       x = WIDTH - x - 1;
       x -= (h-1);
-
-      // now call the internal drawing function, since we're swapped around
-      drawFastHLineInternal(x, y, h, color);
       break;
     case 2:
       // 180 degree rotation, invert x and y - then shift y around for height.
       x = WIDTH - x - 1;
       y = HEIGHT - y - 1;
       y -= (h-1);
-
-      drawFastVLineInternal(x, y, h, color);
       break;
     case 3:
       // 270 degree rotation, swap x & y for rotation, then invert y 
+      bSwap = true;
       swap(x, y);
       y = HEIGHT - y - 1;
-      drawFastHLineInternal(x, y, h, color);
       break;
-    default:
-      // no idea wth is happening here, punt to superclass
-      Adafruit_GFX::drawFastVLine(x, y, h, color);
+  }
+
+  if(bSwap) { 
+    drawFastHLineInternal(x, y, h, color);
+  } else {
+    drawFastVLineInternal(x, y, h, color);
   }
 }
+
 
 void Adafruit_SSD1306::drawFastVLineInternal(int16_t x, int16_t __y, int16_t __h, uint16_t color) {
 
   // do nothing if we're off the left or right side of the screen
-  if(x < 0 || x >= width()) { return; }
+  if(x < 0 || x >= WIDTH) { return; }
 
   // make sure we don't try to draw below 0
   if(__y < 0) { 
@@ -606,8 +604,8 @@ void Adafruit_SSD1306::drawFastVLineInternal(int16_t x, int16_t __y, int16_t __h
   } 
 
   // make sure we don't go past the height of the display
-  if( (__y + __h) > height()) { 
-    __h = (height() - __y);
+  if( (__y + __h) > HEIGHT) { 
+    __h = (HEIGHT - __y);
   }
 
   // if our height is now negative, punt 
@@ -618,6 +616,7 @@ void Adafruit_SSD1306::drawFastVLineInternal(int16_t x, int16_t __y, int16_t __h
   // this display doesn't need ints for coordinates, use local byte registers for faster juggling
   register uint8_t y = __y;
   register uint8_t h = __h;
+
 
   // set up the pointer for fast movement through the buffer
   register uint8_t *pBuf = buffer;
@@ -631,7 +630,11 @@ void Adafruit_SSD1306::drawFastVLineInternal(int16_t x, int16_t __y, int16_t __h
   if(mod) {
     // mask off the high n bits we want to set 
     mod = 8-mod;
-    register uint8_t mask = ~(0xFF >> (mod));
+
+    // note - lookup table results in a nearly 10% performance improvement in fill* functions
+    // register uint8_t mask = ~(0xFF >> (mod));
+    static uint8_t premask[8] = {0x00, 0x80, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC, 0xFE };
+    register uint8_t mask = premask[mod];
 
     // adjust the mask if we're not going to reach the end of this byte
     if( h < mod) { 
@@ -648,7 +651,6 @@ void Adafruit_SSD1306::drawFastVLineInternal(int16_t x, int16_t __y, int16_t __h
     if(h<mod) { return; }
 
     h -= mod;
-    y += mod;
 
     pBuf += SSD1306_LCDWIDTH;
   }
@@ -667,15 +669,18 @@ void Adafruit_SSD1306::drawFastVLineInternal(int16_t x, int16_t __y, int16_t __h
       pBuf += SSD1306_LCDWIDTH;
 
       // adjust h & y (there's got to be a faster way for me to do this, but this should still help a fair bit for now)
-      h -= 8; y+= 8;
+      h -= 8;
     } while(h >= 8);
   }
 
   // now do the final partial byte, if necessary
-  mod = h % 8;
-  if(mod) {
+  if(h) {
+    mod = h % 8;
     // this time we want to mask the low bits of the byte, vs the high bits we did above
-    register uint8_t mask = (1 << mod) - 1;
+    // register uint8_t mask = (1 << mod) - 1;
+    // note - lookup table results in a nearly 10% performance improvement in fill* functions
+    static uint8_t postmask[8] = {0x00, 0x01, 0x03, 0x07, 0x0F, 0x1F, 0x3F, 0x7F };
+    register uint8_t mask = postmask[mod];
     if(color == WHITE) { 
       *pBuf |= mask;
     } else { 

@@ -143,7 +143,7 @@ class Adafruit_SSD1306 : public Adafruit_GFX {
   volatile uint8_t *mosiport, *clkport, *csport, *dcport;
   uint8_t mosipinmask, clkpinmask, cspinmask, dcpinmask;
 
-  void drawFastVLineInternal(int16_t x, int16_t y, int16_t h, uint16_t color);
-  void drawFastHLineInternal(int16_t x, int16_t y, int16_t w, uint16_t color);
+  inline void drawFastVLineInternal(int16_t x, int16_t y, int16_t h, uint16_t color) __attribute__((always_inline));
+  inline void drawFastHLineInternal(int16_t x, int16_t y, int16_t w, uint16_t color) __attribute__((always_inline));
 
 };
