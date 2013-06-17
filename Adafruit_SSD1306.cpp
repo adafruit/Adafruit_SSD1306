@@ -25,11 +25,6 @@ All text above, and the splash screen below must be included in any redistributi
 #include "Adafruit_GFX.h"
 #include "Adafruit_SSD1306.h"
 
-#include "glcdfont.c"
-
-// a 5x7 font table
-extern uint8_t PROGMEM font[];
-
 // the memory buffer for the LCD
 
 static uint8_t buffer[SSD1306_LCDHEIGHT * SSD1306_LCDWIDTH / 8] = { 
