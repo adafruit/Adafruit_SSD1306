@@ -46,8 +46,8 @@ All text above, and the splash screen must be included in any redistribution
     appropriate size
 
     -----------------------------------------------------------------------*/
-//   #define SSD1306_128_64
-   #define SSD1306_128_32
+   #define SSD1306_128_64
+//   #define SSD1306_128_32
 /*=========================================================================*/
 
 #if defined SSD1306_128_64 && defined SSD1306_128_32
