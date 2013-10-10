@@ -17,7 +17,9 @@ All text above, and the splash screen below must be included in any redistributi
 *********************************************************************/
 
 #include <avr/pgmspace.h>
+#ifndef __SAM3X8E__
 #include <util/delay.h>
+#endif
 #include <stdlib.h>
 
 #include <Wire.h>
