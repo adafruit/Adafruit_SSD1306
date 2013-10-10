@@ -22,6 +22,16 @@ All text above, and the splash screen must be included in any redistribution
  #include "WProgram.h"
 #endif
 
+#ifdef __SAM3X8E__
+// On the DUE portOutputRegister returns different 
+// data types than the normal Arduino.
+#define PortReg volatile RwReg
+#define PortMask uint32_t
+#else
+#define PortReg volatile unit8_t
+#define PortMask uint8_t
+#endif
+
 #include <Adafruit_GFX.h>
 
 #define BLACK 0
@@ -137,6 +147,6 @@ class Adafruit_SSD1306 : public Adafruit_GFX {
   void fastSPIwrite(uint8_t c);
   void slowSPIwrite(uint8_t c);
 
-  volatile uint8_t *mosiport, *clkport, *csport, *dcport;
-  uint8_t mosipinmask, clkpinmask, cspinmask, dcpinmask;
+  PortReg *mosiport, *clkport, *csport, *dcport;
+  PortMask mosipinmask, clkpinmask, cspinmask, dcpinmask;
 };
