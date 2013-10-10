@@ -32,6 +32,29 @@ All text above, and the splash screen must be included in any redistribution
 #define PortMask uint8_t
 #endif
 
+#ifndef _BV
+// This is normally defined in avr/sfr_defs.h
+// and has been copied here verbatim
+// as it does not seem to be defined for the DUE
+/** \name Bit manipulation */
+
+/*@{*/
+/** \def _BV
+    \ingroup avr_sfr
+
+    \code #include <avr/io.h>\endcode
+
+    Converts a bit number into a byte value.
+
+    \note The bit shift is performed by the compiler which then inserts the
+    result into the code. Thus, there is no run-time overhead when using
+    _BV(). */
+
+#define _BV(bit) (1 << (bit))
+
+/*@}*/
+#endif
+
 #include <Adafruit_GFX.h>
 
 #define BLACK 0
