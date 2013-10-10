@@ -411,6 +411,9 @@ void Adafruit_SSD1306::display(void) {
   }
   else
   {
+#ifdef __SAM3X8E__
+    uint8_t TWBR = 12;
+#endif
     // save I2C bitrate
     uint8_t twbrbackup = TWBR;
     TWBR = 12; // upgrade to 400KHz!
