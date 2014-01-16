@@ -383,9 +383,13 @@ void Adafruit_SSD1306::ssd1306_data(uint8_t c) {
 }
 
 void Adafruit_SSD1306::display(void) {
-  ssd1306_command(SSD1306_SETLOWCOLUMN | 0x0);  // low col = 0
-  ssd1306_command(SSD1306_SETHIGHCOLUMN | 0x0);  // hi col = 0
-  ssd1306_command(SSD1306_SETSTARTLINE | 0x0); // line #0
+  ssd1306_command(SSD1306_COLUMNADDR);
+  ssd1306_command(0);   // Column start address (0 = reset)
+  ssd1306_command(127); // Column end address (127 = reset)
+
+  ssd1306_command(SSD1306_PAGEADDR);
+  ssd1306_command(0); // Page start address (0 = reset)
+  ssd1306_command((SSD1306_LCDHEIGHT == 64) ? 7 : 3); // Page end address
 
   if (sid != -1)
   {
@@ -397,13 +401,6 @@ void Adafruit_SSD1306::display(void) {
     for (uint16_t i=0; i<(SSD1306_LCDWIDTH*SSD1306_LCDHEIGHT/8); i++) {
       fastSPIwrite(buffer[i]);
       //ssd1306_data(buffer[i]);
-    }
-    // i wonder why we have to do this (check datasheet)
-    if (SSD1306_LCDHEIGHT == 32) {
-      for (uint16_t i=0; i<(SSD1306_LCDWIDTH*SSD1306_LCDHEIGHT/8); i++) {
-        //ssd1306_data(0);
-        fastSPIwrite(0);
-      }
     }
     *csport |= cspinmask;
   }
@@ -427,20 +424,6 @@ void Adafruit_SSD1306::display(void) {
       }
       i--;
       Wire.endTransmission();
-    }
-    // i wonder why we have to do this (check datasheet)
-    if (SSD1306_LCDHEIGHT == 32) {
-      for (uint16_t i=0; i<(SSD1306_LCDWIDTH*SSD1306_LCDHEIGHT/8); i++) {
-	// send a bunch of data in one xmission
-	Wire.beginTransmission(_i2caddr);
-	Wire.write(0x40);
-	for (uint8_t x=0; x<16; x++) {
-	  Wire.write((uint8_t)0x00);
-	  i++;
-	}
-	i--;
-	Wire.endTransmission();
-      }
     }
     TWBR = twbrbackup;
   }

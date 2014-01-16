@@ -42,9 +42,6 @@ All text above, and the splash screen must be included in any redistribution
 
     SSD1306_128_32  128x32 pixel display
 
-    You also need to set the LCDWIDTH and LCDHEIGHT defines to an 
-    appropriate size
-
     -----------------------------------------------------------------------*/
    #define SSD1306_128_64
 //   #define SSD1306_128_32
@@ -90,6 +87,8 @@ All text above, and the splash screen must be included in any redistribution
 #define SSD1306_SETSTARTLINE 0x40
 
 #define SSD1306_MEMORYMODE 0x20
+#define SSD1306_COLUMNADDR 0x21
+#define SSD1306_PAGEADDR   0x22
 
 #define SSD1306_COMSCANINC 0xC0
 #define SSD1306_COMSCANDEC 0xC8
