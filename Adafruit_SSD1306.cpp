@@ -143,6 +143,7 @@ Adafruit_GFX(SSD1306_LCDWIDTH, SSD1306_LCDHEIGHT) {
   
 
 void Adafruit_SSD1306::begin(uint8_t vccstate, uint8_t i2caddr) {
+  _vccstate = vccstate;
   _i2caddr = i2caddr;
 
   // set pin directions
@@ -355,6 +356,27 @@ void Adafruit_SSD1306::startscrolldiagleft(uint8_t start, uint8_t stop){
 
 void Adafruit_SSD1306::stopscroll(void){
 	ssd1306_command(SSD1306_DEACTIVATE_SCROLL);
+}
+
+// Dim the display
+// dim = true: display is dimmed
+// dim = false: display is normal
+void Adafruit_SSD1306::dim(boolean dim) {
+  uint8_t contrast;
+
+  if (dim) {
+    contrast = 0; // Dimmed display
+  } else {
+    if (_vccstate == SSD1306_EXTERNALVCC) {
+      contrast = 0x9F;
+    } else {
+      contrast = 0xCF;
+    }
+  }
+  // the range of contrast to too small to be really useful
+  // it is useful to dim the display
+  ssd1306_command(SSD1306_SETCONTRAST);
+  ssd1306_command(contrast);
 }
 
 void Adafruit_SSD1306::ssd1306_data(uint8_t c) {

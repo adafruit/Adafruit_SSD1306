@@ -29,7 +29,7 @@ All text above, and the splash screen must be included in any redistribution
 
 #define SSD1306_I2C_ADDRESS   0x3C	// 011110+SA0+RW - 0x3C or 0x3D
 // Address for 128x32 is 0x3C
-// Address for 128x32 is 0x3D (default) or 0x3C (if SA0 is grounded)
+// Address for 128x64 is 0x3D (default) or 0x3C (if SA0 is grounded)
 
 /*=========================================================================
     SSD1306 Displays
@@ -129,10 +129,12 @@ class Adafruit_SSD1306 : public Adafruit_GFX {
   void startscrolldiagleft(uint8_t start, uint8_t stop);
   void stopscroll(void);
 
+  void dim(uint8_t contrast);
+
   void drawPixel(int16_t x, int16_t y, uint16_t color);
 
  private:
-  int8_t _i2caddr, sid, sclk, dc, rst, cs;
+  int8_t _i2caddr, _vccstate, sid, sclk, dc, rst, cs;
   void fastSPIwrite(uint8_t c);
   void slowSPIwrite(uint8_t c);
 
