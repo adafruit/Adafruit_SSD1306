@@ -17,7 +17,9 @@ All text above, and the splash screen below must be included in any redistributi
 *********************************************************************/
 
 #include <avr/pgmspace.h>
-#include <util/delay.h>
+#ifndef __SAM3X8E__
+ #include <util/delay.h>
+#endif
 #include <stdlib.h>
 
 #include <Wire.h>
@@ -121,9 +123,9 @@ void Adafruit_SSD1306::drawPixel(int16_t x, int16_t y, uint16_t color) {
 
   // x is which column
   if (color == WHITE) 
-    buffer[x+ (y/8)*SSD1306_LCDWIDTH] |= _BV((y%8));  
+    buffer[x+ (y/8)*SSD1306_LCDWIDTH] |= (1 << (y&7));  
   else
-    buffer[x+ (y/8)*SSD1306_LCDWIDTH] &= ~_BV((y%8)); 
+    buffer[x+ (y/8)*SSD1306_LCDWIDTH] &= ~(1 << (y&7)); 
 }
 
 Adafruit_SSD1306::Adafruit_SSD1306(int8_t SID, int8_t SCLK, int8_t DC, int8_t RST, int8_t CS) : Adafruit_GFX(SSD1306_LCDWIDTH, SSD1306_LCDHEIGHT) {
@@ -174,13 +176,22 @@ void Adafruit_SSD1306::begin(uint8_t vccstate, uint8_t i2caddr) {
     	}
     if (hwSPI){
     	SPI.begin ();
-    	SPI.setClockDivider (SPI_CLOCK_DIV2);
+#ifdef __SAM3X8E__
+    	SPI.setClockDivider (9); // 9.3 MHz
+#else
+    	SPI.setClockDivider (SPI_CLOCK_DIV2); // 8 MHz
+#endif
     	}
     }
   else
   {
     // I2C Init
-	Wire.begin(); // Is this the right place for this?
+    Wire.begin();
+#ifdef __SAM3X8E__
+    // Force 400 KHz I2C, rawr! (Uses pins 20, 21 for SDA, SCL)
+    TWI1->TWI_CWGR = 0;
+    TWI1->TWI_CWGR = ((VARIANT_MCK / (2 * 400000)) - 4) * 0x101;
+#endif
   }
 
   // Setup reset pin direction (used by both SPI and I2C)  
@@ -443,8 +454,10 @@ void Adafruit_SSD1306::display(void) {
   else
   {
     // save I2C bitrate
+#ifndef __SAM3X8E__
     uint8_t twbrbackup = TWBR;
     TWBR = 12; // upgrade to 400KHz!
+#endif
 
     //Serial.println(TWBR, DEC);
     //Serial.println(TWSR & 0x3, DEC);
@@ -461,7 +474,9 @@ void Adafruit_SSD1306::display(void) {
       i--;
       Wire.endTransmission();
     }
+#ifndef __SAM3X8E__
     TWBR = twbrbackup;
+#endif
   }
 }
 
@@ -474,8 +489,7 @@ void Adafruit_SSD1306::clearDisplay(void) {
 inline void Adafruit_SSD1306::fastSPIwrite(uint8_t d) {
   
   if(hwSPI) {
-    SPDR = d;
-    while(!(SPSR & _BV(SPIF)));
+    (void)SPI.transfer(d);
   } else {
     for(uint8_t bit = 0x80; bit; bit >>= 1) {
       *clkport &= ~clkpinmask;
@@ -485,18 +499,6 @@ inline void Adafruit_SSD1306::fastSPIwrite(uint8_t d) {
     }
   }
   //*csport |= cspinmask;
-}
-
-inline void Adafruit_SSD1306::slowSPIwrite(uint8_t d) {
- for (int8_t i=7; i>=0; i--) {
-   digitalWrite(sclk, LOW);
-   if (d & _BV(i)) {
-     digitalWrite(sid, HIGH);
-   } else {
-     digitalWrite(sid, LOW);
-   }
-   digitalWrite(sclk, HIGH);
- }
 }
 
 void Adafruit_SSD1306::drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color) {
@@ -558,7 +560,7 @@ void Adafruit_SSD1306::drawFastHLineInternal(int16_t x, int16_t y, int16_t w, ui
   // and offset x columns in
   pBuf += x;
 
-  register uint8_t mask = 1 << (y%8);
+  register uint8_t mask = 1 << (y&7);
 
   if(color == WHITE) { 
     while(w--) { *pBuf++ |= mask; }
@@ -638,7 +640,7 @@ void Adafruit_SSD1306::drawFastVLineInternal(int16_t x, int16_t __y, int16_t __h
   pBuf += x;
 
   // do the first partial byte, if necessary - this requires some masking
-  register uint8_t mod = (y%8);
+  register uint8_t mod = (y&7);
   if(mod) {
     // mask off the high n bits we want to set 
     mod = 8-mod;
@@ -687,7 +689,7 @@ void Adafruit_SSD1306::drawFastVLineInternal(int16_t x, int16_t __y, int16_t __h
 
   // now do the final partial byte, if necessary
   if(h) {
-    mod = h % 8;
+    mod = h & 7;
     // this time we want to mask the low bits of the byte, vs the high bits we did above
     // register uint8_t mask = (1 << mod) - 1;
     // note - lookup table results in a nearly 10% performance improvement in fill* functions

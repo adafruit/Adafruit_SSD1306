@@ -29,7 +29,7 @@ All text above, and the splash screen must be included in any redistribution
 #define OLED_RESET 13
 Adafruit_SSD1306 display(OLED_MOSI, OLED_CLK, OLED_DC, OLED_RESET, OLED_CS);
 
-/* Uncomment this block to use hardware SPI 
+/* Uncomment this block to use hardware SPI
 #define OLED_DC     6
 #define OLED_CS     7
 #define OLED_RESET  8
@@ -175,13 +175,12 @@ void loop() {
 
 void testdrawbitmap(const uint8_t *bitmap, uint8_t w, uint8_t h) {
   uint8_t icons[NUMFLAKES][3];
-  srandom(666);     // whatever seed
  
   // initialize
   for (uint8_t f=0; f< NUMFLAKES; f++) {
-    icons[f][XPOS] = random() % display.width();
+    icons[f][XPOS] = random(display.width());
     icons[f][YPOS] = 0;
-    icons[f][DELTAY] = random() % 5 + 1;
+    icons[f][DELTAY] = random(5) + 1;
     
     Serial.print("x: ");
     Serial.print(icons[f][XPOS], DEC);
@@ -206,9 +205,9 @@ void testdrawbitmap(const uint8_t *bitmap, uint8_t w, uint8_t h) {
       icons[f][YPOS] += icons[f][DELTAY];
       // if its gone, reinit
       if (icons[f][YPOS] > display.height()) {
-	icons[f][XPOS] = random() % display.width();
+	icons[f][XPOS] = random(display.width());
 	icons[f][YPOS] = 0;
-	icons[f][DELTAY] = random() % 5 + 1;
+	icons[f][DELTAY] = random(5) + 1;
       }
     }
    }

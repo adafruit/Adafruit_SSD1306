@@ -22,6 +22,14 @@ All text above, and the splash screen must be included in any redistribution
  #include "WProgram.h"
 #endif
 
+#ifdef __SAM3X8E__
+ typedef volatile RwReg PortReg;
+ typedef uint32_t PortMask;
+#else
+  typedef volatile uint8_t PortReg;
+  typedef uint8_t PortMask;
+#endif
+
 #include <SPI.h>
 #include <Adafruit_GFX.h>
 
@@ -141,11 +149,10 @@ class Adafruit_SSD1306 : public Adafruit_GFX {
  private:
   int8_t _i2caddr, _vccstate, sid, sclk, dc, rst, cs;
   void fastSPIwrite(uint8_t c);
-  void slowSPIwrite(uint8_t c);
 
   boolean hwSPI;
-  volatile uint8_t *mosiport, *clkport, *csport, *dcport;
-  uint8_t mosipinmask, clkpinmask, cspinmask, dcpinmask;
+  PortReg *mosiport, *clkport, *csport, *dcport;
+  PortMask mosipinmask, clkpinmask, cspinmask, dcpinmask;
 
   inline void drawFastVLineInternal(int16_t x, int16_t y, int16_t h, uint16_t color) __attribute__((always_inline));
   inline void drawFastHLineInternal(int16_t x, int16_t y, int16_t w, uint16_t color) __attribute__((always_inline));
