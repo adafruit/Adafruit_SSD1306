@@ -22,6 +22,39 @@ All text above, and the splash screen must be included in any redistribution
  #include "WProgram.h"
 #endif
 
+#ifdef __SAM3X8E__
+// On the DUE portOutputRegister returns different 
+// data types than the normal Arduino.
+#define PortReg volatile RwReg
+#define PortMask uint32_t
+#else
+#define PortReg volatile unit8_t
+#define PortMask uint8_t
+#endif
+
+#ifndef _BV
+// This is normally defined in avr/sfr_defs.h
+// and has been copied here verbatim
+// as it does not seem to be defined for the DUE
+/** \name Bit manipulation */
+
+/*@{*/
+/** \def _BV
+    \ingroup avr_sfr
+
+    \code #include <avr/io.h>\endcode
+
+    Converts a bit number into a byte value.
+
+    \note The bit shift is performed by the compiler which then inserts the
+    result into the code. Thus, there is no run-time overhead when using
+    _BV(). */
+
+#define _BV(bit) (1 << (bit))
+
+/*@}*/
+#endif
+
 #include <Adafruit_GFX.h>
 
 #define BLACK 0
@@ -138,6 +171,6 @@ class Adafruit_SSD1306 : public Adafruit_GFX {
   void fastSPIwrite(uint8_t c);
   void slowSPIwrite(uint8_t c);
 
-  volatile uint8_t *mosiport, *clkport, *csport, *dcport;
-  uint8_t mosipinmask, clkpinmask, cspinmask, dcpinmask;
+  PortReg *mosiport, *clkport, *csport, *dcport;
+  PortMask mosipinmask, clkpinmask, cspinmask, dcpinmask;
 };

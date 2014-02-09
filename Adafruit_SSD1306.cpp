@@ -17,7 +17,9 @@ All text above, and the splash screen below must be included in any redistributi
 *********************************************************************/
 
 #include <avr/pgmspace.h>
+#ifndef __SAM3X8E__
 #include <util/delay.h>
+#endif
 #include <stdlib.h>
 
 #include <Wire.h>
@@ -428,6 +430,9 @@ void Adafruit_SSD1306::display(void) {
   }
   else
   {
+#ifdef __SAM3X8E__
+    uint8_t TWBR = 12;
+#endif
     // save I2C bitrate
     uint8_t twbrbackup = TWBR;
     TWBR = 12; // upgrade to 400KHz!
