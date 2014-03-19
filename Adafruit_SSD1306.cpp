@@ -42,6 +42,7 @@ static uint8_t buffer[SSD1306_LCDHEIGHT * SSD1306_LCDWIDTH / 8] = {
 0x00, 0x00, 0x00, 0x00, 0x80, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC, 0xF8, 0xE0, 0x00, 0x00, 0x00, 0x00,
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0x80, 0x80,
 0x80, 0x80, 0x00, 0x80, 0x80, 0x00, 0x00, 0x00, 0x00, 0x80, 0x80, 0x80, 0x80, 0x80, 0x00, 0xFF,
+#if (SSD1306_LCDHEIGHT * SSD1306_LCDWIDTH > 96*16)
 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x80, 0x80, 0x80, 0x80, 0x00, 0x00, 0x80, 0x80, 0x00, 0x00,
 0x80, 0xFF, 0xFF, 0x80, 0x80, 0x00, 0x80, 0x80, 0x00, 0x80, 0x80, 0x80, 0x80, 0x00, 0x80, 0x80,
 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0x80, 0x00, 0x00, 0x8C, 0x8E, 0x84, 0x00, 0x00, 0x80, 0xF8,
@@ -95,6 +96,7 @@ static uint8_t buffer[SSD1306_LCDHEIGHT * SSD1306_LCDWIDTH / 8] = {
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+#endif
 #endif
 };
 
@@ -277,7 +279,44 @@ void Adafruit_SSD1306::begin(uint8_t vccstate, uint8_t i2caddr) {
     ssd1306_command(SSD1306_DISPLAYALLON_RESUME);           // 0xA4
     ssd1306_command(SSD1306_NORMALDISPLAY);                 // 0xA6
   #endif
-  
+
+  #if defined SSD1306_96_16
+    // Init sequence for 96x16 OLED module
+    ssd1306_command(SSD1306_DISPLAYOFF);                    // 0xAE
+    ssd1306_command(SSD1306_SETDISPLAYCLOCKDIV);            // 0xD5
+    ssd1306_command(0x80);                                  // the suggested ratio 0x80
+    ssd1306_command(SSD1306_SETMULTIPLEX);                  // 0xA8
+    ssd1306_command(0x0F);
+    ssd1306_command(SSD1306_SETDISPLAYOFFSET);              // 0xD3
+    ssd1306_command(0x00);                                   // no offset
+    ssd1306_command(SSD1306_SETSTARTLINE | 0x0);            // line #0
+    ssd1306_command(SSD1306_CHARGEPUMP);                    // 0x8D
+    if (vccstate == SSD1306_EXTERNALVCC) 
+      { ssd1306_command(0x10); }
+    else 
+      { ssd1306_command(0x14); }
+    ssd1306_command(SSD1306_MEMORYMODE);                    // 0x20
+    ssd1306_command(0x00);                                  // 0x0 act like ks0108
+    ssd1306_command(SSD1306_SEGREMAP | 0x1);
+    ssd1306_command(SSD1306_COMSCANDEC);
+    ssd1306_command(SSD1306_SETCOMPINS);                    // 0xDA
+    ssd1306_command(0x2);	//ada x12
+    ssd1306_command(SSD1306_SETCONTRAST);                   // 0x81
+    if (vccstate == SSD1306_EXTERNALVCC) 
+      { ssd1306_command(0x10); }
+    else 
+      { ssd1306_command(0xAF); }
+    ssd1306_command(SSD1306_SETPRECHARGE);                  // 0xd9
+    if (vccstate == SSD1306_EXTERNALVCC) 
+      { ssd1306_command(0x22); }
+    else 
+      { ssd1306_command(0xF1); }
+    ssd1306_command(SSD1306_SETVCOMDETECT);                 // 0xDB
+    ssd1306_command(0x40);
+    ssd1306_command(SSD1306_DISPLAYALLON_RESUME);           // 0xA4
+    ssd1306_command(SSD1306_NORMALDISPLAY);                 // 0xA6
+  #endif
+
   ssd1306_command(SSD1306_DISPLAYON);//--turn on oled panel
 }
 
@@ -432,11 +471,19 @@ void Adafruit_SSD1306::ssd1306_data(uint8_t c) {
 void Adafruit_SSD1306::display(void) {
   ssd1306_command(SSD1306_COLUMNADDR);
   ssd1306_command(0);   // Column start address (0 = reset)
-  ssd1306_command(127); // Column end address (127 = reset)
+  ssd1306_command(SSD1306_LCDWIDTH-1); // Column end address (127 = reset)
 
   ssd1306_command(SSD1306_PAGEADDR);
   ssd1306_command(0); // Page start address (0 = reset)
-  ssd1306_command((SSD1306_LCDHEIGHT == 64) ? 7 : 3); // Page end address
+  #if SSD1306_LCDHEIGHT == 64
+    ssd1306_command(7); // Page end address
+  #endif
+  #if SSD1306_LCDHEIGHT == 32
+    ssd1306_command(3); // Page end address
+  #endif
+  #if SSD1306_LCDHEIGHT == 16
+    ssd1306_command(1); // Page end address
+  #endif
 
   if (sid != -1)
   {
