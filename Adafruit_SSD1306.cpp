@@ -312,8 +312,8 @@ void Adafruit_SSD1306::ssd1306_command(uint8_t c) {
     // I2C
     uint8_t control = 0x00;   // Co = 0, D/C = 0
     Wire.beginTransmission(_i2caddr);
-    Wire.write(control);
-    Wire.write(c);
+    WIRE_WRITE(control);
+    WIRE_WRITE(c);
     Wire.endTransmission();
   }
 }
@@ -426,8 +426,8 @@ void Adafruit_SSD1306::ssd1306_data(uint8_t c) {
     // I2C
     uint8_t control = 0x40;   // Co = 0, D/C = 1
     Wire.beginTransmission(_i2caddr);
-    Wire.write(control);
-    Wire.write(c);
+    WIRE_WRITE(control);
+    WIRE_WRITE(c);
     Wire.endTransmission();
   }
 }
@@ -469,9 +469,9 @@ void Adafruit_SSD1306::display(void) {
     for (uint16_t i=0; i<(SSD1306_LCDWIDTH*SSD1306_LCDHEIGHT/8); i++) {
       // send a bunch of data in one xmission
       Wire.beginTransmission(_i2caddr);
-      Wire.write(0x40);
+      WIRE_WRITE(0x40);
       for (uint8_t x=0; x<16; x++) {
-	Wire.write(buffer[i]);
+	WIRE_WRITE(buffer[i]);
 	i++;
       }
       i--;
