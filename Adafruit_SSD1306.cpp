@@ -122,10 +122,13 @@ void Adafruit_SSD1306::drawPixel(int16_t x, int16_t y, uint16_t color) {
   }  
 
   // x is which column
-  if (color == WHITE) 
-    buffer[x+ (y/8)*SSD1306_LCDWIDTH] |= (1 << (y&7));  
-  else
-    buffer[x+ (y/8)*SSD1306_LCDWIDTH] &= ~(1 << (y&7)); 
+  	switch (color) 
+	  {
+		case WHITE:   buffer[x+ (y/8)*SSD1306_LCDWIDTH] |=  (1 << (y&7)); break;
+		case BLACK:   buffer[x+ (y/8)*SSD1306_LCDWIDTH] &= ~(1 << (y&7)); break; 
+		case INVERSE: buffer[x+ (y/8)*SSD1306_LCDWIDTH] ^=  (1 << (y&7)); break; 
+	  }
+		
 }
 
 Adafruit_SSD1306::Adafruit_SSD1306(int8_t SID, int8_t SCLK, int8_t DC, int8_t RST, int8_t CS) : Adafruit_GFX(SSD1306_LCDWIDTH, SSD1306_LCDHEIGHT) {
@@ -562,11 +565,11 @@ void Adafruit_SSD1306::drawFastHLineInternal(int16_t x, int16_t y, int16_t w, ui
 
   register uint8_t mask = 1 << (y&7);
 
-  if(color == WHITE) { 
-    while(w--) { *pBuf++ |= mask; }
-  } else {
-    mask = ~mask;
-    while(w--) { *pBuf++ &= mask; }
+  switch (color) 
+  {
+	case WHITE: 				while(w--) { *pBuf++ |= mask; }; break;
+    case BLACK: mask = ~mask; 	while(w--) { *pBuf++ &= mask; }; break;
+	case INVERSE: 				while(w--) { *pBuf++ ^= mask; }; break;
   }
 }
 
@@ -655,12 +658,13 @@ void Adafruit_SSD1306::drawFastVLineInternal(int16_t x, int16_t __y, int16_t __h
       mask &= (0XFF >> (mod-h));
     }
 
-    if(color == WHITE) { 
-      *pBuf |= mask;
-    } else {
-      *pBuf &= ~mask;
-    }
-
+	switch (color) 
+	  {
+		case WHITE:   *pBuf |=  mask;  break;
+		case BLACK:   *pBuf &= ~mask;  break;
+		case INVERSE: *pBuf ^=  mask;  break;
+	  }
+  
     // fast exit if we're done here!
     if(h<mod) { return; }
 
@@ -672,20 +676,33 @@ void Adafruit_SSD1306::drawFastVLineInternal(int16_t x, int16_t __y, int16_t __h
 
   // write solid bytes while we can - effectively doing 8 rows at a time
   if(h >= 8) { 
-    // store a local value to work with 
-    register uint8_t val = (color == WHITE) ? 255 : 0;
+	  if (color == INVERSE)  {					// separate copy of the code so we don't impact performance of the black/white write version with an extra comparison per loop
+		  do  {
+ 			*pBuf=~(*pBuf);
 
-    do  {
-      // write our value in
-      *pBuf = val;
+			  // adjust the buffer forward 8 rows worth of data
+			  pBuf += SSD1306_LCDWIDTH;
 
-      // adjust the buffer forward 8 rows worth of data
-      pBuf += SSD1306_LCDWIDTH;
+			  // adjust h & y (there's got to be a faster way for me to do this, but this should still help a fair bit for now)
+			  h -= 8;
+			} while(h >= 8);
+		  }
+	  else {
+			// store a local value to work with 
+			register uint8_t val = (color == WHITE) ? 255 : 0;
 
-      // adjust h & y (there's got to be a faster way for me to do this, but this should still help a fair bit for now)
-      h -= 8;
-    } while(h >= 8);
-  }
+			do  {
+				// write our value in
+			*pBuf = val;
+
+			  // adjust the buffer forward 8 rows worth of data
+			  pBuf += SSD1306_LCDWIDTH;
+
+			  // adjust h & y (there's got to be a faster way for me to do this, but this should still help a fair bit for now)
+			  h -= 8;
+			} while(h >= 8);
+		  }
+	  }
 
   // now do the final partial byte, if necessary
   if(h) {
@@ -695,11 +712,13 @@ void Adafruit_SSD1306::drawFastVLineInternal(int16_t x, int16_t __y, int16_t __h
     // note - lookup table results in a nearly 10% performance improvement in fill* functions
     static uint8_t postmask[8] = {0x00, 0x01, 0x03, 0x07, 0x0F, 0x1F, 0x3F, 0x7F };
     register uint8_t mask = postmask[mod];
-    if(color == WHITE) { 
-      *pBuf |= mask;
-    } else { 
-      *pBuf &= ~mask;
-    }
+	switch (color) 
+	  {
+		case WHITE:   *pBuf |=  mask;  break;
+		case BLACK:   *pBuf &= ~mask;  break;
+		case INVERSE: *pBuf ^=  mask;  break;
+	  }
+  
   }
 }
 
