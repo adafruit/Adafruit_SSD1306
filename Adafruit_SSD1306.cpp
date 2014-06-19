@@ -547,7 +547,7 @@ void Adafruit_SSD1306::drawFastHLineInternal(int16_t x, int16_t y, int16_t w, ui
 
   // make sure we don't go off the edge of the display
   if( (x + w) > WIDTH) { 
-    w = (HEIGHT- x);
+    w = (WIDTH - x);
   }
 
   // if our width is now negative, punt
