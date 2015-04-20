@@ -90,7 +90,9 @@ All text above, and the splash screen must be included in any redistribution
  * Using this method reduces SRAM usage but decreases display speed. This is not suitable for animations
  * or fast-refresh rate applications.
  */
-#define SSD1306_SEGMENTS 1
+#ifndef SSD1306_SEGMENTS
+  #define SSD1306_SEGMENTS 1
+#endif
 
 #if defined SSD1306_SEGMENTS
   #if SSD1306_LCDHEIGHT % SSD1306_SEGMENTS != 0
