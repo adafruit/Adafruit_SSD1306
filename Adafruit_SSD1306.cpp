@@ -15,10 +15,13 @@ Written by Limor Fried/Ladyada  for Adafruit Industries.
 BSD license, check license.txt for more information
 All text above, and the splash screen below must be included in any redistribution
 *********************************************************************/
-
+#ifdef ESP8266
+ #include <pgmspace.h>
+#else
 #include <avr/pgmspace.h>
 #ifndef __SAM3X8E__
  #include <util/delay.h>
+#endif
 #endif
 #include <stdlib.h>
 
@@ -506,7 +509,7 @@ void Adafruit_SSD1306::display(void) {
   else
   {
     // save I2C bitrate
-#ifndef __SAM3X8E__
+#ifdef __AVR__
     uint8_t twbrbackup = TWBR;
     TWBR = 12; // upgrade to 400KHz!
 #endif
@@ -526,7 +529,7 @@ void Adafruit_SSD1306::display(void) {
       i--;
       Wire.endTransmission();
     }
-#ifndef __SAM3X8E__
+#ifdef __AVR__
     TWBR = twbrbackup;
 #endif
   }
