@@ -474,6 +474,30 @@ void Adafruit_SSD1306::ssd1306_data(uint8_t c) {
 }
 
 void Adafruit_SSD1306::display(void) {
+
+#if defined SH1106_128_64
+    for (int index = 0; index < 8; index++) {
+        ssd1306_command(SH1106_SETSTARTPAGE + index);
+	/* for some reason display is shifted by 2 columns
+	 * on 1.3" displays from ebay
+	 */
+        ssd1306_command(SSD1306_SETLOWCOLUMN + 2); // low column start address
+        ssd1306_command(SSD1306_SETHIGHCOLUMN); // high column start address
+
+        for (int pixel = 0; pixel < SSD1306_LCDWIDTH; pixel++) {
+		Wire.beginTransmission(_i2caddr);
+		WIRE_WRITE(0x40);
+		// input buffer doesn't accept all bytes at once
+		for (uint8_t x=0; x<16; x++) {
+			WIRE_WRITE(buffer[index * SSD1306_LCDWIDTH + pixel]);
+			++pixel;
+		}
+		--pixel;
+		Wire.endTransmission();
+        }
+    }
+#else
+
   ssd1306_command(SSD1306_COLUMNADDR);
   ssd1306_command(0);   // Column start address (0 = reset)
   ssd1306_command(SSD1306_LCDWIDTH-1); // Column end address (127 = reset)
@@ -530,6 +554,8 @@ void Adafruit_SSD1306::display(void) {
     TWBR = twbrbackup;
 #endif
   }
+
+#endif
 }
 
 // clear everything

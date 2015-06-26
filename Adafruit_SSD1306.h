@@ -57,19 +57,26 @@ All text above, and the splash screen must be included in any redistribution
     SSD1306_96_16
 
     -----------------------------------------------------------------------*/
-   #define SSD1306_128_64
+   #define SH1106_128_64
+//   #define SSD1306_128_64
 //   #define SSD1306_128_32
 //   #define SSD1306_96_16
 /*=========================================================================*/
 
+
+#if defined SSD1306_128_64 && defined SH1106_128_64
+  #error "Select either SH1106 or SSD1306 display type in SSD1306.h"
+#endif
+
 #if defined SSD1306_128_64 && defined SSD1306_128_32
   #error "Only one SSD1306 display can be specified at once in SSD1306.h"
 #endif
-#if !defined SSD1306_128_64 && !defined SSD1306_128_32 && !defined SSD1306_96_16
+#if !defined SSD1306_128_64 && !defined SSD1306_128_32 && \
+    !defined SSD1306_96_16 && !defined SH1106_128_64
   #error "At least one SSD1306 display must be specified in SSD1306.h"
 #endif
 
-#if defined SSD1306_128_64
+#if defined SSD1306_128_64 || defined SH1106_128_64
   #define SSD1306_LCDWIDTH                  128
   #define SSD1306_LCDHEIGHT                 64
 #endif
@@ -118,6 +125,8 @@ All text above, and the splash screen must be included in any redistribution
 
 #define SSD1306_EXTERNALVCC 0x1
 #define SSD1306_SWITCHCAPVCC 0x2
+
+#define SH1106_SETSTARTPAGE 0xB0
 
 // Scrolling #defines
 #define SSD1306_ACTIVATE_SCROLL 0x2F
