@@ -1,3 +1,5 @@
+>> Also has support for a SH1106 display driver driven by I2C. <<
+
 This is a library for our Monochrome OLEDs based on SSD1306 drivers
 
   Pick one up today in the adafruit shop!
