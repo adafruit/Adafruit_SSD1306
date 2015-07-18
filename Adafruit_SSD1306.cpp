@@ -467,15 +467,23 @@ void Adafruit_SSD1306::ssd1306_data(uint8_t c) {
   if (sid != -1)
   {
     // SPI
-    //digitalWrite(cs, HIGH);
+    #ifdef ESP8266
+    digitalWrite(cs, HIGH);
+    digitalWrite(dc, HIGH);
+    digitalWrite(cs, LOW);
+    #else
     *csport |= cspinmask;
-    //digitalWrite(dc, HIGH);
     *dcport |= dcpinmask;
-    //digitalWrite(cs, LOW);
     *csport &= ~cspinmask;
+    #endif
+
     fastSPIwrite(c);
-    //digitalWrite(cs, HIGH);
+
+    #ifdef ESP8266
+    digitalWrite(cs, HIGH);
+    #else
     *csport |= cspinmask;
+    #endif
   }
   else
   {
