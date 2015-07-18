@@ -15,10 +15,13 @@ Written by Limor Fried/Ladyada  for Adafruit Industries.
 BSD license, check license.txt for more information
 All text above, and the splash screen below must be included in any redistribution
 *********************************************************************/
-
-#include <avr/pgmspace.h>
-#ifndef __SAM3X8E__
- #include <util/delay.h>
+#ifdef ESP8266
+  #include <pgmspace.h>
+#else
+  #include <avr/pgmspace.h>
+  #ifndef __SAM3X8E__
+    #include <util/delay.h>
+  #endif
 #endif
 #include <stdlib.h>
 
@@ -170,15 +173,6 @@ void Adafruit_SSD1306::begin(uint8_t vccstate, uint8_t i2caddr, bool reset) {
     cspinmask   = digitalPinToBitMask(cs);
     dcport      = portOutputRegister(digitalPinToPort(dc));
     dcpinmask   = digitalPinToBitMask(dc);
-    if (!hwSPI){
-      // set pins for software-SPI
-      pinMode(sid, OUTPUT);
-      pinMode(sclk, OUTPUT);
-      clkport     = portOutputRegister(digitalPinToPort(sclk));
-      clkpinmask  = digitalPinToBitMask(sclk);
-      mosiport    = portOutputRegister(digitalPinToPort(sid));
-      mosipinmask = digitalPinToBitMask(sid);
-      }
     if (hwSPI){
       SPI.begin ();
 #ifdef __SAM3X8E__
@@ -186,8 +180,18 @@ void Adafruit_SSD1306::begin(uint8_t vccstate, uint8_t i2caddr, bool reset) {
 #else
       SPI.setClockDivider (SPI_CLOCK_DIV2); // 8 MHz
 #endif
-      }
     }
+    else
+    {
+      // set pins for software-SPI
+      pinMode(sid, OUTPUT);
+      pinMode(sclk, OUTPUT);
+      clkport     = portOutputRegister(digitalPinToPort(sclk));
+      clkpinmask  = digitalPinToBitMask(sclk);
+      mosiport    = portOutputRegister(digitalPinToPort(sid));
+      mosipinmask = digitalPinToBitMask(sid);
+    }
+  }
   else
   {
     // I2C Init
@@ -338,15 +342,23 @@ void Adafruit_SSD1306::ssd1306_command(uint8_t c) {
   if (sid != -1)
   {
     // SPI
-    //digitalWrite(cs, HIGH);
+    #ifdef ESP8266
+    digitalWrite(cs, HIGH);
+    digitalWrite(dc, LOW);
+    digitalWrite(cs, LOW);
+    #else
     *csport |= cspinmask;
-    //digitalWrite(dc, LOW);
     *dcport &= ~dcpinmask;
-    //digitalWrite(cs, LOW);
     *csport &= ~cspinmask;
+    #endif
+
     fastSPIwrite(c);
-    //digitalWrite(cs, HIGH);
+
+    #ifdef ESP8266
+    digitalWrite(cs, HIGH);
+    #else
     *csport |= cspinmask;
+    #endif
   }
   else
   {
@@ -357,6 +369,9 @@ void Adafruit_SSD1306::ssd1306_command(uint8_t c) {
     WIRE_WRITE(c);
     Wire.endTransmission();
   }
+  #ifdef ESP8266
+  yield();
+  #endif
 }
 
 // startscrollright
@@ -490,29 +505,40 @@ void Adafruit_SSD1306::display(void) {
     ssd1306_command(1); // Page end address
   #endif
 
+  #ifdef ESP8266
+  yield();
+  #endif
+
   if (sid != -1)
   {
     // SPI
+    #ifdef ESP8266
+    digitalWrite(cs, HIGH);
+    digitalWrite(dc, HIGH);
+    digitalWrite(cs, LOW);
+    #else
     *csport |= cspinmask;
     *dcport |= dcpinmask;
     *csport &= ~cspinmask;
+    #endif
 
     for (uint16_t i=0; i<(SSD1306_LCDWIDTH*SSD1306_LCDHEIGHT/8); i++) {
       fastSPIwrite(buffer[i]);
-      //ssd1306_data(buffer[i]);
     }
+
+    #ifdef ESP8266
+    digitalWrite(cs, HIGH);
+    #else
     *csport |= cspinmask;
+    #endif
   }
   else
   {
     // save I2C bitrate
-#ifndef __SAM3X8E__
+    #ifdef __AVR__
     uint8_t twbrbackup = TWBR;
     TWBR = 12; // upgrade to 400KHz!
-#endif
-
-    //Serial.println(TWBR, DEC);
-    //Serial.println(TWSR & 0x3, DEC);
+    #endif
 
     // I2C
     for (uint16_t i=0; i<(SSD1306_LCDWIDTH*SSD1306_LCDHEIGHT/8); i++) {
@@ -520,16 +546,20 @@ void Adafruit_SSD1306::display(void) {
       Wire.beginTransmission(_i2caddr);
       WIRE_WRITE(0x40);
       for (uint8_t x=0; x<16; x++) {
-  WIRE_WRITE(buffer[i]);
-  i++;
+          WIRE_WRITE(buffer[i]);
+          i++;
       }
       i--;
       Wire.endTransmission();
     }
-#ifndef __SAM3X8E__
+    #ifdef __AVR__
     TWBR = twbrbackup;
-#endif
+    #endif
   }
+
+  #ifdef ESP8266
+  yield();
+  #endif
 }
 
 // clear everything
