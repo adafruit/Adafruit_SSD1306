@@ -582,10 +582,17 @@ inline void Adafruit_SSD1306::fastSPIwrite(uint8_t d) {
     (void)SPI.transfer(d);
   } else {
     for(uint8_t bit = 0x80; bit; bit >>= 1) {
+      #ifdef ESP8266
+      digitalWrite(sclk, LOW);
+      if(d & bit) digitalWrite(sid, HIGH);
+      else        digitalWrite(sid, LOW);
+      digitalWrite(sclk, HIGH);
+      #else
       *clkport &= ~clkpinmask;
       if(d & bit) *mosiport |=  mosipinmask;
       else        *mosiport &= ~mosipinmask;
       *clkport |=  clkpinmask;
+      #endif
     }
   }
   //*csport |= cspinmask;
