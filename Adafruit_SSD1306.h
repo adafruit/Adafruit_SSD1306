@@ -4,14 +4,14 @@ This is a library for our Monochrome OLEDs based on SSD1306 drivers
   Pick one up today in the adafruit shop!
   ------> http://www.adafruit.com/category/63_98
 
-These displays use SPI to communicate, 4 or 5 pins are required to  
+These displays use SPI to communicate, 4 or 5 pins are required to
 interface
 
-Adafruit invests time and resources providing this open source code, 
-please support Adafruit and open-source hardware by purchasing 
+Adafruit invests time and resources providing this open source code,
+please support Adafruit and open-source hardware by purchasing
 products from Adafruit!
 
-Written by Limor Fried/Ladyada  for Adafruit Industries.  
+Written by Limor Fried/Ladyada  for Adafruit Industries.
 BSD license, check license.txt for more information
 All text above, and the splash screen must be included in any redistribution
 *********************************************************************/
@@ -82,6 +82,35 @@ All text above, and the splash screen must be included in any redistribution
   #define SSD1306_LCDHEIGHT                 16
 #endif
 
+/**
+ * Defining segements to be > 1 breaks up the screen into that many segments. Each segment is rendered
+ * and drawn independently. The render function takes a function pointer and calls it for each segment,
+ * and flushes the pixels to the screen after each segment.
+ *
+ * Using this method reduces SRAM usage but decreases display speed. This is not suitable for animations
+ * or fast-refresh rate applications.
+ */
+#ifndef SSD1306_SEGMENTS
+  #define SSD1306_SEGMENTS 1
+#endif
+
+#if defined SSD1306_SEGMENTS
+  #if SSD1306_LCDHEIGHT % SSD1306_SEGMENTS != 0
+    #error "height % segemnets must be zero"
+  #endif
+  #if SSD1306_SEGMENTS < 1
+    #error "Segments must be positive"
+  #endif
+  #if SSD1306_SEGMENTS > SSD1306_LCDHEIGHT / 8
+    #error "The maximum number of segemnets is HEIGHT / 8"
+  #endif
+  #define SSD1306_ROWS_PER_SEGMENT SSD1306_LCDHEIGHT / SSD1306_SEGMENTS
+#else
+  // to simplify buffer manipulation code
+  #define SSD1306_SEGMENTS 1
+  #define SSD1306_ROWS_PER_SEGMENT SSD1306_LCDHEIGHT
+#endif
+
 #define SSD1306_SETCONTRAST 0x81
 #define SSD1306_DISPLAYALLON_RESUME 0xA4
 #define SSD1306_DISPLAYALLON 0xA5
@@ -140,7 +169,11 @@ class Adafruit_SSD1306 : public Adafruit_GFX {
 
   void clearDisplay(void);
   void invertDisplay(uint8_t i);
-  void display();
+  #if SSD1306_SEGMENTS > 1
+    void render(void (*f)(void));
+  #else
+    void display();
+  #endif
 
   void startscrollright(uint8_t start, uint8_t stop);
   void startscrollleft(uint8_t start, uint8_t stop);
@@ -161,10 +194,13 @@ class Adafruit_SSD1306 : public Adafruit_GFX {
   void fastSPIwrite(uint8_t c);
 
   boolean hwSPI;
+  uint8_t segment;
   PortReg *mosiport, *clkport, *csport, *dcport;
   PortMask mosipinmask, clkpinmask, cspinmask, dcpinmask;
 
   inline void drawFastVLineInternal(int16_t x, int16_t y, int16_t h, uint16_t color) __attribute__((always_inline));
   inline void drawFastHLineInternal(int16_t x, int16_t y, int16_t w, uint16_t color) __attribute__((always_inline));
 
+  inline bool inSegment(int16_t y);
+  inline int16_t ySegmentOffset(int16_t y);
 };
