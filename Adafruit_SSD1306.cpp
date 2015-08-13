@@ -17,7 +17,7 @@ All text above, and the splash screen below must be included in any redistributi
 *********************************************************************/
 
 #include <avr/pgmspace.h>
-#ifndef __SAM3X8E__
+#if !defined(__SAM3X8E__) && !defined(__SAMD21G18A__)
  #include <util/delay.h>
 #endif
 #include <stdlib.h>
@@ -181,7 +181,7 @@ void Adafruit_SSD1306::begin(uint8_t vccstate, uint8_t i2caddr, bool reset) {
       }
     if (hwSPI){
       SPI.begin ();
-#ifdef __SAM3X8E__
+#if defined(__SAM3X8E__) || defined(__SAMD21G18A__)
       SPI.setClockDivider (9); // 9.3 MHz
 #else
       SPI.setClockDivider (SPI_CLOCK_DIV2); // 8 MHz
@@ -192,10 +192,17 @@ void Adafruit_SSD1306::begin(uint8_t vccstate, uint8_t i2caddr, bool reset) {
   {
     // I2C Init
     Wire.begin();
-#ifdef __SAM3X8E__
+#if defined(__SAM3X8E__)
     // Force 400 KHz I2C, rawr! (Uses pins 20, 21 for SDA, SCL)
     TWI1->TWI_CWGR = 0;
     TWI1->TWI_CWGR = ((VARIANT_MCK / (2 * 400000)) - 4) * 0x101;
+#elif defined(__SAMD21G18A__)
+    // Last I checked, Wire.setClock is a dummy function on the Arduino Zero.
+    // This seems to work instead, but maybe there's a better way?
+    // Configure 400khz I2C
+    sercom3.disableWIRE();  // BAUD is an ENABLE-protected register.  Disable it frst
+    SERCOM3->I2CM.BAUD.bit.BAUD = (VARIANT_MCK / ( 2 * 400000) - 1);
+    sercom3.enableWIRE();   //Re-enable I2C
 #endif
   }
 
@@ -506,7 +513,7 @@ void Adafruit_SSD1306::display(void) {
   else
   {
     // save I2C bitrate
-#ifndef __SAM3X8E__
+#if !defined(__SAM3X8E__) && !defined(__SAMD21G18A__)
     uint8_t twbrbackup = TWBR;
     TWBR = 12; // upgrade to 400KHz!
 #endif
@@ -520,13 +527,13 @@ void Adafruit_SSD1306::display(void) {
       Wire.beginTransmission(_i2caddr);
       WIRE_WRITE(0x40);
       for (uint8_t x=0; x<16; x++) {
-	WIRE_WRITE(buffer[i]);
-	i++;
+        WIRE_WRITE(buffer[i]);
+        i++;
       }
       i--;
       Wire.endTransmission();
     }
-#ifndef __SAM3X8E__
+#if !defined(__SAM3X8E__) && !defined(__SAMD21G18A__)
     TWBR = twbrbackup;
 #endif
   }
