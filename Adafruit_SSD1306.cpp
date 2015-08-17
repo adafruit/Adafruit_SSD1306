@@ -17,7 +17,7 @@ All text above, and the splash screen below must be included in any redistributi
 *********************************************************************/
 
 #include <avr/pgmspace.h>
-#ifndef __SAM3X8E__
+#if !defined(__SAM3X8E__) &&  !defined(ENERGIA)
  #include <util/delay.h>
 #endif
 #include <stdlib.h>
@@ -181,7 +181,7 @@ void Adafruit_SSD1306::begin(uint8_t vccstate, uint8_t i2caddr, bool reset) {
       }
     if (hwSPI){
       SPI.begin ();
-#ifdef __SAM3X8E__
+#if !defined(__SAM3X8E__) &&  !defined(ENERGIA)
       SPI.setClockDivider (9); // 9.3 MHz
 #else
       SPI.setClockDivider (SPI_CLOCK_DIV2); // 8 MHz
@@ -192,7 +192,7 @@ void Adafruit_SSD1306::begin(uint8_t vccstate, uint8_t i2caddr, bool reset) {
   {
     // I2C Init
     Wire.begin();
-#ifdef __SAM3X8E__
+#if !defined(__SAM3X8E__) &&  !defined(ENERGIA)
     // Force 400 KHz I2C, rawr! (Uses pins 20, 21 for SDA, SCL)
     TWI1->TWI_CWGR = 0;
     TWI1->TWI_CWGR = ((VARIANT_MCK / (2 * 400000)) - 4) * 0x101;
@@ -506,7 +506,7 @@ void Adafruit_SSD1306::display(void) {
   else
   {
     // save I2C bitrate
-#ifndef __SAM3X8E__
+#if !defined(__SAM3X8E__) &&  !defined(ENERGIA)
     uint8_t twbrbackup = TWBR;
     TWBR = 12; // upgrade to 400KHz!
 #endif
@@ -526,7 +526,7 @@ void Adafruit_SSD1306::display(void) {
       i--;
       Wire.endTransmission();
     }
-#ifndef __SAM3X8E__
+#if !defined(__SAM3X8E__) &&  !defined(ENERGIA)
     TWBR = twbrbackup;
 #endif
   }
