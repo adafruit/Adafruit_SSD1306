@@ -24,7 +24,7 @@ All text above, and the splash screen must be included in any redistribution
   #define WIRE_WRITE Wire.send
 #endif
 
-#ifdef __SAM3X8E__
+#if !defined(__SAM3X8E__) &&  !defined(ENERGIA)
  typedef volatile RwReg PortReg;
  typedef uint32_t PortMask;
 #else
