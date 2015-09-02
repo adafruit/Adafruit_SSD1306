@@ -38,7 +38,7 @@ All text above, and the splash screen must be included in any redistribution
 #endif
 
 #include <SPI.h>
-#include <Adafruit_GFX.h>
+#include <Adafruit_mfGFX.h>
 
 #define BLACK 0
 #define WHITE 1
