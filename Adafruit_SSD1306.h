@@ -24,9 +24,11 @@ All text above, and the splash screen must be included in any redistribution
   #define WIRE_WRITE Wire.send
 #endif
 
-#ifdef __SAM3X8E__
+#if defined(__SAM3X8E__)
  typedef volatile RwReg PortReg;
  typedef uint32_t PortMask;
+#elif defined(ARDUINO_ARCH_SAMD)
+// not supported
 #else
   typedef volatile uint8_t PortReg;
   typedef uint8_t PortMask;
@@ -57,8 +59,8 @@ All text above, and the splash screen must be included in any redistribution
     SSD1306_96_16
 
     -----------------------------------------------------------------------*/
-   #define SSD1306_128_64
-//   #define SSD1306_128_32
+//   #define SSD1306_128_64
+   #define SSD1306_128_32
 //   #define SSD1306_96_16
 /*=========================================================================*/
 
@@ -161,8 +163,10 @@ class Adafruit_SSD1306 : public Adafruit_GFX {
   void fastSPIwrite(uint8_t c);
 
   boolean hwSPI;
+#ifdef PortReg
   PortReg *mosiport, *clkport, *csport, *dcport;
   PortMask mosipinmask, clkpinmask, cspinmask, dcpinmask;
+#endif
 
   inline void drawFastVLineInternal(int16_t x, int16_t y, int16_t h, uint16_t color) __attribute__((always_inline));
   inline void drawFastHLineInternal(int16_t x, int16_t y, int16_t w, uint16_t color) __attribute__((always_inline));
