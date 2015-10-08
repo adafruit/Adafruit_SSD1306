@@ -151,6 +151,7 @@ Adafruit_SSD1306::Adafruit_SSD1306(int8_t DC, int8_t RST, int8_t CS) : Adafruit_
   dc = DC;
   rst = RST;
   cs = CS;
+  sclk = sid = 0;
   hwSPI = true;
 }
 
@@ -192,7 +193,9 @@ void Adafruit_SSD1306::begin(uint8_t vccstate, uint8_t i2caddr, bool reset) {
 #ifdef __SAM3X8E__
       SPI.setClockDivider (9); // 9.3 MHz
 #elif defined(ESP8266)
-      SPI.setClockDivider(SPI_CLOCK_DIV4);
+      SPI.setClockDivider(SPI_CLOCK_DIV2);
+      SPI.setDataMode(SPI_MODE0);
+      SPI.setBitOrder(MSBFIRST);
 #else
       SPI.setClockDivider (SPI_CLOCK_DIV2); // 8 MHz
 #endif
@@ -349,7 +352,6 @@ void Adafruit_SSD1306::ssd1306_command(uint8_t c) {
   {
     // SPI
 #ifdef ESP8266
-    digitalWrite(cs, HIGH);
     digitalWrite(dc, LOW);
     digitalWrite(cs, LOW);
     fastSPIwrite(c);
@@ -467,7 +469,6 @@ void Adafruit_SSD1306::ssd1306_data(uint8_t c) {
   {
     // SPI
 #ifdef ESP8266
-    digitalWrite(cs, HIGH);
     digitalWrite(dc, HIGH);
     digitalWrite(cs, LOW);
     fastSPIwrite(c);
