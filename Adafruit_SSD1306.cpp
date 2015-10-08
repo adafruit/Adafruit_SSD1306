@@ -16,9 +16,13 @@ BSD license, check license.txt for more information
 All text above, and the splash screen below must be included in any redistribution
 *********************************************************************/
 
+#ifdef ESP8266
+#include <pgmspace.h>
+#else
 #include <avr/pgmspace.h>
 #ifndef __SAM3X8E__
  #include <util/delay.h>
+#endif
 #endif
 #include <stdlib.h>
 
@@ -147,6 +151,7 @@ Adafruit_SSD1306::Adafruit_SSD1306(int8_t DC, int8_t RST, int8_t CS) : Adafruit_
   dc = DC;
   rst = RST;
   cs = CS;
+  sclk = sid = 0;
   hwSPI = true;
 }
 
@@ -166,23 +171,32 @@ void Adafruit_SSD1306::begin(uint8_t vccstate, uint8_t i2caddr, bool reset) {
   if (sid != -1){
     pinMode(dc, OUTPUT);
     pinMode(cs, OUTPUT);
+#ifndef ESP8266
     csport      = portOutputRegister(digitalPinToPort(cs));
     cspinmask   = digitalPinToBitMask(cs);
     dcport      = portOutputRegister(digitalPinToPort(dc));
     dcpinmask   = digitalPinToBitMask(dc);
+#endif
     if (!hwSPI){
       // set pins for software-SPI
       pinMode(sid, OUTPUT);
       pinMode(sclk, OUTPUT);
+#ifndef ESP8266
       clkport     = portOutputRegister(digitalPinToPort(sclk));
       clkpinmask  = digitalPinToBitMask(sclk);
       mosiport    = portOutputRegister(digitalPinToPort(sid));
       mosipinmask = digitalPinToBitMask(sid);
+#endif
       }
     if (hwSPI){
       SPI.begin ();
 #ifdef __SAM3X8E__
       SPI.setClockDivider (9); // 9.3 MHz
+#elif defined(ESP8266)
+      // Datasheet says 10 MHz is max SPI clock
+      SPI.setFrequency(10000000);
+      SPI.setDataMode(SPI_MODE0);
+      SPI.setBitOrder(MSBFIRST);
 #else
       SPI.setClockDivider (SPI_CLOCK_DIV2); // 8 MHz
 #endif
@@ -338,15 +352,18 @@ void Adafruit_SSD1306::ssd1306_command(uint8_t c) {
   if (sid != -1)
   {
     // SPI
-    //digitalWrite(cs, HIGH);
+#ifdef ESP8266
+    digitalWrite(dc, LOW);
+    digitalWrite(cs, LOW);
+    fastSPIwrite(c);
+    digitalWrite(cs, HIGH);
+#else
     *csport |= cspinmask;
-    //digitalWrite(dc, LOW);
     *dcport &= ~dcpinmask;
-    //digitalWrite(cs, LOW);
     *csport &= ~cspinmask;
     fastSPIwrite(c);
-    //digitalWrite(cs, HIGH);
     *csport |= cspinmask;
+#endif
   }
   else
   {
@@ -452,15 +469,18 @@ void Adafruit_SSD1306::ssd1306_data(uint8_t c) {
   if (sid != -1)
   {
     // SPI
-    //digitalWrite(cs, HIGH);
+#ifdef ESP8266
+    digitalWrite(dc, HIGH);
+    digitalWrite(cs, LOW);
+    fastSPIwrite(c);
+    digitalWrite(cs, HIGH);
+#else
     *csport |= cspinmask;
-    //digitalWrite(dc, HIGH);
     *dcport |= dcpinmask;
-    //digitalWrite(cs, LOW);
     *csport &= ~cspinmask;
     fastSPIwrite(c);
-    //digitalWrite(cs, HIGH);
     *csport |= cspinmask;
+#endif
   }
   else
   {
@@ -493,20 +513,30 @@ void Adafruit_SSD1306::display(void) {
   if (sid != -1)
   {
     // SPI
+#ifdef ESP8266
+    digitalWrite(cs, HIGH);
+    digitalWrite(dc, HIGH);
+    digitalWrite(cs, LOW);
+
+    for (uint16_t i=0; i<(SSD1306_LCDWIDTH*SSD1306_LCDHEIGHT/8); i++) {
+      fastSPIwrite(buffer[i]);
+    }
+    digitalWrite(cs, HIGH);
+#else
     *csport |= cspinmask;
     *dcport |= dcpinmask;
     *csport &= ~cspinmask;
 
     for (uint16_t i=0; i<(SSD1306_LCDWIDTH*SSD1306_LCDHEIGHT/8); i++) {
       fastSPIwrite(buffer[i]);
-      //ssd1306_data(buffer[i]);
     }
     *csport |= cspinmask;
+#endif
   }
   else
   {
     // save I2C bitrate
-#ifndef __SAM3X8E__
+#if !defined(__SAM3X8E__) && !defined(ESP8266)
     uint8_t twbrbackup = TWBR;
     TWBR = 12; // upgrade to 400KHz!
 #endif
@@ -526,7 +556,7 @@ void Adafruit_SSD1306::display(void) {
       i--;
       Wire.endTransmission();
     }
-#ifndef __SAM3X8E__
+#if !defined(__SAM3X8E__) && !defined(ESP8266)
     TWBR = twbrbackup;
 #endif
   }
@@ -544,10 +574,17 @@ inline void Adafruit_SSD1306::fastSPIwrite(uint8_t d) {
     (void)SPI.transfer(d);
   } else {
     for(uint8_t bit = 0x80; bit; bit >>= 1) {
+#ifdef ESP8266
+      digitalWrite(sclk, LOW);
+      if(d & bit) digitalWrite(sid, HIGH);
+      else        digitalWrite(sid, LOW);
+      digitalWrite(sclk, HIGH);
+#else
       *clkport &= ~clkpinmask;
       if(d & bit) *mosiport |=  mosipinmask;
       else        *mosiport &= ~mosipinmask;
       *clkport |=  clkpinmask;
+#endif
     }
   }
   //*csport |= cspinmask;
