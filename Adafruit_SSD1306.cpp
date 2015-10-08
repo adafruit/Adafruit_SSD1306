@@ -193,7 +193,8 @@ void Adafruit_SSD1306::begin(uint8_t vccstate, uint8_t i2caddr, bool reset) {
 #ifdef __SAM3X8E__
       SPI.setClockDivider (9); // 9.3 MHz
 #elif defined(ESP8266)
-      SPI.setClockDivider(SPI_CLOCK_DIV2);
+      // Datasheet says 10 MHz is max SPI clock
+      SPI.setFrequency(10000000);
       SPI.setDataMode(SPI_MODE0);
       SPI.setBitOrder(MSBFIRST);
 #else
