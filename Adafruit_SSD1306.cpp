@@ -202,8 +202,7 @@ void Adafruit_SSD1306::begin(uint8_t vccstate, uint8_t i2caddr, bool reset) {
     TWI1->TWI_CWGR = ((VARIANT_MCK / (2 * 400000)) - 4) * 0x101;
 #endif
   }
-
-  if (reset >= 0) {
+  if ((reset) && (rst >= 0)) {
     // Setup reset pin direction (used by both SPI and I2C)  
     pinMode(rst, OUTPUT);
     digitalWrite(rst, HIGH);
@@ -223,6 +222,7 @@ void Adafruit_SSD1306::begin(uint8_t vccstate, uint8_t i2caddr, bool reset) {
     ssd1306_command(SSD1306_DISPLAYOFF);                    // 0xAE
     ssd1306_command(SSD1306_SETDISPLAYCLOCKDIV);            // 0xD5
     ssd1306_command(0x80);                                  // the suggested ratio 0x80
+
     ssd1306_command(SSD1306_SETMULTIPLEX);                  // 0xA8
     ssd1306_command(0x1F);
     ssd1306_command(SSD1306_SETDISPLAYOFFSET);              // 0xD3
@@ -363,8 +363,8 @@ void Adafruit_SSD1306::ssd1306_command(uint8_t c) {
     // I2C
     uint8_t control = 0x00;   // Co = 0, D/C = 0
     Wire.beginTransmission(_i2caddr);
-    WIRE_WRITE(control);
-    WIRE_WRITE(c);
+    Wire.write(control);
+    Wire.write(c);
     Wire.endTransmission();
   }
 }
