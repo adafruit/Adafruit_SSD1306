@@ -17,7 +17,7 @@ All text above, and the splash screen below must be included in any redistributi
 *********************************************************************/
 
 #include <avr/pgmspace.h>
-#if !defined(__SAM3X8E__) && !defined(ARDUINO_ARCH_SAMD)
+#if !defined(__SAM3X8E__) && !defined(ARDUINO_ARCH_SAMD) && !defined(__ARM_ARCH)
  #include <util/delay.h>
 #endif
 #include <stdlib.h>
