@@ -16,10 +16,18 @@ BSD license, check license.txt for more information
 All text above, and the splash screen below must be included in any redistribution
 *********************************************************************/
 
-#include <avr/pgmspace.h>
-#if !defined(__SAM3X8E__) && !defined(ARDUINO_ARCH_SAMD)
+#ifdef __AVR__
+  #include <avr/pgmspace.h>
+#elif defined(ESP8266)
+ #include <pgmspace.h>
+#else
+ #define pgm_read_byte(addr) (*(const unsigned char *)(addr))
+#endif
+
+#if !defined(__SAM3X8E__) && !defined(ARDUINO_ARCH_SAMD) && !defined(ESP8266) && !defined(ARDUINO_ARCH_STM32F2)
  #include <util/delay.h>
 #endif
+
 #include <stdlib.h>
 
 #include <Wire.h>
