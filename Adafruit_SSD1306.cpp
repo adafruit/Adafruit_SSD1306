@@ -24,7 +24,7 @@ All text above, and the splash screen below must be included in any redistributi
  #define pgm_read_byte(addr) (*(const unsigned char *)(addr))
 #endif
 
-#if !defined(__SAM3X8E__) && !defined(ARDUINO_ARCH_SAMD) && !defined(ESP8266) && !defined(ARDUINO_ARCH_STM32F2)
+#if !defined(ARDUINO_ARCH_SAM) && !defined(ARDUINO_ARCH_SAMD) && !defined(ESP8266) && !defined(ARDUINO_ARCH_STM32F2)
  #include <util/delay.h>
 #endif
 
