@@ -8,7 +8,7 @@ MCU               | Tested Works | Doesn't Work | Not Tested  | Notes
 Atmega328 @ 16MHz |             |             |     X       | I2C 128x32 works!
 Atmega328 @ 12MHz |             |             |     X       | I2C 128x32 works!
 Atmega32u4 @ 16MHz |             |             |     X       | I2C 128x32 works!
-Atmega32u4 @ 8MHz |             |             |     X       | 
+Atmega32u4 @ 8MHz |             |             |     X       | I2C 128x32 works!
 ESP8266           |             |             |     X       | 
 Atmega2560 @ 16MHz |             |             |     X       | 
 ATSAM3X8E         |             |             |     X       | 
