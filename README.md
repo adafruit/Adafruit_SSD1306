@@ -12,9 +12,9 @@ Atmega32u4 @ 8MHz |             |             |     X       | I2C 128x32 works!
 ESP8266           |             |      X       |            | OLED is blank but serial print works.
 Atmega2560 @ 16MHz |             |             |     X       | I2C 128x32 works!
 ATSAM3X8E         |             |             |     X       | I2C 128x32 works!
-ATSAM21D          |             |             |     X       | 
-ATtiny85 @ 16MHz  |             |             |     X       | 
-ATtiny85 @ 8M     |             |             |     X       | 
+ATSAM21D          |             |             |     X       | I2C 128x32 works!
+ATtiny85 @ 16MHz  |             |      X       |            | 
+ATtiny85 @ 8M     |             |      X       |            | 
 
   * ATmega328 @ 16MHz : Arduino UNO, Adafruit Pro Trinket 5V, Adafruit Metro 328, Adafruit Metro Mini
   * ATmega328 @ 12MHz : Adafruit Pro Trinket 3V
