@@ -9,7 +9,7 @@ Atmega328 @ 16MHz |             |             |     X       | I2C 128x32 works!
 Atmega328 @ 12MHz |             |             |     X       | I2C 128x32 works!
 Atmega32u4 @ 16MHz |             |             |     X       | I2C 128x32 works!
 Atmega32u4 @ 8MHz |             |             |     X       | I2C 128x32 works!
-ESP8266           |             |      X       |            | OLED is blank but serial print works.
+ESP8266           |             |             |     X       | I2C 128x32 works, change OLED_RESET to different pin if using default I2C pins D4/D5.
 Atmega2560 @ 16MHz |             |             |     X       | I2C 128x32 works!
 ATSAM3X8E         |             |             |     X       | I2C 128x32 works!
 ATSAM21D          |             |             |     X       | I2C 128x32 works!
