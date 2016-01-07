@@ -29,11 +29,13 @@ All text above, and the splash screen must be included in any redistribution
 #if defined(__SAM3X8E__)
  typedef volatile RwReg PortReg;
  typedef uint32_t PortMask;
+ #define HAVE_PORTREG
 #elif defined(ARDUINO_ARCH_SAMD)
 // not supported
 #else
   typedef volatile uint8_t PortReg;
   typedef uint8_t PortMask;
+ #define HAVE_PORTREG
 #endif
 
 #include <SPI.h>
@@ -165,7 +167,7 @@ class Adafruit_SSD1306 : public Adafruit_GFX {
   void fastSPIwrite(uint8_t c);
 
   boolean hwSPI;
-#ifdef PortReg
+#ifdef HAVE_PORTREG
   PortReg *mosiport, *clkport, *csport, *dcport;
   PortMask mosipinmask, clkpinmask, cspinmask, dcpinmask;
 #endif

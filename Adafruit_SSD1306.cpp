@@ -174,7 +174,7 @@ void Adafruit_SSD1306::begin(uint8_t vccstate, uint8_t i2caddr, bool reset) {
   if (sid != -1){
     pinMode(dc, OUTPUT);
     pinMode(cs, OUTPUT);
-#ifdef PortReg
+#ifdef HAVE_PORTREG
     csport      = portOutputRegister(digitalPinToPort(cs));
     cspinmask   = digitalPinToBitMask(cs);
     dcport      = portOutputRegister(digitalPinToPort(dc));
@@ -184,7 +184,7 @@ void Adafruit_SSD1306::begin(uint8_t vccstate, uint8_t i2caddr, bool reset) {
       // set pins for software-SPI
       pinMode(sid, OUTPUT);
       pinMode(sclk, OUTPUT);
-#ifdef PortReg
+#ifdef HAVE_PORTREG
       clkport     = portOutputRegister(digitalPinToPort(sclk));
       clkpinmask  = digitalPinToBitMask(sclk);
       mosiport    = portOutputRegister(digitalPinToPort(sid));
@@ -298,7 +298,7 @@ void Adafruit_SSD1306::ssd1306_command(uint8_t c) {
   if (sid != -1)
   {
     // SPI
-#ifdef PortReg
+#ifdef HAVE_PORTREG
     *csport |= cspinmask;
     *dcport &= ~dcpinmask;
     *csport &= ~cspinmask;
@@ -308,7 +308,7 @@ void Adafruit_SSD1306::ssd1306_command(uint8_t c) {
     digitalWrite(cs, LOW);
 #endif
     fastSPIwrite(c);
-#ifdef PortReg
+#ifdef HAVE_PORTREG
     *csport |= cspinmask;
 #else
     digitalWrite(cs, HIGH);
@@ -418,7 +418,7 @@ void Adafruit_SSD1306::ssd1306_data(uint8_t c) {
   if (sid != -1)
   {
     // SPI
-#ifdef PortReg
+#ifdef HAVE_PORTREG
     *csport |= cspinmask;
     *dcport |= dcpinmask;
     *csport &= ~cspinmask;
@@ -428,7 +428,7 @@ void Adafruit_SSD1306::ssd1306_data(uint8_t c) {
     digitalWrite(cs, LOW);
 #endif
     fastSPIwrite(c);
-#ifdef PortReg
+#ifdef HAVE_PORTREG
     *csport |= cspinmask;
 #else
     digitalWrite(cs, HIGH);
@@ -465,7 +465,7 @@ void Adafruit_SSD1306::display(void) {
   if (sid != -1)
   {
     // SPI
-#ifdef PortReg
+#ifdef HAVE_PORTREG
     *csport |= cspinmask;
     *dcport |= dcpinmask;
     *csport &= ~cspinmask;
@@ -479,7 +479,7 @@ void Adafruit_SSD1306::display(void) {
       fastSPIwrite(buffer[i]);
       //ssd1306_data(buffer[i]);
     }
-#ifdef PortReg
+#ifdef HAVE_PORTREG
     *csport |= cspinmask;
 #else
     digitalWrite(cs, HIGH);
@@ -526,7 +526,7 @@ inline void Adafruit_SSD1306::fastSPIwrite(uint8_t d) {
     (void)SPI.transfer(d);
   } else {
     for(uint8_t bit = 0x80; bit; bit >>= 1) {
-#ifdef PortReg
+#ifdef HAVE_PORTREG
       *clkport &= ~clkpinmask;
       if(d & bit) *mosiport |=  mosipinmask;
       else        *mosiport &= ~mosipinmask;
