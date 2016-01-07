@@ -414,37 +414,6 @@ void Adafruit_SSD1306::dim(boolean dim) {
   ssd1306_command(contrast);
 }
 
-void Adafruit_SSD1306::ssd1306_data(uint8_t c) {
-  if (sid != -1)
-  {
-    // SPI
-#ifdef HAVE_PORTREG
-    *csport |= cspinmask;
-    *dcport |= dcpinmask;
-    *csport &= ~cspinmask;
-#else
-    digitalWrite(cs, HIGH);
-    digitalWrite(dc, HIGH);
-    digitalWrite(cs, LOW);
-#endif
-    fastSPIwrite(c);
-#ifdef HAVE_PORTREG
-    *csport |= cspinmask;
-#else
-    digitalWrite(cs, HIGH);
-#endif
-  }
-  else
-  {
-    // I2C
-    uint8_t control = 0x40;   // Co = 0, D/C = 1
-    Wire.beginTransmission(_i2caddr);
-    WIRE_WRITE(control);
-    WIRE_WRITE(c);
-    Wire.endTransmission();
-  }
-}
-
 void Adafruit_SSD1306::display(void) {
   ssd1306_command(SSD1306_COLUMNADDR);
   ssd1306_command(0);   // Column start address (0 = reset)
@@ -477,7 +446,6 @@ void Adafruit_SSD1306::display(void) {
 
     for (uint16_t i=0; i<(SSD1306_LCDWIDTH*SSD1306_LCDHEIGHT/8); i++) {
       fastSPIwrite(buffer[i]);
-      //ssd1306_data(buffer[i]);
     }
 #ifdef HAVE_PORTREG
     *csport |= cspinmask;
