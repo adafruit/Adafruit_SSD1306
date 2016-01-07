@@ -554,8 +554,8 @@ void Adafruit_SSD1306::display(void) {
       Wire.beginTransmission(_i2caddr);
       WIRE_WRITE(0x40);
       for (uint8_t x=0; x<16; x++) {
-	WIRE_WRITE(buffer[i]);
-	i++;
+        WIRE_WRITE(buffer[i]);
+        i++;
       }
       i--;
       Wire.endTransmission();
