@@ -282,6 +282,8 @@ void Adafruit_SSD1306::begin(uint8_t vccstate, uint8_t i2caddr, bool reset) {
   ssd1306_command(SSD1306_DISPLAYALLON_RESUME);           // 0xA4
   ssd1306_command(SSD1306_NORMALDISPLAY);                 // 0xA6
 
+  ssd1306_command(SSD1306_DEACTIVATE_SCROLL);
+
   ssd1306_command(SSD1306_DISPLAYON);//--turn on oled panel
 }
 
