@@ -32,6 +32,9 @@ All text above, and the splash screen must be included in any redistribution
  #define HAVE_PORTREG
 #elif defined(ARDUINO_ARCH_SAMD)
 // not supported
+#elif defined(ESP8266)
+  typedef volatile uint32_t PortReg;
+  typedef uint32_t PortMask;
 #else
   typedef volatile uint8_t PortReg;
   typedef uint8_t PortMask;
