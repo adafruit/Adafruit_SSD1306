@@ -6,7 +6,7 @@
 MCU               | Tested Works | Doesn't Work | Not Tested  | Notes
 ----------------- | :----------: | :----------: | :---------: | -----
 Atmega328 @ 16MHz |             |             |     X       | 128x32 I2C &amp; SPI works!
-Atmega328 @ 12MHz |             |             |     X       | I2C 128x32 works!
+Atmega328 @ 12MHz |             |             |     X       | 128x32 I2C &amp; SPI works!
 Atmega32u4 @ 16MHz |             |             |     X       | I2C 128x32 works!
 Atmega32u4 @ 8MHz |             |             |     X       | I2C 128x32 works!
 ESP8266           |             |             |     X       | I2C 128x32 works, change OLED_RESET to different pin if using default I2C pins D4/D5.
