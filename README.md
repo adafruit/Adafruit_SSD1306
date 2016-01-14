@@ -5,14 +5,14 @@
 
 MCU               | Tested Works | Doesn't Work | Not Tested  | Notes
 ----------------- | :----------: | :----------: | :---------: | -----
-Atmega328 @ 16MHz |             |             |     X       | I2C 128x32 works!
-Atmega328 @ 12MHz |             |             |     X       | I2C 128x32 works!
-Atmega32u4 @ 16MHz |             |             |     X       | I2C 128x32 works!
-Atmega32u4 @ 8MHz |             |             |     X       | I2C 128x32 works!
-ESP8266           |             |             |     X       | I2C 128x32 works, change OLED_RESET to different pin if using default I2C pins D4/D5.
-Atmega2560 @ 16MHz |             |             |     X       | I2C 128x32 works!
-ATSAM3X8E         |             |             |     X       | I2C 128x32 works!
-ATSAM21D          |             |             |     X       | I2C 128x32 works!
+Atmega328 @ 16MHz |             |             |     X       | 128x64 I2C, 128x32 I2C &amp; SPI work!
+Atmega328 @ 12MHz |             |             |     X       | 128x64 I2C, 128x32 I2C &amp; SPI work!
+Atmega32u4 @ 16MHz |             |             |     X       | 128x64 I2C, 128x32 I2C &amp; SPI work!
+Atmega32u4 @ 8MHz |             |             |     X       | 128x64 I2C, 128x32 I2C &amp; SPI work!
+ESP8266           |             |             |     X       | 128x32 I2C &amp; SPI work! change OLED_RESET to different pin if using default I2C pins D4/D5.
+Atmega2560 @ 16MHz |             |             |     X       | 128x64 I2C, 128x32 I2C &amp; SPI work!
+ATSAM3X8E         |             |             |     X       | 128x64 I2C, 128x32 I2C &amp; SPI work!
+ATSAM21D          |             |             |     X       | 128x64 I2C, 128x32 I2C &amp; SPI work!
 ATtiny85 @ 16MHz  |             |      X       |            | 
 ATtiny85 @ 8MHz   |             |      X       |            | 
 
