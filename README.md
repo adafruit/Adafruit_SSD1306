@@ -5,7 +5,7 @@
 
 MCU               | Tested Works | Doesn't Work | Not Tested  | Notes
 ----------------- | :----------: | :----------: | :---------: | -----
-Atmega328 @ 16MHz |             |             |     X       | 128x64 I2C, 128x32 I2C &amp; SPI work!
+Atmega328 @ 16MHz |      X       |             |            | 
 Atmega328 @ 12MHz |             |             |     X       | 128x64 I2C, 128x32 I2C &amp; SPI work!
 Atmega32u4 @ 16MHz |             |             |     X       | 128x64 I2C, 128x32 I2C &amp; SPI work!
 Atmega32u4 @ 8MHz |             |             |     X       | 128x64 I2C, 128x32 I2C &amp; SPI work!
