@@ -153,6 +153,7 @@ void setup()   {
   display.clearDisplay();
   display.drawBitmap(30, 16,  logo16_glcd_bmp, 16, 16, 1);
   display.display();
+  delay(1);
 
   // invert the display
   display.invertDisplay(true);
@@ -223,12 +224,14 @@ void testdrawchar(void) {
       display.println();
   }    
   display.display();
+  delay(1);
 }
 
 void testdrawcircle(void) {
   for (int16_t i=0; i<display.height(); i+=2) {
     display.drawCircle(display.width()/2, display.height()/2, i, WHITE);
     display.display();
+    delay(1);
   }
 }
 
@@ -238,6 +241,7 @@ void testfillrect(void) {
     // alternate colors
     display.fillRect(i, i, display.width()-i*2, display.height()-i*2, color%2);
     display.display();
+    delay(1);
     color++;
   }
 }
@@ -248,6 +252,7 @@ void testdrawtriangle(void) {
                      display.width()/2-i, display.height()/2+i,
                      display.width()/2+i, display.height()/2+i, WHITE);
     display.display();
+    delay(1);
   }
 }
 
@@ -260,6 +265,7 @@ void testfilltriangle(void) {
     if (color == WHITE) color = BLACK;
     else color = WHITE;
     display.display();
+    delay(1);
   }
 }
 
@@ -267,6 +273,7 @@ void testdrawroundrect(void) {
   for (int16_t i=0; i<display.height()/2-2; i+=2) {
     display.drawRoundRect(i, i, display.width()-2*i, display.height()-2*i, display.height()/4, WHITE);
     display.display();
+    delay(1);
   }
 }
 
@@ -277,6 +284,7 @@ void testfillroundrect(void) {
     if (color == WHITE) color = BLACK;
     else color = WHITE;
     display.display();
+    delay(1);
   }
 }
    
@@ -284,6 +292,7 @@ void testdrawrect(void) {
   for (int16_t i=0; i<display.height()/2; i+=2) {
     display.drawRect(i, i, display.width()-2*i, display.height()-2*i, WHITE);
     display.display();
+    delay(1);
   }
 }
 
@@ -291,10 +300,12 @@ void testdrawline() {
   for (int16_t i=0; i<display.width(); i+=4) {
     display.drawLine(0, 0, i, display.height()-1, WHITE);
     display.display();
+    delay(1);
   }
   for (int16_t i=0; i<display.height(); i+=4) {
     display.drawLine(0, 0, display.width()-1, i, WHITE);
     display.display();
+    delay(1);
   }
   delay(250);
   
@@ -302,10 +313,12 @@ void testdrawline() {
   for (int16_t i=0; i<display.width(); i+=4) {
     display.drawLine(0, display.height()-1, i, 0, WHITE);
     display.display();
+    delay(1);
   }
   for (int16_t i=display.height()-1; i>=0; i-=4) {
     display.drawLine(0, display.height()-1, display.width()-1, i, WHITE);
     display.display();
+    delay(1);
   }
   delay(250);
   
@@ -313,10 +326,12 @@ void testdrawline() {
   for (int16_t i=display.width()-1; i>=0; i-=4) {
     display.drawLine(display.width()-1, display.height()-1, i, 0, WHITE);
     display.display();
+    delay(1);
   }
   for (int16_t i=display.height()-1; i>=0; i-=4) {
     display.drawLine(display.width()-1, display.height()-1, 0, i, WHITE);
     display.display();
+    delay(1);
   }
   delay(250);
 
@@ -324,10 +339,12 @@ void testdrawline() {
   for (int16_t i=0; i<display.height(); i+=4) {
     display.drawLine(display.width()-1, 0, 0, i, WHITE);
     display.display();
+    delay(1);
   }
   for (int16_t i=0; i<display.width(); i+=4) {
     display.drawLine(display.width()-1, 0, i, display.height()-1, WHITE); 
     display.display();
+    delay(1);
   }
   delay(250);
 }
@@ -339,6 +356,7 @@ void testscrolltext(void) {
   display.clearDisplay();
   display.println("scroll");
   display.display();
+  delay(1);
  
   display.startscrollright(0x00, 0x0F);
   delay(2000);
