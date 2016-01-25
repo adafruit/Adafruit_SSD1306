@@ -414,6 +414,13 @@ void Adafruit_SSD1306::dim(boolean dim) {
   // it is useful to dim the display
   ssd1306_command(SSD1306_SETCONTRAST);
   ssd1306_command(contrast);
+
+  // save the dim state, exposed via public getter method isDimmed()
+  _isDimmed = dim;
+}
+
+bool Adafruit_SSD1306::isDimmed() {
+    return _isDimmed;
 }
 
 void Adafruit_SSD1306::display(void) {

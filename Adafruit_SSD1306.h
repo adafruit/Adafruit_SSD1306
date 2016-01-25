@@ -158,6 +158,7 @@ class Adafruit_SSD1306 : public Adafruit_GFX {
   void stopscroll(void);
 
   void dim(boolean dim);
+  bool isDimmed();
 
   void drawPixel(int16_t x, int16_t y, uint16_t color);
 
@@ -173,6 +174,8 @@ class Adafruit_SSD1306 : public Adafruit_GFX {
   PortReg *mosiport, *clkport, *csport, *dcport;
   PortMask mosipinmask, clkpinmask, cspinmask, dcpinmask;
 #endif
+
+  bool _isDimmed = false;
 
   inline void drawFastVLineInternal(int16_t x, int16_t y, int16_t h, uint16_t color) __attribute__((always_inline));
   inline void drawFastHLineInternal(int16_t x, int16_t y, int16_t w, uint16_t color) __attribute__((always_inline));
