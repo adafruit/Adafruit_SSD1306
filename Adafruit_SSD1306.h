@@ -29,11 +29,16 @@ All text above, and the splash screen must be included in any redistribution
 #if defined(__SAM3X8E__)
  typedef volatile RwReg PortReg;
  typedef uint32_t PortMask;
+ #define HAVE_PORTREG
 #elif defined(ARDUINO_ARCH_SAMD)
 // not supported
+#elif defined(ESP8266)
+  typedef volatile uint32_t PortReg;
+  typedef uint32_t PortMask;
 #else
   typedef volatile uint8_t PortReg;
   typedef uint8_t PortMask;
+ #define HAVE_PORTREG
 #endif
 
 #include <SPI.h>
@@ -43,7 +48,7 @@ All text above, and the splash screen must be included in any redistribution
 #define WHITE 1
 #define INVERSE 2
 
-#define SSD1306_I2C_ADDRESS   0x3C	// 011110+SA0+RW - 0x3C or 0x3D
+#define SSD1306_I2C_ADDRESS   0x3C  // 011110+SA0+RW - 0x3C or 0x3D
 // Address for 128x32 is 0x3C
 // Address for 128x64 is 0x3D (default) or 0x3C (if SA0 is grounded)
 
@@ -140,7 +145,6 @@ class Adafruit_SSD1306 : public Adafruit_GFX {
 
   void begin(uint8_t switchvcc = SSD1306_SWITCHCAPVCC, uint8_t i2caddr = SSD1306_I2C_ADDRESS, bool reset=true);
   void ssd1306_command(uint8_t c);
-  void ssd1306_data(uint8_t c);
 
   void clearDisplay(void);
   void invertDisplay(uint8_t i);
@@ -165,7 +169,7 @@ class Adafruit_SSD1306 : public Adafruit_GFX {
   void fastSPIwrite(uint8_t c);
 
   boolean hwSPI;
-#ifdef PortReg
+#ifdef HAVE_PORTREG
   PortReg *mosiport, *clkport, *csport, *dcport;
   PortMask mosipinmask, clkpinmask, cspinmask, dcpinmask;
 #endif
