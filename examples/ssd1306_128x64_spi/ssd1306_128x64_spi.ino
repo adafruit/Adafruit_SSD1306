@@ -67,7 +67,7 @@ static const unsigned char PROGMEM logo16_glcd_bmp[] =
 
 void setup()   {                
   Serial.begin(9600);
-  
+
   // by default, we'll generate the high voltage from the 3.3v line internally! (neat!)
   display.begin(SSD1306_SWITCHCAPVCC);
   // init done
@@ -146,7 +146,7 @@ void setup()   {
   testscrolltext();
   delay(2000);
   display.clearDisplay();
-  
+
   // text display tests
   display.setTextSize(1);
   display.setTextColor(WHITE);
@@ -159,9 +159,9 @@ void setup()   {
   display.print("0x"); display.println(0xDEADBEEF, HEX);
   display.display();
   delay(2000);
+  display.clearDisplay();
 
   // miniature bitmap display
-  display.clearDisplay();
   display.drawBitmap(30, 16,  logo16_glcd_bmp, 16, 16, 1);
   display.display();
 
@@ -170,6 +170,7 @@ void setup()   {
   delay(1000); 
   display.invertDisplay(false);
   delay(1000); 
+  display.clearDisplay();
 
   // draw a bitmap icon and 'animate' movement
   testdrawbitmap(logo16_glcd_bmp, LOGO16_GLCD_HEIGHT, LOGO16_GLCD_WIDTH);
