@@ -727,3 +727,8 @@ void Adafruit_SSD1306::drawFastVLineInternal(int16_t x, int16_t __y, int16_t __h
     }
   }
 }
+
+uint8_t* Adafruit_SSD1306::getBuffer()
+{
+  return buffer;
+}
