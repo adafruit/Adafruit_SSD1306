@@ -66,8 +66,8 @@ All text above, and the splash screen must be included in any redistribution
     SSD1306_96_16
 
     -----------------------------------------------------------------------*/
-//   #define SSD1306_128_64
-   #define SSD1306_128_32
+   #define SSD1306_128_64
+//   #define SSD1306_128_32
 //   #define SSD1306_96_16
 /*=========================================================================*/
 
@@ -157,13 +157,18 @@ class Adafruit_SSD1306 : public Adafruit_GFX {
   void startscrolldiagleft(uint8_t start, uint8_t stop);
   void stopscroll(void);
 
+  void scrollPhysicalUp(uint8_t c, uint16_t color = BLACK);
+  void scrollPhysicalDown(uint8_t c, uint16_t color = BLACK);
+  void scrollPhysicalLeft(uint8_t c, uint16_t color = BLACK);
+  void scrollPhysicalRight(uint8_t c, uint16_t color = BLACK);
+
   void dim(boolean dim);
 
   void drawPixel(int16_t x, int16_t y, uint16_t color);
 
   virtual void drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color);
   virtual void drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color);
-
+    
  private:
   int8_t _i2caddr, _vccstate, sid, sclk, dc, rst, cs;
   void fastSPIwrite(uint8_t c);

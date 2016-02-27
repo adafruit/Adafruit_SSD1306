@@ -727,3 +727,126 @@ void Adafruit_SSD1306::drawFastVLineInternal(int16_t x, int16_t __y, int16_t __h
     }
   }
 }
+
+void Adafruit_SSD1306::scrollPhysicalLeft(uint8_t c, uint16_t color) {
+    if (c > 0 && c < SSD1306_LCDWIDTH) {
+        int16_t to, from, c1 ;
+
+        // shift left
+        for (int16_t x=0; x < SSD1306_LCDWIDTH-c; x++) {
+            for (int16_t y=0; y < SSD1306_LCDHEIGHT/8; y++) {
+                to = x + y * SSD1306_LCDWIDTH;
+                from = to + c;
+                
+                buffer[to] = buffer[from];
+            }
+        }
+
+        // fill with color
+        for (int16_t x=SSD1306_LCDWIDTH-c; x < SSD1306_LCDWIDTH; x++) {
+            for (int16_t y=0; y < SSD1306_LCDHEIGHT/8; y++) {
+                to = x + y * SSD1306_LCDWIDTH;
+                
+                buffer[to] = color * 0xff;
+            }
+        }
+    }
+}
+
+void Adafruit_SSD1306::scrollPhysicalRight(uint8_t c, uint16_t color) {
+    if (c > 0 && c < SSD1306_LCDWIDTH) {
+        int16_t to, from ;
+
+        // shift right
+        for (int16_t x=SSD1306_LCDWIDTH-1; x > c ; x--) {
+            for (int16_t y=0; y < SSD1306_LCDHEIGHT/8; y++) {
+                to = x + y * SSD1306_LCDWIDTH;
+                from = to - c;
+                
+                buffer[to] = buffer[from];
+            }
+        }
+
+        // fill with color
+        for (int16_t x=c; x >= 0 ; x--) {
+            for (int16_t y=0; y < SSD1306_LCDHEIGHT/8; y++) {
+                to = x + y * SSD1306_LCDWIDTH;
+                
+                buffer[to] = color * 0xff;
+            }
+        }
+    }
+}
+
+void Adafruit_SSD1306::scrollPhysicalUp(uint8_t c, uint16_t color) {
+    if (c > 0 && c < SSD1306_LCDHEIGHT) {
+        int16_t to, from, c1 ;
+        
+        c1 = (SSD1306_LCDHEIGHT-c-1)/8;
+        
+        // scroll lines 0 ... n-1
+        for (int16_t y=0; y <= c1-1; y++) {
+            for (int16_t x=0; x < SSD1306_LCDWIDTH; x++) {
+                to = x + y * SSD1306_LCDWIDTH;
+                from = to + (c / 8) * SSD1306_LCDWIDTH;
+                
+                buffer[to] = (buffer[from] >> (c % 8)) |
+                             (buffer[from + SSD1306_LCDWIDTH] << (8 - (c % 8)));
+            }
+        }
+
+        // scroll last line
+        for (int16_t x=0; x < SSD1306_LCDWIDTH; x++) {
+            to = x + c1 * SSD1306_LCDWIDTH;
+            from = to + (c / 8) * SSD1306_LCDWIDTH;
+            
+            buffer[to] = (buffer[from] >> (c % 8)) |
+                         ((0xff * color) << (8 - (c % 8)));
+        }
+
+        // fill rest with selected color
+        for (int16_t y=c1+1; y < SSD1306_LCDHEIGHT/8; y++) {
+            for (int16_t x=0; x < SSD1306_LCDWIDTH; x++) {
+                to = x + y * SSD1306_LCDWIDTH;
+                
+                buffer[to] = 0xff * color;
+            }
+        }
+    }
+}
+
+void Adafruit_SSD1306::scrollPhysicalDown(uint8_t c, uint16_t color) {
+    if (c > 0 && c < SSD1306_LCDHEIGHT) {
+        int16_t to, from, c1 ;
+        
+        c1 = c/8;
+        
+        // scroll lines SSD1306_LCDHEIGHT ... c/8
+        for (int16_t y=SSD1306_LCDHEIGHT/8-1; y >= c1+1; y--) {
+            for (int16_t x=0; x < SSD1306_LCDWIDTH; x++) {
+                to = x + y * SSD1306_LCDWIDTH;
+                from = to - (c / 8) * SSD1306_LCDWIDTH;
+                
+                buffer[to] = (buffer[from] << (c % 8)) |
+                (buffer[from - SSD1306_LCDWIDTH] >> (8 - (c % 8)));
+            }
+        }
+        
+        // scroll first line
+        for (int16_t x=0; x < SSD1306_LCDWIDTH; x++) {
+            to = x + c1 * SSD1306_LCDWIDTH;
+            from = to - (c / 8) * SSD1306_LCDWIDTH;
+
+            buffer[to] = (buffer[from] << (c % 8)) |
+                         ((0xff * color) >> (8 - (c % 8)));
+        }
+
+        for (int16_t y=c1-1; y >= 0; y--) {
+            for (int16_t x=0; x < SSD1306_LCDWIDTH; x++) {
+                to = x + y * SSD1306_LCDWIDTH;
+                
+                buffer[to] = 0xff * color;
+            }
+        }
+    }
+}
