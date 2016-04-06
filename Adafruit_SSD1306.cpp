@@ -467,12 +467,15 @@ bool Adafruit_SSD1306::begin(uint8_t vcs, uint8_t addr, bool reset,
     return false;
 
   clearDisplay();
-  if (HEIGHT > 32) {
+  if (WIDTH > 64 && HEIGHT > 32) {
     drawBitmap((WIDTH - splash1_width) / 2, (HEIGHT - splash1_height) / 2,
                splash1_data, splash1_width, splash1_height, 1);
-  } else {
+  } else if(WIDTH > 64) {
     drawBitmap((WIDTH - splash2_width) / 2, (HEIGHT - splash2_height) / 2,
                splash2_data, splash2_width, splash2_height, 1);
+  } else {
+    drawBitmap((WIDTH - splash3_width) / 2, (HEIGHT - splash3_height) / 2,
+      splash3_data, splash3_width, splash3_height, 1);
   }
 
   vccstate = vcs;
@@ -563,6 +566,13 @@ bool Adafruit_SSD1306::begin(uint8_t vcs, uint8_t addr, bool reset,
   } else if ((WIDTH == 96) && (HEIGHT == 16)) {
     comPins = 0x2; // ada x12
     contrast = (vccstate == SSD1306_EXTERNALVCC) ? 0x10 : 0xAF;
+  } else if ((WIDTH == 64) && (HEIGHT == 48)) {
+    static const uint8_t PROGMEM init4d[] = {
+      SSD1306_SETCOMPINS,                 // 0xDA
+      0x12,
+      SSD1306_SETCONTRAST };              // 0x81
+    ssd1306_commandList(init4d, sizeof(init4d));
+    ssd1306_command1((vccstate == SSD1306_EXTERNALVCC) ? 0x9F : 0xCF);
   } else {
     // Other screen varieties -- TBD
   }
@@ -925,13 +935,27 @@ uint8_t *Adafruit_SSD1306::getBuffer(void) { return buffer; }
 */
 void Adafruit_SSD1306::display(void) {
   TRANSACTION_START
-  static const uint8_t PROGMEM dlist1[] = {
+  if ((WIDTH != 64) || (HEIGHT != 48)) {
+    static const uint8_t PROGMEM dlist1a[] = {
       SSD1306_PAGEADDR,
-      0,                      // Page start address
-      0xFF,                   // Page end (not really, but works here)
-      SSD1306_COLUMNADDR, 0}; // Column start address
-  ssd1306_commandList(dlist1, sizeof(dlist1));
-  ssd1306_command1(WIDTH - 1); // Column end address
+      0,                         // Page start address
+      0xFF,                      // Page end (not really, but works here)
+      SSD1306_COLUMNADDR,
+      0 };                       // Column start address
+    ssd1306_commandList(dlist1a, sizeof(dlist1a));
+    ssd1306_command1(WIDTH - 1); // Column end address
+  } else {
+    static const uint8_t PROGMEM dlist1b[] = {
+      SSD1306_PAGEADDR,
+      0 };                       // Page start address
+    ssd1306_commandList(dlist1b, sizeof(dlist1b));
+    ssd1306_command1((HEIGHT / 8) - 1); // Page end address
+    static const uint8_t PROGMEM dlist2b[] = {
+      SSD1306_COLUMNADDR,
+      32 };                       // Column start address
+    ssd1306_commandList(dlist2b, sizeof(dlist2b));
+    ssd1306_command1(32 + WIDTH - 1); // Column end address
+  }
 
 #if defined(ESP8266)
   // ESP8266 needs a periodic yield() call to avoid watchdog reset.
