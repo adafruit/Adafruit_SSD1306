@@ -7,11 +7,11 @@ This is an example for our Monochrome OLEDs based on SSD1306 drivers
 This example is for a 128x32 size display using I2C to communicate
 3 pins are required to interface (2 I2C and one reset)
 
-Adafruit invests time and resources providing this open source code, 
+Adafruit invests time and resources providing this open source code,
 please support Adafruit and open-source hardware by purchasing 
 products from Adafruit!
 
-Written by Limor Fried/Ladyada  for Adafruit Industries.  
+Written by Limor Fried/Ladyada  for Adafruit Industries.
 BSD license, check license.txt for more information
 All text above, and the splash screen must be included in any redistribution
 *********************************************************************/
@@ -30,8 +30,8 @@ Adafruit_SSD1306 display(OLED_RESET);
 #define DELTAY 2
 
 
-#define LOGO16_GLCD_HEIGHT 16 
-#define LOGO16_GLCD_WIDTH  16 
+#define LOGO16_GLCD_HEIGHT 16
+#define LOGO16_GLCD_WIDTH  16
 static const unsigned char PROGMEM logo16_glcd_bmp[] =
 { B00000000, B11000000,
   B00000001, B11000000,
@@ -54,13 +54,13 @@ static const unsigned char PROGMEM logo16_glcd_bmp[] =
 #error("Height incorrect, please fix Adafruit_SSD1306.h!");
 #endif
 
-void setup()   {                
+void setup()   {
   Serial.begin(9600);
 
   // by default, we'll generate the high voltage from the 3.3v line internally! (neat!)
   display.begin(SSD1306_SWITCHCAPVCC, SSD1306_I2C_ADDRESS);
   // init done
-  
+
   // Show image buffer on the display hardware.
   // Since the buffer is intialized with an Adafruit splashscreen
   // internally, this will display the splashscreen.
@@ -120,7 +120,7 @@ void setup()   {
   testdrawtriangle();
   delay(2000);
   display.clearDisplay();
-   
+
   testfilltriangle();
   delay(2000);
   display.clearDisplay();
@@ -157,9 +157,9 @@ void setup()   {
 
   // invert the display
   display.invertDisplay(true);
-  delay(1000); 
+  delay(1000);
   display.invertDisplay(false);
-  delay(1000); 
+  delay(1000);
   display.clearDisplay();
 
   // draw a bitmap icon and 'animate' movement
@@ -168,19 +168,19 @@ void setup()   {
 
 
 void loop() {
-  
+
 }
 
 
 void testdrawbitmap(const uint8_t *bitmap, uint8_t w, uint8_t h) {
   uint8_t icons[NUMFLAKES][3];
- 
+
   // initialize
   for (uint8_t f=0; f< NUMFLAKES; f++) {
     icons[f][XPOS] = random(display.width());
     icons[f][YPOS] = 0;
     icons[f][DELTAY] = random(5) + 1;
-    
+
     Serial.print("x: ");
     Serial.print(icons[f][XPOS], DEC);
     Serial.print(" y: ");
@@ -196,7 +196,7 @@ void testdrawbitmap(const uint8_t *bitmap, uint8_t w, uint8_t h) {
     }
     display.display();
     delay(200);
-    
+
     // then erase it + move it
     for (uint8_t f=0; f< NUMFLAKES; f++) {
       display.drawBitmap(icons[f][XPOS], icons[f][YPOS], bitmap, w, h, BLACK);
@@ -223,7 +223,7 @@ void testdrawchar(void) {
     display.write(i);
     if ((i > 0) && (i % 21 == 0))
       display.println();
-  }    
+  }
   display.display();
   delay(1);
 }
@@ -288,7 +288,7 @@ void testfillroundrect(void) {
     delay(1);
   }
 }
-   
+
 void testdrawrect(void) {
   for (int16_t i=0; i<display.height()/2; i+=2) {
     display.drawRect(i, i, display.width()-2*i, display.height()-2*i, WHITE);
@@ -297,7 +297,7 @@ void testdrawrect(void) {
   }
 }
 
-void testdrawline() {  
+void testdrawline() {
   for (int16_t i=0; i<display.width(); i+=4) {
     display.drawLine(0, 0, i, display.height()-1, WHITE);
     display.display();
@@ -309,7 +309,7 @@ void testdrawline() {
     delay(1);
   }
   delay(250);
-  
+
   display.clearDisplay();
   for (int16_t i=0; i<display.width(); i+=4) {
     display.drawLine(0, display.height()-1, i, 0, WHITE);
@@ -322,7 +322,7 @@ void testdrawline() {
     delay(1);
   }
   delay(250);
-  
+
   display.clearDisplay();
   for (int16_t i=display.width()-1; i>=0; i-=4) {
     display.drawLine(display.width()-1, display.height()-1, i, 0, WHITE);
@@ -343,7 +343,7 @@ void testdrawline() {
     delay(1);
   }
   for (int16_t i=0; i<display.width(); i+=4) {
-    display.drawLine(display.width()-1, 0, i, display.height()-1, WHITE); 
+    display.drawLine(display.width()-1, 0, i, display.height()-1, WHITE);
     display.display();
     delay(1);
   }
@@ -358,7 +358,7 @@ void testscrolltext(void) {
   display.println("scroll");
   display.display();
   delay(1);
- 
+
   display.startscrollright(0x00, 0x0F);
   delay(2000);
   display.stopscroll();
@@ -366,7 +366,7 @@ void testscrolltext(void) {
   display.startscrollleft(0x00, 0x0F);
   delay(2000);
   display.stopscroll();
-  delay(1000);    
+  delay(1000);
   display.startscrolldiagright(0x00, 0x07);
   delay(2000);
   display.startscrolldiagleft(0x00, 0x07);
