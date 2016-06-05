@@ -19,41 +19,47 @@ All text above, and the splash screen must be included in any redistribution
 #include <SPI.h>
 #include <Wire.h>
 #include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
+#include "Adafruit_SSD1306.h"
 
 #if (SSD1306_LCDHEIGHT != 32)
 #error("Height incorrect, please fix Adafruit_SSD1306.h!");
 #endif
 
 // PROGMEM would crash the ESP8266 archs during display.drawBitmap() call so avoid that
-#if defined(ESP8266) 
-# define CONST_MEM_SPACE 
-#else 
+#ifndef ESP8266 
 # define CONST_MEM_SPACE PROGMEM
+#else 
+# define CONST_MEM_SPACE 
 #endif
 
-// comment out below to use software SPI
-#define SPI4
-// If using software SPI 4 (the default case):
-#ifdef SPI4
-# ifndef ESP8266
+// comment out below to use hardware SPI
+#define SPI_SOFT
+
+#ifndef ESP8266
+# ifdef SPI_SOFT
 #  define OLED_MOSI   9
 #  define OLED_CLK   10
 #  define OLED_DC    11
 #  define OLED_CS    12
 #  define OLED_RESET 13
-# else
+# else // hardware SPI
+#  define OLED_DC     6
+#  define OLED_CS     7
+#  define OLED_RESET  8
+# endif
+#else // for ESP8266 MCU family
+# ifdef SPI_SOFT
 #  define OLED_CLK   SCK  // pin D5 to CLK
 #  define OLED_MOSI  MOSI // pin D7 to Data
-#  define OLED_CS    SS   // pin D8 to CS
-#  define OLED_RESET D3   // pin D3 to Rst
-#  define OLED_DC    D0   // pin D0 to DC
 # endif
+# define OLED_CS    SS   // pin D8 to CS
+# define OLED_RESET D3   // pin D3 to Rst
+# define OLED_DC    D0   // pin D0 to DC
+#endif
+
+#ifdef SPI_SOFT
 Adafruit_SSD1306 display(OLED_MOSI, OLED_CLK, OLED_DC, OLED_RESET, OLED_CS);
-#else // software SPI
-# define OLED_DC     6
-# define OLED_CS     7
-# define OLED_RESET  8
+#else
 Adafruit_SSD1306 display(OLED_DC, OLED_RESET, OLED_CS);
 #endif
 
@@ -66,7 +72,7 @@ Adafruit_SSD1306 display(OLED_DC, OLED_RESET, OLED_CS);
 #define LOGO16_GLCD_WIDTH  16 
 
 // Pause between examples in non-interactive mode
-#define PAUSE_MS           2000
+#define PAUSE_MS           20
 
 // Set to 1 below to use serial monitor and be prompted to press a key between each test
 #define INTERACTIVE_MODE   0
@@ -110,7 +116,8 @@ void setup() {
   // by default, we'll generate the high voltage from the 3.3v line internally! (neat!)
   display.begin(SSD1306_SWITCHCAPVCC);
   // init done
-  
+ 
+
   // Show image buffer on the display hardware.
   // Since the buffer is intialized with an Adafruit splashscreen
   // internally, this will display the splashscreen.
@@ -191,9 +198,9 @@ void loop() {
 
 void testinvertdisplay() {
   display.invertDisplay(true);
-  delay(PAUSE_MS >> 1); 
+  delay(1000); 
   display.invertDisplay(false);
-  delay(PAUSE_MS >> 1); 
+  delay(1000); 
   display.clearDisplay();
 }
 
@@ -396,3 +403,4 @@ void testscrolltext(void) {
   delay(2000);
   display.stopscroll();
 }
+
