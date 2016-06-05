@@ -33,7 +33,7 @@ All text above, and the splash screen must be included in any redistribution
 #endif
 
 // comment out below to use hardware SPI
-#define SPI_SOFT
+//#define SPI_SOFT
 
 #ifndef ESP8266
 # ifdef SPI_SOFT
@@ -72,7 +72,7 @@ Adafruit_SSD1306 display(OLED_DC, OLED_RESET, OLED_CS);
 #define LOGO16_GLCD_WIDTH  16 
 
 // Pause between examples in non-interactive mode
-#define PAUSE_MS           20
+#define PAUSE_MS           2000
 
 // Set to 1 below to use serial monitor and be prompted to press a key between each test
 #define INTERACTIVE_MODE   0
