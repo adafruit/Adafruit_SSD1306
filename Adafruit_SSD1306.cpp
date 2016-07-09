@@ -208,6 +208,8 @@ void Adafruit_SSD1306::begin(uint8_t vccstate, uint8_t i2caddr, bool reset) {
     // Force 400 KHz I2C, rawr! (Uses pins 20, 21 for SDA, SCL)
     TWI1->TWI_CWGR = 0;
     TWI1->TWI_CWGR = ((VARIANT_MCK / (2 * 400000)) - 4) * 0x101;
+#elif ARDUINO >= 157
+    Wire.setClock(400000UL); // Set I2C frequency to 400kHz
 #endif
   }
   if ((reset) && (rst >= 0)) {
