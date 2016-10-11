@@ -24,7 +24,7 @@ All text above, and the splash screen below must be included in any redistributi
  #define pgm_read_byte(addr) (*(const unsigned char *)(addr))
 #endif
 
-#if !defined(__ARM_ARCH) && !defined(ENERGIA) && !defined(ESP8266)
+#if !defined(__ARM_ARCH) && !defined(ENERGIA) && !defined(ESP8266) && !defined(__arc__)
  #include <util/delay.h>
 #endif
 
