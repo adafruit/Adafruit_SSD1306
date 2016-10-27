@@ -18,13 +18,13 @@ All text above, and the splash screen below must be included in any redistributi
 
 #ifdef __AVR__
   #include <avr/pgmspace.h>
-#elif defined(ESP8266)
+#elif defined(ESP8266) || defined(ESP32)
  #include <pgmspace.h>
 #else
  #define pgm_read_byte(addr) (*(const unsigned char *)(addr))
 #endif
 
-#if !defined(__ARM_ARCH) && !defined(ENERGIA) && !defined(ESP8266)
+#if !defined(__ARM_ARCH) && !defined(ENERGIA) && !defined(ESP8266) && !defined(ESP32)
  #include <util/delay.h>
 #endif
 
