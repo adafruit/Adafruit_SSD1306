@@ -55,6 +55,7 @@ static uint8_t buffer[SSD1306_LCDHEIGHT * SSD1306_LCDWIDTH / 8] = {
 0x80, 0xFF, 0xFF, 0x80, 0x80, 0x00, 0x80, 0x80, 0x00, 0x80, 0x80, 0x80, 0x80, 0x00, 0x80, 0x80,
 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0x80, 0x00, 0x00, 0x8C, 0x8E, 0x84, 0x00, 0x00, 0x80, 0xF8,
 0xF8, 0xF8, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+#if (SSD1306_LCDHEIGHT * SSD1306_LCDWIDTH > 64*32)                                                // added for 64x32 display option
 0xF0, 0xF0, 0xF0, 0xF0, 0xF0, 0xF0, 0xF0, 0xF0, 0xF0, 0xF0, 0xF0, 0xF0, 0xE0, 0xE0, 0xC0, 0x80,
 0x00, 0xE0, 0xFC, 0xFE, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00,
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFE, 0xFF, 0xC7, 0x01, 0x01,
@@ -104,6 +105,7 @@ static uint8_t buffer[SSD1306_LCDHEIGHT * SSD1306_LCDWIDTH / 8] = {
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+#endif
 #endif
 #endif
 };
@@ -208,6 +210,8 @@ void Adafruit_SSD1306::begin(uint8_t vccstate, uint8_t i2caddr, bool reset) {
     // Force 400 KHz I2C, rawr! (Uses pins 20, 21 for SDA, SCL)
     TWI1->TWI_CWGR = 0;
     TWI1->TWI_CWGR = ((VARIANT_MCK / (2 * 400000)) - 4) * 0x101;
+#elif ARDUINO >= 157 // Send data MUCH faster to display
+    Wire.setClock(400000UL); // Set I2C frequency to 400kHz
 #endif
   }
   if ((reset) && (rst >= 0)) {
@@ -269,7 +273,16 @@ void Adafruit_SSD1306::begin(uint8_t vccstate, uint8_t i2caddr, bool reset) {
     { ssd1306_command(0x10); }
   else
     { ssd1306_command(0xAF); }
-
+#elif defined SSD1306_64_32
+      ssd1306_command(SSD1306_SETCOMPINS);                    // 0xDA
+      ssd1306_command(0x12);
+      ssd1306_command(SSD1306_SETCONTRAST);                   // 0x81
+      ssd1306_command(0xcf);
+      ssd1306_command(SSD1306_SETPRECHARGE);                  // 0xd9
+      if (vccstate == SSD1306_EXTERNALVCC)
+        { ssd1306_command(0x22); }
+      else
+        { ssd1306_command(0xF1); }
 #endif
 
   ssd1306_command(SSD1306_SETPRECHARGE);                  // 0xd9
@@ -418,8 +431,13 @@ void Adafruit_SSD1306::dim(boolean dim) {
 
 void Adafruit_SSD1306::display(void) {
   ssd1306_command(SSD1306_COLUMNADDR);
-  ssd1306_command(0);   // Column start address (0 = reset)
-  ssd1306_command(SSD1306_LCDWIDTH-1); // Column end address (127 = reset)
+  #if defined SSD1306_64_32 // Added by CL 2016-9-10
+    ssd1306_command(0x20);   // Column start address (0x20 = reset) - 64 pixel wide displays have starting values offset
+    ssd1306_command(0x20 + (SSD1306_LCDWIDTH-1)); // Column end address (127 = reset)  - 64 pixel wide displays have starting values offset - could use static 0x5F here
+  #else
+    ssd1306_command(0);   // Column start address (0 = reset)
+    ssd1306_command(SSD1306_LCDWIDTH-1); // Column end address (127 = reset)
+  #endif
 
   ssd1306_command(SSD1306_PAGEADDR);
   ssd1306_command(0); // Page start address (0 = reset)
