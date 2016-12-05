@@ -4,7 +4,7 @@ This is an example for our Monochrome OLEDs based on SSD1306 drivers
   Pick one up today in the adafruit shop!
   ------> http://www.adafruit.com/category/63_98
 
-This example is for a 128x32 size display using SPI to communicate
+This example is for a 128x64[32] size display using SPI to communicate
 4 or 5 pins are required to interface
 
 Adafruit invests time and resources providing this open source code, 
@@ -19,22 +19,49 @@ All text above, and the splash screen must be included in any redistribution
 #include <SPI.h>
 #include <Wire.h>
 #include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
+#include "Adafruit_SSD1306.h"
 
-// If using software SPI (the default case):
-#define OLED_MOSI   9
-#define OLED_CLK   10
-#define OLED_DC    11
-#define OLED_CS    12
-#define OLED_RESET 13
+#if (SSD1306_LCDHEIGHT != 32)
+#error("Height incorrect, please fix Adafruit_SSD1306.h!");
+#endif
+
+// PROGMEM would crash the ESP8266 archs during display.drawBitmap() call so avoid that
+#ifndef ESP8266 
+# define CONST_MEM_SPACE PROGMEM
+#else 
+# define CONST_MEM_SPACE 
+#endif
+
+// comment out below to use hardware SPI
+#define SPI_SOFT
+
+#ifndef ESP8266
+# ifdef SPI_SOFT
+#  define OLED_MOSI   9
+#  define OLED_CLK   10
+#  define OLED_DC    11
+#  define OLED_CS    12
+#  define OLED_RESET 13
+# else // hardware SPI
+#  define OLED_DC     6
+#  define OLED_CS     7
+#  define OLED_RESET  8
+# endif
+#else // for ESP8266 MCU family
+# ifdef SPI_SOFT
+#  define OLED_CLK   SCK  // pin D5 to CLK
+#  define OLED_MOSI  MOSI // pin D7 to Data
+# endif
+# define OLED_CS    SS   // pin D8 to CS
+# define OLED_RESET D3   // pin D3 to Rst
+# define OLED_DC    D0   // pin D0 to DC
+#endif
+
+#ifdef SPI_SOFT
 Adafruit_SSD1306 display(OLED_MOSI, OLED_CLK, OLED_DC, OLED_RESET, OLED_CS);
-
-/* Uncomment this block to use hardware SPI
-#define OLED_DC     6
-#define OLED_CS     7
-#define OLED_RESET  8
+#else
 Adafruit_SSD1306 display(OLED_DC, OLED_RESET, OLED_CS);
-*/
+#endif
 
 #define NUMFLAKES 10
 #define XPOS 0
@@ -43,7 +70,15 @@ Adafruit_SSD1306 display(OLED_DC, OLED_RESET, OLED_CS);
 
 #define LOGO16_GLCD_HEIGHT 16 
 #define LOGO16_GLCD_WIDTH  16 
-static const unsigned char PROGMEM logo16_glcd_bmp[] =
+
+// Pause between examples in non-interactive mode
+#define PAUSE_MS           2000
+
+// Set to 1 below to use serial monitor and be prompted to press a key between each test
+#define INTERACTIVE_MODE   0
+
+// Adafruit star logo 1bpp bitmap definition
+static const unsigned char CONST_MEM_SPACE logo16_glcd_bmp[] =
 { B00000000, B11000000,
   B00000001, B11000000,
   B00000001, B11000000,
@@ -61,25 +96,33 @@ static const unsigned char PROGMEM logo16_glcd_bmp[] =
   B01110000, B01110000,
   B00000000, B00110000 };
 
-#if (SSD1306_LCDHEIGHT != 32)
-#error("Height incorrect, please fix Adafruit_SSD1306.h!");
+void Pause(const char* message="") {
+  if(*message) Serial.println(message);
+// for interactive/debug mode, replace the value 0 by 1 in the line below:
+#if (INTERACTIVE_MODE==0)
+  delay(PAUSE_MS);
+#else // interactive mode
+  Serial.println(F("\nPress any key to continue..."));
+  while(Serial.available()==0);
+  while(Serial.available()) Serial.read();
 #endif
+  display.clearDisplay();
+}
 
-void setup()   {                
+void setup() {
   Serial.begin(9600);
-  
+  while(Serial.available()) Serial.read();
+
   // by default, we'll generate the high voltage from the 3.3v line internally! (neat!)
   display.begin(SSD1306_SWITCHCAPVCC);
   // init done
-  
+ 
+
   // Show image buffer on the display hardware.
   // Since the buffer is intialized with an Adafruit splashscreen
   // internally, this will display the splashscreen.
   display.display();
-  delay(2000);
-
-  // Clear the buffer.
-  display.clearDisplay();
+  Pause();
 
   // draw a single pixel
   display.drawPixel(10, 10, WHITE);
@@ -87,67 +130,81 @@ void setup()   {
   // NOTE: You _must_ call display after making any drawing commands
   // to make them visible on the display hardware!
   display.display();
-  delay(2000);
-  display.clearDisplay();
+  Pause();
 
   // draw many lines
   testdrawline();
   display.display();
-  delay(2000);
-  display.clearDisplay();
+  Pause();
 
   // draw rectangles
   testdrawrect();
   display.display();
-  delay(2000);
-  display.clearDisplay();
+  Pause();
 
   // draw multiple rectangles
   testfillrect();
   display.display();
-  delay(2000);
-  display.clearDisplay();
+  Pause();
 
   // draw mulitple circles
   testdrawcircle();
   display.display();
-  delay(2000);
-  display.clearDisplay();
+  Pause();
 
   // draw a white circle, 10 pixel radius
   display.fillCircle(display.width()/2, display.height()/2, 10, WHITE);
   display.display();
-  delay(2000);
-  display.clearDisplay();
+  Pause();
 
   testdrawroundrect();
-  delay(2000);
-  display.clearDisplay();
+  Pause();
 
   testfillroundrect();
-  delay(2000);
-  display.clearDisplay();
+  Pause();
 
   testdrawtriangle();
-  delay(2000);
-  display.clearDisplay();
+  Pause();
    
   testfilltriangle();
-  delay(2000);
-  display.clearDisplay();
+  Pause();
 
   // draw the first ~12 characters in the font
   testdrawchar();
-  display.display();
-  delay(2000);
-  display.clearDisplay();
+  Pause();
 
   // draw scrolling text
   testscrolltext();
-  delay(2000);
-  display.clearDisplay();
-
+  Pause();
+  
   // text display tests
+  testdisplaytext();
+  Pause();
+  
+  // miniature bitmap display
+  display.drawBitmap(30, 16,  logo16_glcd_bmp, 16, 16, 1);
+  display.display();
+
+  // invert the display
+  testinvertdisplay();
+  
+  // draw a bitmap icon and 'animate' movement, forever ...
+  testdrawbitmap(logo16_glcd_bmp, LOGO16_GLCD_HEIGHT, LOGO16_GLCD_WIDTH);
+}
+
+void loop() {
+  
+}
+
+void testinvertdisplay() {
+  display.invertDisplay(true);
+  delay(1000); 
+  display.invertDisplay(false);
+  delay(1000); 
+  display.clearDisplay();
+}
+
+void testdisplaytext() {
   display.setTextSize(1);
   display.setTextColor(WHITE);
   display.setCursor(0,0);
@@ -158,30 +215,10 @@ void setup()   {
   display.setTextColor(WHITE);
   display.print("0x"); display.println(0xDEADBEEF, HEX);
   display.display();
-  delay(2000);
-  display.clearDisplay();
 
-  // miniature bitmap display
-  display.drawBitmap(30, 16,  logo16_glcd_bmp, 16, 16, 1);
-  display.display();
-
-  // invert the display
-  display.invertDisplay(true);
-  delay(1000); 
-  display.invertDisplay(false);
-  delay(1000); 
-  display.clearDisplay();
-
-  // draw a bitmap icon and 'animate' movement
-  testdrawbitmap(logo16_glcd_bmp, LOGO16_GLCD_HEIGHT, LOGO16_GLCD_WIDTH);
 }
 
-
-void loop() {
-  
-}
-
-
+// random stars bitmaps falling top to bottom of the screen
 void testdrawbitmap(const uint8_t *bitmap, uint8_t w, uint8_t h) {
   uint8_t icons[NUMFLAKES][3];
  
@@ -366,3 +403,4 @@ void testscrolltext(void) {
   delay(2000);
   display.stopscroll();
 }
+
