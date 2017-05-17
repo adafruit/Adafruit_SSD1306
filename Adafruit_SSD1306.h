@@ -83,16 +83,11 @@ All text above, and the splash screen must be included in any redistribution
 #endif
 
 #if defined SSD1306_128_64
-  #define SSD1306_LCDWIDTH                  128
-  #define SSD1306_LCDHEIGHT                 64
-#endif
-#if defined SSD1306_128_32
-  #define SSD1306_LCDWIDTH                  128
-  #define SSD1306_LCDHEIGHT                 32
-#endif
-#if defined SSD1306_96_16
-  #define SSD1306_LCDWIDTH                  96
-  #define SSD1306_LCDHEIGHT                 16
+  #define SSD1306_DEFAULT_RES Adafruit_SSD1306::RES_128_64
+#elif defined SSD1306_128_32
+  #define SSD1306_DEFAULT_RES Adafruit_SSD1306::RES_128_32
+#elif defined SSD1306_96_16
+  #define SSD1306_DEFAULT_RES Adafruit_SSD1306::RES_96_16
 #endif
 
 #define SSD1306_SETCONTRAST 0x81
@@ -143,11 +138,13 @@ All text above, and the splash screen must be included in any redistribution
 
 class Adafruit_SSD1306 : public Adafruit_GFX {
  public:
-  Adafruit_SSD1306(int8_t SID, int8_t SCLK, int8_t DC, int8_t RST, int8_t CS);
-  Adafruit_SSD1306(int8_t DC, int8_t RST, int8_t CS);
-  Adafruit_SSD1306(int8_t RST = -1);
+  enum Resolution { RES_96_16, RES_128_32, RES_128_64 };
 
-  void begin(uint8_t switchvcc = SSD1306_SWITCHCAPVCC, uint8_t i2caddr = SSD1306_I2C_ADDRESS, bool reset=true);
+  Adafruit_SSD1306(int8_t SID, int8_t SCLK, int8_t DC, int8_t RST, int8_t CS, Resolution res = SSD1306_DEFAULT_RES);
+  Adafruit_SSD1306(int8_t DC, int8_t RST, int8_t CS, Resolution res = SSD1306_DEFAULT_RES);
+  Adafruit_SSD1306(int8_t RST = -1, Resolution res = SSD1306_DEFAULT_RES);
+
+  void begin(uint8_t switchvcc = SSD1306_SWITCHCAPVCC, uint8_t i2caddr = SSD1306_I2C_ADDRESS, bool reset = true);
   void ssd1306_command(uint8_t c);
 
   void clearDisplay(void);
@@ -169,8 +166,13 @@ class Adafruit_SSD1306 : public Adafruit_GFX {
   virtual void drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color);
 
  private:
-  int8_t _i2caddr, _vccstate, sid, sclk, dc, rst, cs;
   void fastSPIwrite(uint8_t c);
+  static int getW(Resolution res);
+  static int getH(Resolution res);
+
+  Resolution res;
+  int8_t _i2caddr, _vccstate, sid, sclk, dc, rst, cs;
+  uint8_t buffer[128 * 64 / 8];
 
   boolean hwSPI;
 #ifdef HAVE_PORTREG
