@@ -30,10 +30,29 @@ All text above, and the splash screen below must be included in any redistributi
 
 #include <stdlib.h>
 
-#include <Wire.h>
-#include <SPI.h>
 #include "Adafruit_GFX.h"
 #include "Adafruit_SSD1306.h"
+
+
+#ifdef ADAFRUIT_SSD1306_I2C
+#include <Wire.h>
+
+
+#if ARDUINO >= 100
+ #include "Arduino.h"
+ #define WIRE_WRITE Wire.write
+#else
+ #include "WProgram.h"
+  #define WIRE_WRITE Wire.send
+#endif
+
+#endif //ADAFRUIT_SSD1306_I2C
+
+
+#if defined ADAFRUIT_SSD1306_SPI || defined ADAFRUIT_SSD1306_HW_SPI
+#include <SPI.h>
+#endif //ADAFRUIT_SSD1306_SPI
+
 
 // the memory buffer for the LCD
 
@@ -141,75 +160,89 @@ void Adafruit_SSD1306::drawPixel(int16_t x, int16_t y, uint16_t color) {
 
 }
 
+#ifdef ADAFRUIT_SSD1306_SPI
 Adafruit_SSD1306::Adafruit_SSD1306(int8_t SID, int8_t SCLK, int8_t DC, int8_t RST, int8_t CS) : Adafruit_GFX(SSD1306_LCDWIDTH, SSD1306_LCDHEIGHT) {
   cs = CS;
   rst = RST;
   dc = DC;
   sclk = SCLK;
   sid = SID;
-  hwSPI = false;
 }
+#endif //ADAFRUIT_SSD1306_SPI
 
+#ifdef ADAFRUIT_SSD1306_HW_SPI
 // constructor for hardware SPI - we indicate DataCommand, ChipSelect, Reset
 Adafruit_SSD1306::Adafruit_SSD1306(int8_t DC, int8_t RST, int8_t CS) : Adafruit_GFX(SSD1306_LCDWIDTH, SSD1306_LCDHEIGHT) {
   dc = DC;
   rst = RST;
   cs = CS;
-  hwSPI = true;
 }
+#endif //ADAFRUIT_SSD1306_HW_SPI
 
+#ifdef ADAFRUIT_SSD1306_I2C
 // initializer for I2C - we only indicate the reset pin!
 Adafruit_SSD1306::Adafruit_SSD1306(int8_t reset) :
 Adafruit_GFX(SSD1306_LCDWIDTH, SSD1306_LCDHEIGHT) {
-  sclk = dc = cs = sid = -1;
   rst = reset;
 }
+#endif //ADAFRUIT_SSD1306_I2C
 
 
 void Adafruit_SSD1306::begin(uint8_t vccstate, uint8_t i2caddr, bool reset) {
   _vccstate = vccstate;
-  _i2caddr = i2caddr;
+
+// SPI specific initialization
+#if defined ADAFRUIT_SSD1306_SPI || defined ADAFRUIT_SSD1306_HW_SPI
+  (void)i2caddr; // suppress unused var warning
 
   // set pin directions
-  if (sid != -1){
-    pinMode(dc, OUTPUT);
-    pinMode(cs, OUTPUT);
+  pinMode(dc, OUTPUT);
+  pinMode(cs, OUTPUT);
 #ifdef HAVE_PORTREG
-    csport      = portOutputRegister(digitalPinToPort(cs));
-    cspinmask   = digitalPinToBitMask(cs);
-    dcport      = portOutputRegister(digitalPinToPort(dc));
-    dcpinmask   = digitalPinToBitMask(dc);
+  csport      = portOutputRegister(digitalPinToPort(cs));
+  cspinmask   = digitalPinToBitMask(cs);
+  dcport      = portOutputRegister(digitalPinToPort(dc));
+  dcpinmask   = digitalPinToBitMask(dc);
 #endif
-    if (!hwSPI){
-      // set pins for software-SPI
-      pinMode(sid, OUTPUT);
-      pinMode(sclk, OUTPUT);
+
+#if defined ADAFRUIT_SSD1306_SPI
+  // set pins for software-SPI
+  pinMode(sid, OUTPUT);
+  pinMode(sclk, OUTPUT);
 #ifdef HAVE_PORTREG
-      clkport     = portOutputRegister(digitalPinToPort(sclk));
-      clkpinmask  = digitalPinToBitMask(sclk);
-      mosiport    = portOutputRegister(digitalPinToPort(sid));
-      mosipinmask = digitalPinToBitMask(sid);
+  clkport     = portOutputRegister(digitalPinToPort(sclk));
+  clkpinmask  = digitalPinToBitMask(sclk);
+  mosiport    = portOutputRegister(digitalPinToPort(sid));
+  mosipinmask = digitalPinToBitMask(sid);
 #endif
-      }
-    if (hwSPI){
-      SPI.begin();
+#endif //ADAFRUIT_SSD1306_SPI
+
+#if defined ADAFRUIT_SSD1306_HW_SPI
+  SPI.begin();
 #ifdef SPI_HAS_TRANSACTION
-      SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
+  SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
 #else
-      SPI.setClockDivider (4);
+  SPI.setClockDivider (4);
 #endif
-    }
-  }
-  else
-  {
-    // I2C Init
+#endif //ADAFRUIT_SSD1306_HW_SPI
+
+#endif //defined ADAFRUIT_SSD1306_SPI || defined ADAFRUIT_SSD1306_HW_SPI
+
+
+// I2C specific initialization
+#ifdef ADAFRUIT_SSD1306_I2C
+_i2caddr = i2caddr;
+
+	// I2C Init
     Wire.begin();
 #ifdef __SAM3X8E__
     // Force 400 KHz I2C, rawr! (Uses pins 20, 21 for SDA, SCL)
     TWI1->TWI_CWGR = 0;
     TWI1->TWI_CWGR = ((VARIANT_MCK / (2 * 400000)) - 4) * 0x101;
 #endif
-  }
+
+#endif //ADAFRUIT_SSD1306_I2C
+
   if ((reset) && (rst >= 0)) {
     // Setup reset pin direction (used by both SPI and I2C)
     pinMode(rst, OUTPUT);
@@ -297,9 +330,7 @@ void Adafruit_SSD1306::invertDisplay(uint8_t i) {
 }
 
 void Adafruit_SSD1306::ssd1306_command(uint8_t c) {
-  if (sid != -1)
-  {
-    // SPI
+#if defined ADAFRUIT_SSD1306_SPI || defined ADAFRUIT_SSD1306_HW_SPI
 #ifdef HAVE_PORTREG
     *csport |= cspinmask;
     *dcport &= ~dcpinmask;
@@ -309,22 +340,22 @@ void Adafruit_SSD1306::ssd1306_command(uint8_t c) {
     digitalWrite(dc, LOW);
     digitalWrite(cs, LOW);
 #endif
-    fastSPIwrite(c);
+	fastSPIwrite(c);
 #ifdef HAVE_PORTREG
     *csport |= cspinmask;
 #else
     digitalWrite(cs, HIGH);
 #endif
-  }
-  else
-  {
+#endif //defined ADAFRUIT_SSD1306_SPI || defined ADAFRUIT_SSD1306_HW_SPI
+
+#ifdef ADAFRUIT_SSD1306_I2C
     // I2C
     uint8_t control = 0x00;   // Co = 0, D/C = 0
     Wire.beginTransmission(_i2caddr);
     Wire.write(control);
     Wire.write(c);
     Wire.endTransmission();
-  }
+#endif //ADAFRUIT_SSD1306_I2C
 }
 
 // startscrollright
@@ -433,9 +464,8 @@ void Adafruit_SSD1306::display(void) {
     ssd1306_command(1); // Page end address
   #endif
 
-  if (sid != -1)
-  {
-    // SPI
+#if defined ADAFRUIT_SSD1306_SPI || defined ADAFRUIT_SSD1306_HW_SPI
+	// SPI
 #ifdef HAVE_PORTREG
     *csport |= cspinmask;
     *dcport |= dcpinmask;
@@ -454,9 +484,10 @@ void Adafruit_SSD1306::display(void) {
 #else
     digitalWrite(cs, HIGH);
 #endif
-  }
-  else
-  {
+#endif //defined ADAFRUIT_SSD1306_SPI || defined ADAFRUIT_SSD1306_HW_SPI
+
+
+#ifdef ADAFRUIT_SSD1306_I2C
     // save I2C bitrate
 #ifdef TWBR
     uint8_t twbrbackup = TWBR;
@@ -481,7 +512,7 @@ void Adafruit_SSD1306::display(void) {
 #ifdef TWBR
     TWBR = twbrbackup;
 #endif
-  }
+#endif// ADAFRUIT_SSD1306_I2C
 }
 
 // clear everything
@@ -489,12 +520,8 @@ void Adafruit_SSD1306::clearDisplay(void) {
   memset(buffer, 0, (SSD1306_LCDWIDTH*SSD1306_LCDHEIGHT/8));
 }
 
-
+#ifdef ADAFRUIT_SSD1306_SPI
 inline void Adafruit_SSD1306::fastSPIwrite(uint8_t d) {
-
-  if(hwSPI) {
-    (void)SPI.transfer(d);
-  } else {
     for(uint8_t bit = 0x80; bit; bit >>= 1) {
 #ifdef HAVE_PORTREG
       *clkport &= ~clkpinmask;
@@ -508,8 +535,15 @@ inline void Adafruit_SSD1306::fastSPIwrite(uint8_t d) {
       digitalWrite(sclk, HIGH);
 #endif
     }
-  }
 }
+#endif //ADAFRUIT_SSD1306_SPI
+
+#ifdef ADAFRUIT_SSD1306_HW_SPI
+inline void Adafruit_SSD1306::fastSPIwrite(uint8_t d) {
+	(void)SPI.transfer(d);
+}
+#endif// ADAFRUIT_SSD1306_HW_SPI
+
 
 void Adafruit_SSD1306::drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color) {
   boolean bSwap = false;
