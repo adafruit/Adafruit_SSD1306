@@ -20,9 +20,11 @@ All text above, and the splash screen must be included in any redistribution
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
+#include <ssd1306_i2c_driver.h>
 
 #define OLED_RESET 4
-Adafruit_SSD1306 display(OLED_RESET);
+SSD1306_I2C_Driver i2c_driver;
+Adafruit_SSD1306 display(&i2c_driver, OLED_RESET);
 
 #define NUMFLAKES 10
 #define XPOS 0

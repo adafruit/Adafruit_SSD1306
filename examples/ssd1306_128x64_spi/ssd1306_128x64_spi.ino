@@ -21,20 +21,25 @@ All text above, and the splash screen must be included in any redistribution
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
-// If using software SPI (the default case):
+// If using sowtware software SPI (the default case):
+#include <ssd1306_sw_spi_driver.h>
 #define OLED_MOSI   9
 #define OLED_CLK   10
 #define OLED_DC    11
 #define OLED_CS    12
 #define OLED_RESET 13
-Adafruit_SSD1306 display(OLED_MOSI, OLED_CLK, OLED_DC, OLED_RESET, OLED_CS);
+SSD1306_SW_SPI_Driver spi_driver(OLED_MOSI, OLED_CLK, OLED_DC, OLED_CS);
 
 /* Uncomment this block to use hardware SPI
+#include <ssd1306_spi_driver.h>
 #define OLED_DC     6
 #define OLED_CS     7
 #define OLED_RESET  8
-Adafruit_SSD1306 display(OLED_DC, OLED_RESET, OLED_CS);
+SSD1306_SPI_Driver spi_driver(OLED_DC, OLED_CS);
 */
+
+Adafruit_SSD1306 display(&spi_driver, OLED_RESET);
+
 
 #define NUMFLAKES 10
 #define XPOS 0
