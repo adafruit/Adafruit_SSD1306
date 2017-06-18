@@ -18,43 +18,32 @@ All text above, and the splash screen must be included in any redistribution
 #ifndef _Adafruit_SSD1306_H_
 #define _Adafruit_SSD1306_H_
 
-#if ARDUINO >= 100
- #include "Arduino.h"
- #define WIRE_WRITE Wire.write
-#else
- #include "WProgram.h"
-  #define WIRE_WRITE Wire.send
-#endif
-
-#if defined(__SAM3X8E__)
- typedef volatile RwReg PortReg;
- typedef uint32_t PortMask;
- #define HAVE_PORTREG
-#elif defined(ARDUINO_ARCH_SAMD)
-// not supported
-#elif defined(ESP8266) || defined(ESP32) || defined(ARDUINO_STM32_FEATHER) || defined(__arc__)
-  typedef volatile uint32_t PortReg;
-  typedef uint32_t PortMask;
-#elif defined(__AVR__)
-  typedef volatile uint8_t PortReg;
-  typedef uint8_t PortMask;
-  #define HAVE_PORTREG
-#else
-  // chances are its 32 bit so assume that
-  typedef volatile uint32_t PortReg;
-  typedef uint32_t PortMask;
-#endif
-
-#include <SPI.h>
 #include <Adafruit_GFX.h>
+
+/*=========================================================================
+	SSD1306 Displays
+	-------------------------------------------------------------------
+	The driver supports display connected via SPI and I2C.
+	Hadrware communication happens using helper driver class.
+	User may select one of the predefined classes or supply own driver
+	implementation (implements ISSD1306Driver interface)
+
+	Predefined drivers:
+	- SSD1306_I2C_Driver - for communication via hardware I2C
+	- SSD1306_SPI_Driver - for communication via hardware SPI
+	- SSD1306_SW_SPI_Driver - SPI interface software emulation
+
+	Usage:
+		SSD1306_I2C_Driver i2c_driver;
+		Adafruit_SSD1306 display(&i2c_driver, -1);
+  =========================================================================*/
+
+
 
 #define BLACK 0
 #define WHITE 1
 #define INVERSE 2
 
-#define SSD1306_I2C_ADDRESS   0x3C  // 011110+SA0+RW - 0x3C or 0x3D
-// Address for 128x32 is 0x3C
-// Address for 128x64 is 0x3D (default) or 0x3C (if SA0 is grounded)
 
 /*=========================================================================
     SSD1306 Displays
@@ -141,13 +130,24 @@ All text above, and the splash screen must be included in any redistribution
 #define SSD1306_VERTICAL_AND_RIGHT_HORIZONTAL_SCROLL 0x29
 #define SSD1306_VERTICAL_AND_LEFT_HORIZONTAL_SCROLL 0x2A
 
+// Interface for hardware driver
+// The Adafruit_SSD1306 does not work directly with the hardware
+// All the communcation requests are forwarded to the driver
+class ISSD1306Driver
+{
+public:
+	virtual void begin() = 0;
+	virtual void sendCommand(uint8_t cmd) = 0;
+	virtual void sendData(uint8_t * data, size_t size) = 0;
+};
+
+
+
 class Adafruit_SSD1306 : public Adafruit_GFX {
  public:
-  Adafruit_SSD1306(int8_t SID, int8_t SCLK, int8_t DC, int8_t RST, int8_t CS);
-  Adafruit_SSD1306(int8_t DC, int8_t RST, int8_t CS);
-  Adafruit_SSD1306(int8_t RST = -1);
+  Adafruit_SSD1306(ISSD1306Driver * driver, int8_t RST = -1);
 
-  void begin(uint8_t switchvcc = SSD1306_SWITCHCAPVCC, uint8_t i2caddr = SSD1306_I2C_ADDRESS, bool reset=true);
+  void begin(uint8_t switchvcc = SSD1306_SWITCHCAPVCC, bool reset=true);
   void ssd1306_command(uint8_t c);
 
   void clearDisplay(void);
@@ -168,15 +168,12 @@ class Adafruit_SSD1306 : public Adafruit_GFX {
   virtual void drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color);
   virtual void drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color);
 
- private:
-  int8_t _i2caddr, _vccstate, sid, sclk, dc, rst, cs;
-  void fastSPIwrite(uint8_t c);
+private:
 
-  boolean hwSPI;
-#ifdef HAVE_PORTREG
-  PortReg *mosiport, *clkport, *csport, *dcport;
-  PortMask mosipinmask, clkpinmask, cspinmask, dcpinmask;
-#endif
+  ISSD1306Driver * _driver;
+
+  int8_t _vccstate;
+  int8_t _rst;
 
   inline void drawFastVLineInternal(int16_t x, int16_t y, int16_t h, uint16_t color) __attribute__((always_inline));
   inline void drawFastHLineInternal(int16_t x, int16_t y, int16_t w, uint16_t color) __attribute__((always_inline));
