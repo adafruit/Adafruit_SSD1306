@@ -23,7 +23,7 @@ All text above, and the splash screen must be included in any redistribution
 #include <ssd1306_i2c_driver.h>
 
 #define OLED_RESET 4
-SSD1306_I2C_Driver i2c_driver;
+SSD1306_I2C_Driver i2c_driver(0x3C);    // initialize with the I2C addr 0x3C (for the 128x32)
 Adafruit_SSD1306 display(&i2c_driver, OLED_RESET);
 
 #define NUMFLAKES 10
@@ -60,7 +60,7 @@ void setup()   {
   Serial.begin(9600);
 
   // by default, we'll generate the high voltage from the 3.3v line internally! (neat!)
-  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3C (for the 128x32)
+  display.begin(SSD1306_SWITCHCAPVCC);
   // init done
   
   // Show image buffer on the display hardware.
