@@ -15,7 +15,7 @@ Written by Limor Fried/Ladyada  for Adafruit Industries.
 BSD license, check license.txt for more information
 All text above, and the splash screen below must be included in any redistribution
 *********************************************************************/
-#include "Adafruit_SSD1306.h"
+#include "Adafruit_SSD1306_128_32.h"
 
 // the memory buffer for the LCD
 

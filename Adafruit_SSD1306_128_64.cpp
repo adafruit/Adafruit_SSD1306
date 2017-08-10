@@ -15,11 +15,11 @@ Written by Limor Fried/Ladyada  for Adafruit Industries.
 BSD license, check license.txt for more information
 All text above, and the splash screen below must be included in any redistribution
 *********************************************************************/
-#include "Adafruit_SSD1306.h"
+#include "Adafruit_SSD1306_128_64.h"
 
 // the memory buffer for the LCD
 
-static uint8_t buffer_128_32[SSD1306_LCDHEIGHT * SSD1306_LCDWIDTH / 8] = {
+static uint8_t buffer_128_64[SSD1306_LCDHEIGHT * SSD1306_LCDWIDTH / 8] = {
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -90,6 +90,6 @@ static uint8_t buffer_128_32[SSD1306_LCDHEIGHT * SSD1306_LCDWIDTH / 8] = {
 #endif
 };
 
-#define buffer buffer_128_32
+#define buffer buffer_128_64
 
 #include "Adafruit_SSD1306.core.inc"
