@@ -296,6 +296,17 @@ void Adafruit_SSD1306::invertDisplay(uint8_t i) {
   }
 }
 
+void Adafruit_SSD1306::displayOn()
+{
+    ssd1306_command(SSD1306_DISPLAYON);
+}
+
+void Adafruit_SSD1306::displayOff()
+{
+    ssd1306_command(SSD1306_DISPLAYOFF);
+}
+
+
 void Adafruit_SSD1306::ssd1306_command(uint8_t c) {
   if (sid != -1)
   {
