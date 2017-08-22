@@ -193,9 +193,7 @@ void Adafruit_SSD1306::begin(uint8_t vccstate, uint8_t i2caddr, bool reset) {
       }
     if (hwSPI){
       SPI.begin();
-#ifdef SPI_HAS_TRANSACTION
-      SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
-#else
+#ifndef SPI_HAS_TRANSACTION
       SPI.setClockDivider (4);
 #endif
     }
@@ -310,6 +308,9 @@ void Adafruit_SSD1306::displayOff()
 void Adafruit_SSD1306::ssd1306_command(uint8_t c) {
   if (sid != -1)
   {
+#ifdef SPI_HAS_TRANSACTION
+    SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
+#endif
     // SPI
 #ifdef HAVE_PORTREG
     *csport |= cspinmask;
@@ -326,6 +327,10 @@ void Adafruit_SSD1306::ssd1306_command(uint8_t c) {
 #else
     digitalWrite(cs, HIGH);
 #endif
+
+#ifdef SPI_HAS_TRANSACTION
+    SPI.endTransaction();
+#endif    
   }
   else
   {
@@ -446,6 +451,9 @@ void Adafruit_SSD1306::display(void) {
 
   if (sid != -1)
   {
+#ifdef SPI_HAS_TRANSACTION
+    SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
+#endif
     // SPI
 #ifdef HAVE_PORTREG
     *csport |= cspinmask;
@@ -465,6 +473,10 @@ void Adafruit_SSD1306::display(void) {
 #else
     digitalWrite(cs, HIGH);
 #endif
+
+#ifdef SPI_HAS_TRANSACTION
+    SPI.endTransaction();
+#endif    
   }
   else
   {
