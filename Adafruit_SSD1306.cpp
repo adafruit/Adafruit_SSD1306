@@ -330,7 +330,7 @@ void Adafruit_SSD1306::ssd1306_command(uint8_t c) {
 // startscrollright
 // Activate a right handed scroll for rows start through stop
 // Hint, the display is 16 rows tall. To scroll the whole display, run:
-// display.scrollright(0x00, 0x0F)
+// display.startscrollright(0x00, 0x0F)
 void Adafruit_SSD1306::startscrollright(uint8_t start, uint8_t stop){
   ssd1306_command(SSD1306_RIGHT_HORIZONTAL_SCROLL);
   ssd1306_command(0X00);
@@ -343,9 +343,9 @@ void Adafruit_SSD1306::startscrollright(uint8_t start, uint8_t stop){
 }
 
 // startscrollleft
-// Activate a right handed scroll for rows start through stop
+// Activate a left handed scroll for rows start through stop
 // Hint, the display is 16 rows tall. To scroll the whole display, run:
-// display.scrollright(0x00, 0x0F)
+// display.startscrollleft(0x00, 0x0F)
 void Adafruit_SSD1306::startscrollleft(uint8_t start, uint8_t stop){
   ssd1306_command(SSD1306_LEFT_HORIZONTAL_SCROLL);
   ssd1306_command(0X00);
@@ -358,9 +358,9 @@ void Adafruit_SSD1306::startscrollleft(uint8_t start, uint8_t stop){
 }
 
 // startscrolldiagright
-// Activate a diagonal scroll for rows start through stop
+// Activate a right handed diagonal scroll for rows start through stop
 // Hint, the display is 16 rows tall. To scroll the whole display, run:
-// display.scrollright(0x00, 0x0F)
+// display.startscrolldiagright(0x00, 0x0F)
 void Adafruit_SSD1306::startscrolldiagright(uint8_t start, uint8_t stop){
   ssd1306_command(SSD1306_SET_VERTICAL_SCROLL_AREA);
   ssd1306_command(0X00);
@@ -375,9 +375,9 @@ void Adafruit_SSD1306::startscrolldiagright(uint8_t start, uint8_t stop){
 }
 
 // startscrolldiagleft
-// Activate a diagonal scroll for rows start through stop
+// Activate a left handed diagonal scroll for rows start through stop
 // Hint, the display is 16 rows tall. To scroll the whole display, run:
-// display.scrollright(0x00, 0x0F)
+// display.startscrolldiagleft(0x00, 0x0F)
 void Adafruit_SSD1306::startscrolldiagleft(uint8_t start, uint8_t stop){
   ssd1306_command(SSD1306_SET_VERTICAL_SCROLL_AREA);
   ssd1306_command(0X00);
