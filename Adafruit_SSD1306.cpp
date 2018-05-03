@@ -141,6 +141,12 @@ void Adafruit_SSD1306::drawPixel(int16_t x, int16_t y, uint16_t color) {
 
 }
 
+byte Adafruit_SSD1306::getPixel(int16_t x, int16_t y){   
+  if (	buffer[x+ (y/8)*SSD1306_LCDWIDTH]&(1 << (y&7)))
+	  return 1;
+	return 0;
+}
+
 Adafruit_SSD1306::Adafruit_SSD1306(int8_t SID, int8_t SCLK, int8_t DC, int8_t RST, int8_t CS) : Adafruit_GFX(SSD1306_LCDWIDTH, SSD1306_LCDHEIGHT) {
   cs = CS;
   rst = RST;
