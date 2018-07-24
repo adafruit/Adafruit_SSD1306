@@ -166,9 +166,18 @@ Adafruit_GFX(SSD1306_LCDWIDTH, SSD1306_LCDHEIGHT) {
 }
 
 
+#if defined(ESP8266) || defined(ESP32)
+void Adafruit_SSD1306::begin(uint8_t vccstate, uint8_t i2caddr, bool reset, uint8_t sdapin, uint8_t sclpin) {
+#else
 void Adafruit_SSD1306::begin(uint8_t vccstate, uint8_t i2caddr, bool reset) {
+#endif
+
   _vccstate = vccstate;
   _i2caddr = i2caddr;
+#if defined(ESP8266) || defined(ESP32)
+  _sdapin=sdapin;
+  _sclpin=sclpin;
+#endif
 
   // set pin directions
   if (sid != -1){
@@ -203,7 +212,16 @@ void Adafruit_SSD1306::begin(uint8_t vccstate, uint8_t i2caddr, bool reset) {
   else
   {
     // I2C Init
+#if defined(ESP8266) || defined(ESP32)
+    if (_sdapin != -1) {
+      Wire.begin(_sdapin,_sclpin);
+    } else {
+      Wire.begin();  
+    }
+    Wire.setClock(800000L);
+#else
     Wire.begin();
+#endif
 #ifdef __SAM3X8E__
     // Force 400 KHz I2C, rawr! (Uses pins 20, 21 for SDA, SCL)
     TWI1->TWI_CWGR = 0;

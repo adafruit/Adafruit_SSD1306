@@ -147,7 +147,12 @@ class Adafruit_SSD1306 : public Adafruit_GFX {
   Adafruit_SSD1306(int8_t DC, int8_t RST, int8_t CS);
   Adafruit_SSD1306(int8_t RST = -1);
 
-  void begin(uint8_t switchvcc = SSD1306_SWITCHCAPVCC, uint8_t i2caddr = SSD1306_I2C_ADDRESS, bool reset=true);
+  #if defined(ESP8266) || defined(ESP32)
+    void begin(uint8_t switchvcc = SSD1306_SWITCHCAPVCC, uint8_t i2caddr = SSD1306_I2C_ADDRESS, bool reset=true, uint8_t sdapin=-1,uint8_t sclpin=-1);
+  #else
+    void begin(uint8_t switchvcc = SSD1306_SWITCHCAPVCC, uint8_t i2caddr = SSD1306_I2C_ADDRESS, bool reset=true);
+  #endif
+
   void ssd1306_command(uint8_t c);
 
   void clearDisplay(void);
@@ -171,6 +176,11 @@ class Adafruit_SSD1306 : public Adafruit_GFX {
  private:
   int8_t _i2caddr, _vccstate, sid, sclk, dc, rst, cs;
   void fastSPIwrite(uint8_t c);
+  #if defined(ESP8266) || defined(ESP32)
+    uint8_t _sdapin;
+    uint8_t _sclpin;
+  #endif
+
 
   boolean hwSPI;
 #ifdef HAVE_PORTREG
