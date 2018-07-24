@@ -1,4 +1,6 @@
 # Adafruit_SSD1306
+
+forked from Adafruit to apply patch for individual i2c pins on esp8266/esp32 and to set I2C Clock to 800kHz
 <!-- START COMPATIBILITY TABLE -->
 
 ## Compatibility
@@ -10,6 +12,7 @@ Atmega328 @ 12MHz  |      X       |             |            |
 Atmega32u4 @ 16MHz |      X       |             |            | 
 Atmega32u4 @ 8MHz  |      X       |             |            | 
 ESP8266            |      X       |             |            | change OLED_RESET to different pin if using default I2C pins D4/D5.
+ESP32              |      X       |             |            | 
 Atmega2560 @ 16MHz |      X       |             |            | 
 ATSAM3X8E          |      X       |             |            | 
 ATSAM21D           |      X       |             |            | 
