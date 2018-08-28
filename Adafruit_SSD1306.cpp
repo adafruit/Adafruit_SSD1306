@@ -160,7 +160,7 @@ Adafruit_SSD1306::Adafruit_SSD1306(int8_t DC, int8_t RST, int8_t CS) : Adafruit_
 
 #ifdef ESP32
 // ESP32 - constructor for hardware SPI - we indicate MISO, MOSI, SCLK, DataCommand, ChipSelect, Reset
-Adafruit_SSD1306::Adafruit_SSD1306(int8_t mmiso, int8_t mmosi, int8_t msclk, int8_t DC, int8_t RST, int8_t CS) : Adafruit_GFX(SSD1306_LCDWIDTH, SSD1306_LCDHEIGHT) {
+Adafruit_SSD1306::Adafruit_SSD1306(int8_t mmiso, int8_t mmosi, int8_t msclk, int8_t DC, int8_t RST, int8_t CS, unsigned long clockspeed) : Adafruit_GFX(SSD1306_LCDWIDTH, SSD1306_LCDHEIGHT) {
   dc = DC;
   rst = RST;
   cs = CS;
@@ -168,6 +168,7 @@ Adafruit_SSD1306::Adafruit_SSD1306(int8_t mmiso, int8_t mmosi, int8_t msclk, int
   sid = mmosi;
   mysclk = msclk;
   hwSPI = true;
+  _clockspeed = clockspeed;
 }
 #endif
 
@@ -180,7 +181,7 @@ Adafruit_GFX(SSD1306_LCDWIDTH, SSD1306_LCDHEIGHT) {
 
 
 #if defined(ESP8266) || defined(ESP32)
-void Adafruit_SSD1306::begin(uint8_t vccstate, uint8_t i2caddr, bool reset, uint8_t sdapin, uint8_t sclpin) {
+void Adafruit_SSD1306::begin(uint8_t vccstate, uint8_t i2caddr, bool reset, uint8_t sdapin, uint8_t sclpin, unsigned long clockspeed) {
 #else
 void Adafruit_SSD1306::begin(uint8_t vccstate, uint8_t i2caddr, bool reset) {
 #endif
@@ -190,6 +191,7 @@ void Adafruit_SSD1306::begin(uint8_t vccstate, uint8_t i2caddr, bool reset) {
 #if defined(ESP8266) || defined(ESP32)
   _sdapin=sdapin;
   _sclpin=sclpin;
+  _clockspeed = clockspeed;
 #endif
 
   // set pin directions
@@ -218,7 +220,7 @@ void Adafruit_SSD1306::begin(uint8_t vccstate, uint8_t i2caddr, bool reset) {
         pinMode(dc, OUTPUT);
         pinMode(cs, OUTPUT);
         SPI.begin(mysclk, mymiso, sid, cs);
-        SPI.setFrequency(8000000UL);
+        SPI.setFrequency(_clockspeed);
       #else
         SPI.begin();
         #ifdef SPI_HAS_TRANSACTION
@@ -238,7 +240,7 @@ void Adafruit_SSD1306::begin(uint8_t vccstate, uint8_t i2caddr, bool reset) {
     } else {
       Wire.begin();  
     }
-    Wire.setClock(800000L);
+    Wire.setClock(_clockspeed);
 #else
     Wire.begin();
 #endif
