@@ -1,0 +1,71 @@
+// This code works on Geekcreit OLED  128x64 Display
+
+/*
+||==========================================================================================================================================||
+|| MODIFYING the SSD1306 Driver  for geekcreit displays                                                                                     ||
+||  The SSD1306 driver isn't set up for the Geekcreit OLED display by default.                                                              ||
+||                                                                                                                                          ||
+||  The display size must be changed in the driver before it can be used. If it is not changed, an error message will appear                ||
+||  when attempting to verify the example sketch (see the section below) in the Arduino IDE:                                                ||  
+||  #error ("Height incorrect, please fix Adafruit_SSD1306.h!");                                                                            ||
+||                                                                                                                                          ||  
+||  Open the Adafruit_SSD1306 folder that was just installed in the Arduino libraries folder.                                               ||
+||  Find Adafruit_SSD1306.h and open it in a text editor. Scroll down the file to find the section with the                                 || 
+||  header SSD1306 Displays or search for for this term in the text editor to find it quickly.                                              ||
+||  Comment out #define SSD1306_128_32 and uncomment #define SSD1306_128_64.                                                                ||
+||                                                                                                                                          ||  
+||==========================================================================================================================================|| */
+#include <SPI.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+
+#define OLED_RESET 4
+Adafruit_SSD1306 display(OLED_RESET);
+
+#define NUMFLAKES 10
+#define XPOS 0
+#define YPOS 1
+#define DELTAY 2
+
+
+#define LOGO16_GLCD_HEIGHT 16 
+#define LOGO16_GLCD_WIDTH  16 
+
+#if (SSD1306_LCDHEIGHT != 64)
+#error("Height incorrect, please fix Adafruit_SSD1306.h!");
+#endif
+
+void setup()   {                
+  Serial.begin(9600);
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3C (for the 128x64)
+ }
+void loop() {
+ //  display.display();
+  //delay(20);
+  for (int i=0;i<=100;i++){
+  // Clear the buffer.
+  display.clearDisplay();
+
+  // text display tests
+  display.setTextSize(2);
+  display.setTextColor(WHITE);
+  display.setCursor(0,0);
+  display.println("hello");
+ 
+  display.setTextSize(2); display.setTextColor(WHITE);
+  display.setCursor(60,13);
+  display.println("world");
+  
+  display.setTextSize(4); 
+  display.setTextColor(WHITE);
+  display.setCursor(5,30);  
+  display.println(i);
+  display.setCursor(69,30);  
+  display.print("%");
+  display.display();
+  delay(100);
+  display.clearDisplay();
+  delay(100);
+}
+}
