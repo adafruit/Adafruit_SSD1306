@@ -82,20 +82,6 @@
   if(wire) wire->setClock(restoreClk); \
   else     { SPI_TRANSACTION_END }
 
-// Deprecated size stuff for backwards compatibility with old sketches
-#if defined SSD1306_128_64
- #define SSD1306_LCDWIDTH  128
- #define SSD1306_LCDHEIGHT  64
-#endif
-#if defined SSD1306_128_32
- #define SSD1306_LCDWIDTH  128
- #define SSD1306_LCDHEIGHT  32
-#endif
-#if defined SSD1306_96_16
- #define SSD1306_LCDWIDTH   96
- #define SSD1306_LCDHEIGHT  16
-#endif
-
 // CONSTRUCTORS, DESTRUCTOR ------------------------------------------------
 
 // New constructor for 'soft' SPI
