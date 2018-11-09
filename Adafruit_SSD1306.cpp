@@ -44,8 +44,10 @@
  #define WIRE_WRITE wire->send
 #endif
 
-#if defined(__AVR__) || defined(ESP32)
+#if defined(__AVR__)
   #define WIRECLK 400000L
+#elif defined(ESP32)
+  #define WIRECLK 800000L
 #else
   #define WIRECLK 1000000L
 #endif
@@ -74,52 +76,58 @@
  #define SPI_TRANSACTION_END   SSD1306_DESELECT
 #endif
 
-#define TRANSACTION_START              \
+#if ARDUINO >= 157
+ #define TRANSACTION_START             \
   if(wire) wire->setClock(WIRECLK);    \
   else     { SPI_TRANSACTION_START }
-
-#define TRANSACTION_END                \
+ #define TRANSACTION_END               \
   if(wire) wire->setClock(restoreClk); \
   else     { SPI_TRANSACTION_END }
+#else
+ #define TRANSACTION_START if(spi) { SPI_TRANSACTION_START }
+ #define TRANSACTION_END   if(spi) { SPI_TRANSACTION_END   }
+#endif
 
 // CONSTRUCTORS, DESTRUCTOR ------------------------------------------------
 
 // New constructor for 'soft' SPI
 Adafruit_SSD1306::Adafruit_SSD1306(uint8_t w, uint8_t h,
-  int8_t MOSI, int8_t SCLK, int8_t DC, int8_t RST, int8_t CS) :
-  Adafruit_GFX(w, h), mosiPin(MOSI), clkPin(SCLK), dcPin(DC),
-  rstPin(RST), csPin(CS), spi(NULL), wire(NULL), buffer(NULL) {
+  int8_t mosi_pin, int8_t sclk_pin, int8_t dc_pin, int8_t rst_pin,
+  int8_t cs_pin) : Adafruit_GFX(w, h), mosiPin(mosi_pin), clkPin(sclk_pin),
+  dcPin(dc_pin), rstPin(rst_pin), csPin(cs_pin), spi(NULL), wire(NULL),
+  buffer(NULL) {
 }
 
 // New constructor for hardware SPI
-Adafruit_SSD1306::Adafruit_SSD1306(uint8_t w, uint8_t h,
-  SPIClass *spi, int8_t DC, int8_t RST, int8_t CS, uint32_t bitrate) :
+Adafruit_SSD1306::Adafruit_SSD1306(uint8_t w, uint8_t h, SPIClass *spi,
+  int8_t dc_pin, int8_t rst_pin, int8_t cs_pin, uint32_t bitrate) :
   Adafruit_GFX(w, h), spi(spi ? spi : &SPI), wire(NULL),
-  mosiPin(-1), clkPin(-1), dcPin(DC), rstPin(RST), csPin(CS), buffer(NULL) {
+  mosiPin(-1), clkPin(-1), dcPin(dc_pin), rstPin(rst_pin), csPin(cs_pin),
+  buffer(NULL) {
 #ifdef SPI_HAS_TRANSACTION
   spiSettings = SPISettings(bitrate, MSBFIRST, SPI_MODE0);
 #endif
 }
 
 // New constructor for I2C
-Adafruit_SSD1306::Adafruit_SSD1306(
-  uint8_t w, uint8_t h, TwoWire *twi, int8_t RST, uint32_t res) :
-  Adafruit_GFX(w, h), wire(twi ? twi : &Wire), restoreClk(res), spi(NULL),
-  rstPin(RST), mosiPin(-1), clkPin(-1), dcPin(-1), csPin(-1), buffer(NULL) {
+Adafruit_SSD1306::Adafruit_SSD1306(uint8_t w, uint8_t h, TwoWire *twi,
+  int8_t rst_pin, uint32_t res) : Adafruit_GFX(w, h),
+  wire(twi ? twi : &Wire), restoreClk(res), spi(NULL), rstPin(rst_pin),
+  mosiPin(-1), clkPin(-1), dcPin(-1), csPin(-1), buffer(NULL) {
 }
 
 // Old constructor for 'soft' SPI (deprecated)
-Adafruit_SSD1306::Adafruit_SSD1306(
-  int8_t MOSI, int8_t SCLK, int8_t DC, int8_t RST, int8_t CS) :
+Adafruit_SSD1306::Adafruit_SSD1306(int8_t mosi_pin, int8_t sclk_pin,
+  int8_t dc_pin, int8_t rst_pin, int8_t cs_pin) :
   Adafruit_GFX(SSD1306_LCDWIDTH, SSD1306_LCDHEIGHT),
-  mosiPin(MOSI), clkPin(SCLK), dcPin(DC), rstPin(RST), csPin(CS),
-  spi(NULL), wire(NULL), buffer(NULL) {
+  mosiPin(mosi_pin), clkPin(sclk_pin), dcPin(dc_pin), rstPin(rst_pin),
+  csPin(cs_pin), spi(NULL), wire(NULL), buffer(NULL) {
 }
 
 // Old constructor for hardware SPI (deprecated)
-Adafruit_SSD1306::Adafruit_SSD1306(int8_t DC, int8_t RST, int8_t CS) :
-  Adafruit_GFX(SSD1306_LCDWIDTH, SSD1306_LCDHEIGHT),
-  mosiPin(-1), clkPin(-1), dcPin(DC), rstPin(RST), csPin(CS),
+Adafruit_SSD1306::Adafruit_SSD1306(int8_t dc_pin, int8_t rst_pin,
+  int8_t cs_pin) : Adafruit_GFX(SSD1306_LCDWIDTH, SSD1306_LCDHEIGHT),
+  mosiPin(-1), clkPin(-1), dcPin(dc_pin), rstPin(rst_pin), csPin(cs_pin),
   spi(&SPI), wire(NULL), buffer(NULL) {
 #ifdef SPI_HAS_TRANSACTION
   spiSettings = SPISettings(8000000, MSBFIRST, SPI_MODE0);
@@ -127,9 +135,9 @@ Adafruit_SSD1306::Adafruit_SSD1306(int8_t DC, int8_t RST, int8_t CS) :
 }
 
 // Old constructor for I2C (deprecated)
-Adafruit_SSD1306::Adafruit_SSD1306(int8_t RST) :
+Adafruit_SSD1306::Adafruit_SSD1306(int8_t rst_pin) :
   Adafruit_GFX(SSD1306_LCDWIDTH, SSD1306_LCDHEIGHT),
-  rstPin(RST), mosiPin(-1), clkPin(-1), dcPin(-1), csPin(-1),
+  rstPin(rst_pin), mosiPin(-1), clkPin(-1), dcPin(-1), csPin(-1),
   spi(NULL), wire(&Wire), buffer(NULL) {
 }
 
@@ -203,7 +211,7 @@ void Adafruit_SSD1306::ssd1306_commandList(const uint8_t *c, uint8_t n) {
 
 // ALLOCATE & INIT DISPLAY -------------------------------------------------
 
-bool Adafruit_SSD1306::begin(uint8_t vcs, uint8_t addr, bool reset) {
+boolean Adafruit_SSD1306::begin(uint8_t vcs, uint8_t addr, boolean reset) {
 
   if((!buffer) && !(buffer = (uint8_t *)malloc(WIDTH * ((HEIGHT + 7) / 8))))
     return false;
@@ -418,7 +426,7 @@ void Adafruit_SSD1306::drawFastHLineInternal(
 
 void Adafruit_SSD1306::drawFastVLine(
   int16_t x, int16_t y, int16_t h, uint16_t color) {
-  bool bSwap = false;
+  boolean bSwap = false;
   switch(rotation) {
    case 1:
     // 90 degree rotation, swap x & y for rotation,
@@ -530,6 +538,32 @@ void Adafruit_SSD1306::drawFastVLineInternal(
   } // endif x in bounds
 }
 
+boolean Adafruit_SSD1306::getPixel(int16_t x, int16_t y) {
+  if((x >= 0) && (x < width()) && (y >= 0) && (y < height())) {
+    // Pixel is in-bounds. Rotate coordinates if needed.
+    switch(getRotation()) {
+     case 1:
+      ssd1306_swap(x, y);
+      x = WIDTH - x - 1;
+      break;
+     case 2:
+      x = WIDTH  - x - 1;
+      y = HEIGHT - y - 1;
+      break;
+     case 3:
+      ssd1306_swap(x, y);
+      y = HEIGHT - y - 1;
+      break;
+    }
+    return (buffer[x + (y / 8) * WIDTH] & (1 << (y & 7)));
+  }
+  return false; // Pixel out of bounds
+}
+
+uint8_t *Adafruit_SSD1306::getBuffer(void) {
+  return buffer;
+}
+
 // REFRESH DISPLAY ---------------------------------------------------------
 
 // Push data currently in RAM to SSD1306 display
@@ -544,6 +578,9 @@ void Adafruit_SSD1306::display(void) {
   ssd1306_commandList(dlist1, sizeof(dlist1));
   ssd1306_command(WIDTH - 1); // Column end address
 
+#if defined(ESP8266)
+  yield();
+#endif
   uint16_t count = WIDTH * ((HEIGHT + 7) / 8);
   uint8_t *ptr   = buffer;
   if(wire) { // I2C
@@ -573,7 +610,7 @@ void Adafruit_SSD1306::display(void) {
 // startscrollright
 // Activate a right handed scroll for rows start through stop
 // Hint, the display is 16 rows tall. To scroll the whole display, run:
-// display.scrollright(0x00, 0x0F)
+// display.startscrollright(0x00, 0x0F)
 void Adafruit_SSD1306::startscrollright(uint8_t start, uint8_t stop){
   TRANSACTION_START
   static const uint8_t PROGMEM scrollList1a[] = {
@@ -592,9 +629,9 @@ void Adafruit_SSD1306::startscrollright(uint8_t start, uint8_t stop){
 }
 
 // startscrollleft
-// Activate a right handed scroll for rows start through stop
+// Activate a left handed scroll for rows start through stop
 // Hint, the display is 16 rows tall. To scroll the whole display, run:
-// display.scrollright(0x00, 0x0F)
+// display.startscrollleft(0x00, 0x0F)
 void Adafruit_SSD1306::startscrollleft(uint8_t start, uint8_t stop){
   TRANSACTION_START
   static const uint8_t PROGMEM scrollList2a[] = {
@@ -615,7 +652,7 @@ void Adafruit_SSD1306::startscrollleft(uint8_t start, uint8_t stop){
 // startscrolldiagright
 // Activate a diagonal scroll for rows start through stop
 // Hint, the display is 16 rows tall. To scroll the whole display, run:
-// display.scrollright(0x00, 0x0F)
+// display.startscrolldiagright(0x00, 0x0F)
 void Adafruit_SSD1306::startscrolldiagright(uint8_t start, uint8_t stop){
   TRANSACTION_START
   static const uint8_t PROGMEM scrollList3a[] = {
@@ -640,7 +677,7 @@ void Adafruit_SSD1306::startscrolldiagright(uint8_t start, uint8_t stop){
 // startscrolldiagleft
 // Activate a diagonal scroll for rows start through stop
 // Hint, the display is 16 rows tall. To scroll the whole display, run:
-// display.scrollright(0x00, 0x0F)
+// display.startscrolldiagleft(0x00, 0x0F)
 void Adafruit_SSD1306::startscrolldiagleft(uint8_t start, uint8_t stop){
   TRANSACTION_START
   static const uint8_t PROGMEM scrollList4a[] = {
@@ -670,7 +707,7 @@ void Adafruit_SSD1306::stopscroll(void){
 
 // OTHER HARDWARE SETTINGS -------------------------------------------------
 
-void Adafruit_SSD1306::invertDisplay(bool i) {
+void Adafruit_SSD1306::invertDisplay(boolean i) {
   TRANSACTION_START
   ssd1306_command(i ? SSD1306_INVERTDISPLAY : SSD1306_NORMALDISPLAY);
   TRANSACTION_END

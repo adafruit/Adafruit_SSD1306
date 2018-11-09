@@ -104,25 +104,26 @@
 class Adafruit_SSD1306 : public Adafruit_GFX {
  public:
   // NEW CONSTRUCTORS -- recommended for new projects
-  Adafruit_SSD1306(uint8_t w, uint8_t h,
-    int8_t MOSI, int8_t SCLK, int8_t DC, int8_t RST, int8_t CS);
+  Adafruit_SSD1306(uint8_t w, uint8_t h, int8_t mosi_pin, int8_t sclk_pin,
+    int8_t dc_pin, int8_t rst_pin, int8_t cs_pin);
   Adafruit_SSD1306(uint8_t w, uint8_t h, SPIClass *spi,
-    int8_t DC, int8_t RST, int8_t CS, uint32_t bitrate=8000000UL);
-  Adafruit_SSD1306(uint8_t w, uint8_t h, TwoWire *twi=&Wire, int8_t RST=-1,
-    uint32_t res=100000L);
+    int8_t dc_pin, int8_t rst_pin, int8_t cs_pin, uint32_t bitrate=8000000UL);
+  Adafruit_SSD1306(uint8_t w, uint8_t h, TwoWire *twi=&Wire,
+    int8_t rst_pin=-1, uint32_t res=100000L);
 
   // DEPRECATED CONSTRUCTORS - for back compatibility, avoid in new projects
-  Adafruit_SSD1306(int8_t MOSI, int8_t SCLK, int8_t DC, int8_t RST, int8_t CS);
-  Adafruit_SSD1306(int8_t DC, int8_t RST, int8_t CS);
-  Adafruit_SSD1306(int8_t RST = -1);
+  Adafruit_SSD1306(int8_t mosi_pin, int8_t sclk_pin, int8_t dc_pin,
+    int8_t rst_pin, int8_t cs_pin);
+  Adafruit_SSD1306(int8_t dc_pin, int8_t rst_pin, int8_t cs_pin);
+  Adafruit_SSD1306(int8_t rst_pin = -1);
 
   ~Adafruit_SSD1306(void);
 
-  bool         begin(uint8_t switchvcc=SSD1306_SWITCHCAPVCC,
-                 uint8_t i2caddr=0, bool reset=true);
+  boolean      begin(uint8_t switchvcc=SSD1306_SWITCHCAPVCC,
+                 uint8_t i2caddr=0, boolean reset=true);
   void         display(void);
   void         clearDisplay(void);
-  void         invertDisplay(bool i);
+  void         invertDisplay(boolean i);
   void         dim(boolean dim);
   void         drawPixel(int16_t x, int16_t y, uint16_t color);
   virtual void drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color);
@@ -134,6 +135,9 @@ class Adafruit_SSD1306 : public Adafruit_GFX {
   void         stopscroll(void);
   void         ssd1306_command(uint8_t c);
   void         ssd1306_commandList(const uint8_t *c, uint8_t n);
+  boolean      getPixel(int16_t x, int16_t y);
+  uint8_t     *getBuffer(void);
+
 
  private:
   inline void  SPIwrite(uint8_t d) __attribute__((always_inline));
@@ -154,7 +158,9 @@ class Adafruit_SSD1306 : public Adafruit_GFX {
 #ifdef SPI_HAS_TRANSACTION
   SPISettings  spiSettings;
 #endif
+#if ARDUINO >= 157
   uint32_t     restoreClk; // Wire speed following SSD1306 transfers
+#endif
 };
 
 #endif // _Adafruit_SSD1306_H_
