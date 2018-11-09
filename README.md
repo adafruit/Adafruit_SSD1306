@@ -29,14 +29,14 @@ Atmega328 @ 16MHz  |      X     |            |           |
 Atmega328 @ 12MHz  |      X     |            |           |
 Atmega32u4 @ 16MHz |      X     |            |           |
 Atmega32u4 @ 8MHz  |      X     |            |           |
-ESP8266            |      X     |            |           | change OLED_RESET to different pin if using default I2C pins D4/D5.
 Atmega2560 @ 16MHz |      X     |            |           |
+ESP8266            |      X     |            |           | change OLED_RESET to different pin if using default I2C pins D4/D5.
+ESP32              |      X     |            |           |
 ATSAM3X8E          |      X     |            |           |
 ATSAM21D           |      X     |            |           |
 ATtiny85 @ 16MHz   |            |      X     |           |
 ATtiny85 @ 8MHz    |            |      X     |           |
 WICED              |            |      X     |           |
-ESP32              |            |      X     |           |
 Intel Curie @ 32MHz|            |            |     X     |
 STM32F2            |            |            |     X     |
 
@@ -44,8 +44,8 @@ STM32F2            |            |            |     X     |
   * ATmega328 @ 12MHz : Adafruit Pro Trinket 3V
   * ATmega32u4 @ 16MHz : Arduino Leonardo, Arduino Micro, Arduino Yun, Teensy 2.0
   * ATmega32u4 @ 8MHz : Adafruit Flora, Bluefruit Micro
-  * ESP8266 : Adafruit Huzzah
   * ATmega2560 @ 16MHz : Arduino Mega
+  * ESP8266 : Adafruit Huzzah
   * ATSAM3X8E : Arduino Due
   * ATSAM21D : Arduino Zero, M0 Pro
   * ATtiny85 @ 16MHz : Adafruit Trinket 5V

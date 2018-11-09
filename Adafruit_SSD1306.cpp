@@ -44,7 +44,7 @@
  #define WIRE_WRITE wire->send
 #endif
 
-#ifdef __AVR__
+#if defined(__AVR__) || defined(ESP32)
   #define WIRECLK 400000L
 #else
   #define WIRECLK 1000000L
