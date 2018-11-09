@@ -65,10 +65,10 @@
 #ifdef SPI_HAS_TRANSACTION
  #define SPI_TRANSACTION_START        \
   spi->beginTransaction(spiSettings); \
-  SSD1306_SELECT                      \
+  SSD1306_SELECT
  #define SPI_TRANSACTION_END          \
   SSD1306_DESELECT                    \
-  spi->endTransaction();              \
+  spi->endTransaction();
 #else
  #define SPI_TRANSACTION_START SSD1306_SELECT
  #define SPI_TRANSACTION_END   SSD1306_DESELECT
@@ -229,9 +229,9 @@ bool Adafruit_SSD1306::begin(uint8_t vcs, uint8_t addr, bool reset) {
     pinMode(dcPin, OUTPUT); // Set data/command pin as output
     pinMode(csPin, OUTPUT); // Same for chip select
 #ifdef HAVE_PORTREG
-    dcPort    = portOutputRegister(digitalPinToPort(dcPin));
+    dcPort    = (PortReg *)portOutputRegister(digitalPinToPort(dcPin));
     dcPinMask = digitalPinToBitMask(dcPin);
-    csPort    = portOutputRegister(digitalPinToPort(csPin));
+    csPort    = (PortReg *)portOutputRegister(digitalPinToPort(csPin));
     csPinMask = digitalPinToBitMask(csPin);
 #endif
     SSD1306_DESELECT
@@ -241,9 +241,9 @@ bool Adafruit_SSD1306::begin(uint8_t vcs, uint8_t addr, bool reset) {
       pinMode(mosiPin, OUTPUT); // MOSI and SCLK outputs
       pinMode(clkPin , OUTPUT);
 #ifdef HAVE_PORTREG
-      mosiPort    = portOutputRegister(digitalPinToPort(mosiPin));
+      mosiPort    = (PortReg *)portOutputRegister(digitalPinToPort(mosiPin));
       mosiPinMask = digitalPinToBitMask(mosiPin);
-      clkPort     = portOutputRegister(digitalPinToPort(clkPin));
+      clkPort     = (PortReg *)portOutputRegister(digitalPinToPort(clkPin));
       clkPinMask  = digitalPinToBitMask(clkPin);
       *clkPort   &= ~clkPinMask; // Clock low
 #else
@@ -547,7 +547,6 @@ void Adafruit_SSD1306::display(void) {
   uint16_t count = WIDTH * ((HEIGHT + 7) / 8);
   uint8_t *ptr   = buffer;
   if(wire) { // I2C
-    uint16_t i;
     wire->beginTransmission(i2caddr);
     WIRE_WRITE((uint8_t)0x40);
     uint8_t bytesOut = 1;
