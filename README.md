@@ -35,9 +35,9 @@ ESP32              |      X     |            |           |
 ATSAM3X8E          |      X     |            |           |
 ATSAM21D           |      X     |            |           |
 Intel Curie @ 32MHz|      X     |            |           |
+WICED              |(No HW SPI) |            |           |
 ATtiny85 @ 16MHz   |            |      X     |           |
 ATtiny85 @ 8MHz    |            |      X     |           |
-WICED              |            |      X     |           |
 STM32F2            |            |            |     X     |
 
   * ATmega328 @ 16MHz : Arduino UNO, Adafruit Pro Trinket 5V, Adafruit Metro 328, Adafruit Metro Mini

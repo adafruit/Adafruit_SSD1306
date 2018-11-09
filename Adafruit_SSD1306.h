@@ -104,12 +104,14 @@
 class Adafruit_SSD1306 : public Adafruit_GFX {
  public:
   // NEW CONSTRUCTORS -- recommended for new projects
-  Adafruit_SSD1306(uint8_t w, uint8_t h, int8_t mosi_pin, int8_t sclk_pin,
-    int8_t dc_pin, int8_t rst_pin, int8_t cs_pin);
-  Adafruit_SSD1306(uint8_t w, uint8_t h, SPIClass *spi,
-    int8_t dc_pin, int8_t rst_pin, int8_t cs_pin, uint32_t bitrate=8000000UL);
   Adafruit_SSD1306(uint8_t w, uint8_t h, TwoWire *twi=&Wire,
     int8_t rst_pin=-1, uint32_t res=100000L);
+  Adafruit_SSD1306(uint8_t w, uint8_t h, int8_t mosi_pin, int8_t sclk_pin,
+    int8_t dc_pin, int8_t rst_pin, int8_t cs_pin);
+#if !defined(ARDUINO_STM32_FEATHER) // No HW SPI on WICED Feather yet
+  Adafruit_SSD1306(uint8_t w, uint8_t h, SPIClass *spi,
+    int8_t dc_pin, int8_t rst_pin, int8_t cs_pin, uint32_t bitrate=8000000UL);
+#endif
 
   // DEPRECATED CONSTRUCTORS - for back compatibility, avoid in new projects
   Adafruit_SSD1306(int8_t mosi_pin, int8_t sclk_pin, int8_t dc_pin,
@@ -134,10 +136,8 @@ class Adafruit_SSD1306 : public Adafruit_GFX {
   void         startscrolldiagleft(uint8_t start, uint8_t stop);
   void         stopscroll(void);
   void         ssd1306_command(uint8_t c);
-  void         ssd1306_commandList(const uint8_t *c, uint8_t n);
   boolean      getPixel(int16_t x, int16_t y);
   uint8_t     *getBuffer(void);
-
 
  private:
   inline void  SPIwrite(uint8_t d) __attribute__((always_inline));
@@ -145,9 +145,13 @@ class Adafruit_SSD1306 : public Adafruit_GFX {
                  uint16_t color);
   void         drawFastVLineInternal(int16_t x, int16_t y, int16_t h,
                  uint16_t color);
+  void         ssd1306_command1(uint8_t c);
+  void         ssd1306_commandList(const uint8_t *c, uint8_t n);
 
   uint8_t     *buffer;
+#if !defined(ARDUINO_STM32_FEATHER)
   SPIClass    *spi;
+#endif
   TwoWire     *wire;
   int8_t       i2caddr, vccstate, page_end;
   int8_t       mosiPin    ,  clkPin    ,  dcPin    ,  csPin, rstPin;
@@ -155,7 +159,7 @@ class Adafruit_SSD1306 : public Adafruit_GFX {
   PortReg     *mosiPort   , *clkPort   , *dcPort   , *csPort;
   PortMask     mosiPinMask,  clkPinMask,  dcPinMask,  csPinMask;
 #endif
-#ifdef SPI_HAS_TRANSACTION
+#if defined(SPI_HAS_TRANSACTION) && !defined(ARDUINO_STM32_FEATHER)
   SPISettings  spiSettings;
 #endif
 #if ARDUINO >= 157
