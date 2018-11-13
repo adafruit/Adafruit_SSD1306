@@ -5,7 +5,7 @@ This is a library for our Monochrome OLEDs based on SSD1306 drivers
   Pick one up today in the adafruit shop!
   ------> http://www.adafruit.com/category/63_98
 
-These displays use SPI to communicate, 2 to 5 pins are required to interface.
+These displays use I2C or SPI to communicate, 2 to 5 pins are required to interface.
 
 Adafruit invests time and resources providing this open source code,
 please support Adafruit and open-source hardware by purchasing
@@ -18,6 +18,13 @@ Preferred installation method is to use the Arduino IDE Library Manager. To down
 
 You will also have to install the **Adafruit GFX library** which provides graphics primitves such as lines, circles, text, etc. This also can be found in the Arduino Library Manager, or you can get the source from https://github.com/adafruit/Adafruit-GFX-Library
 
+## Changes
+
+Version 1.2 (November 2018) introduces some significant changes:
+
+  * Display dimensions are now specified in the constructor...you no longer need to edit the .h file for different screens (though old sketches can continue to work that way).
+  * SPI transactions are used and SPI bitrate can be specified (both require Arduino 1.6 or later).
+  * SPI and Wire (I2C) interfaces other than the defaults are supported.
 
 <!-- START COMPATIBILITY TABLE -->
 
@@ -45,11 +52,3 @@ ATtiny85    |            |      X     |          |
   * ATtiny85 : Adafruit Gemma, Arduino Gemma, Adafruit Trinket
 
 <!-- END COMPATIBILITY TABLE -->
-
-## Changes
-
-Version 1.2 (November 2018) introduces some significant changes:
-
-  * Display dimensions are now specified in the constructor...you no longer need to edit the .h file for different screens (though old sketches can continue to work that way).
-  * SPI transactions are used and SPI bitrate can be specified (both require Arduino 1.6 or later).
-  * SPI and Wire (I2C) interfaces other than the defaults are supported.
