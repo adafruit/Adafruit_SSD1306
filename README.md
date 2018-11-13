@@ -1,4 +1,4 @@
-# Adafruit_SSD1306
+# Adafruit_SSD1306 # [![Build Status](https://travis-ci.org/adafruit/Adafruit_SSD1306.svg?branch=master)](https://travis-ci.org/adafruit/Adafruit_SSD1306)
 
 This is a library for our Monochrome OLEDs based on SSD1306 drivers
 
@@ -16,40 +16,33 @@ BSD license, check license.txt for more information. All text above must be incl
 
 Preferred installation method is to use the Arduino IDE Library Manager. To download the source from Github instead, click "Clone or download" above, then "Download ZIP." After uncompressing, rename the resulting folder Adafruit_SSD1306. Check that the Adafruit_SSD1306 folder contains Adafruit_SSD1306.cpp and Adafruit_SSD1306.h.
 
-You will also have to install the Adafruit GFX library which provides graphics primitves such as lines, circles, text, etc. This also can be found in the Arduino Library Manager, or you can get the source from https://github.com/adafruit/Adafruit-GFX-Library
+You will also have to install the **Adafruit GFX library** which provides graphics primitves such as lines, circles, text, etc. This also can be found in the Arduino Library Manager, or you can get the source from https://github.com/adafruit/Adafruit-GFX-Library
 
 
 <!-- START COMPATIBILITY TABLE -->
 
 ## Compatibility
 
-MCU                |Tested Works|Doesn't Work|Not Tested |Notes
--------------------|:----------:|:----------:|:---------:|-----
-Atmega328 @ 16MHz  |      X     |            |           |
-Atmega328 @ 12MHz  |      X     |            |           |
-Atmega32u4 @ 16MHz |      X     |            |           |
-Atmega32u4 @ 8MHz  |      X     |            |           |
-Atmega2560 @ 16MHz |      X     |            |           |
-ESP8266            |      X     |            |           | change OLED_RESET to different pin if using default I2C pins D4/D5.
-ESP32              |      X     |            |           |
-ATSAM3X8E          |      X     |            |           |
-ATSAM21D           |      X     |            |           |
-Intel Curie @ 32MHz|      X     |            |           |
-WICED              |(No HW SPI) |            |           |
-ATtiny85 @ 16MHz   |            |      X     |           |
-ATtiny85 @ 8MHz    |            |      X     |           |
-STM32F2            |            |            |     X     |
+MCU         |Tested Works|Doesn't Work|Not Tested|Notes
+------------|:----------:|:----------:|:--------:|-----
+Atmega328   |      X     |            |          |
+Atmega32u4  |      X     |            |          |
+Atmega2560  |      X     |            |          |
+ESP8266     |      X     |            |          | change OLED_RESET to different pin if using default I2C pins D4/D5.
+ESP32       |      X     |            |          |
+ATSAM3X8E   |      X     |            |          |
+ATSAM21D    |      X     |            |          |
+Intel Curie |      X     |            |          |
+WICED       |(No HW SPI) |            |          |
+ATtiny85    |            |      X     |          |
 
-  * ATmega328 @ 16MHz : Arduino UNO, Adafruit Pro Trinket 5V, Adafruit Metro 328, Adafruit Metro Mini
-  * ATmega328 @ 12MHz : Adafruit Pro Trinket 3V
-  * ATmega32u4 @ 16MHz : Arduino Leonardo, Arduino Micro, Arduino Yun, Teensy 2.0
-  * ATmega32u4 @ 8MHz : Adafruit Flora, Bluefruit Micro
-  * ATmega2560 @ 16MHz : Arduino Mega
+  * ATmega328 : Arduino UNO, Adafruit Pro Trinket, Adafruit Metro 328, Adafruit Metro Mini
+  * ATmega32u4 : Arduino Leonardo, Arduino Micro, Arduino Yun, Teensy 2.0, Adafruit Flora, Bluefruit Micro
+  * ATmega2560 : Arduino Mega
   * ESP8266 : Adafruit Huzzah
   * ATSAM3X8E : Arduino Due
-  * ATSAM21D : Arduino Zero, M0 Pro
-  * ATtiny85 @ 16MHz : Adafruit Trinket 5V
-  * ATtiny85 @ 8MHz : Adafruit Gemma, Arduino Gemma, Adafruit Trinket 3V
+  * ATSAM21D : Arduino Zero, M0 Pro, Adafruit Metro Express, Feather M0
+  * ATtiny85 : Adafruit Gemma, Arduino Gemma, Adafruit Trinket
 
 <!-- END COMPATIBILITY TABLE -->
 
