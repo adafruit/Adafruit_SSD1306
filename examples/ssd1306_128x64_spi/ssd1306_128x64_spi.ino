@@ -69,7 +69,11 @@ void setup() {
   Serial.begin(9600);
 
   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
-  display.begin(SSD1306_SWITCHCAPVCC);
+  if(!display.begin(SSD1306_SWITCHCAPVCC)) {
+    Serial.println(F("SSD1306 allocation failed"));
+    for(;;); // Don't proceed, loop forever
+  }
+
 
   // Show initial display buffer contents on the screen --
   // the library initializes this with an Adafruit splash screen.
@@ -323,14 +327,14 @@ void testdrawstyles(void) {
   display.setTextSize(1);             // Normal 1:1 pixel scale
   display.setTextColor(WHITE);        // Draw white text
   display.setCursor(0,0);             // Start at top-left corner
-  display.println("Hello, world!");
+  display.println(F("Hello, world!"));
 
   display.setTextColor(BLACK, WHITE); // Draw 'inverse' text
   display.println(3.141592);
 
   display.setTextSize(2);             // Draw 2X-scale text
   display.setTextColor(WHITE);
-  display.print("0x"); display.println(0xDEADBEEF, HEX);
+  display.print(F("0x")); display.println(0xDEADBEEF, HEX);
 
   display.display();
   delay(2000);
@@ -342,7 +346,7 @@ void testscrolltext(void) {
   display.setTextSize(2); // Draw 2X-scale text
   display.setTextColor(WHITE);
   display.setCursor(10, 0);
-  display.println("scroll");
+  display.println(F("scroll"));
   display.display();      // Show initial text
   delay(100);
 
@@ -386,11 +390,11 @@ void testanimate(const uint8_t *bitmap, uint8_t w, uint8_t h) {
     icons[f][XPOS]   = random(1 - LOGO_WIDTH, display.width());
     icons[f][YPOS]   = -LOGO_HEIGHT;
     icons[f][DELTAY] = random(1, 6);
-    Serial.print("x: ");
+    Serial.print(F("x: "));
     Serial.print(icons[f][XPOS], DEC);
-    Serial.print(" y: ");
+    Serial.print(F(" y: "));
     Serial.print(icons[f][YPOS], DEC);
-    Serial.print(" dy: ");
+    Serial.print(F(" dy: "));
     Serial.println(icons[f][DELTAY], DEC);
   }
 
