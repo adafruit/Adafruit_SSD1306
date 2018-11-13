@@ -28,12 +28,12 @@ MCU         |Tested Works|Doesn't Work|Not Tested|Notes
 Atmega328   |      X     |            |          |
 Atmega32u4  |      X     |            |          |
 Atmega2560  |      X     |            |          |
-ESP8266     |      X     |            |          | change OLED_RESET to different pin if using default I2C pins D4/D5.
+ESP8266     |      X     |            |          | Change OLED_RESET to different pin if using default I2C pins D4/D5.
 ESP32       |      X     |            |          |
 ATSAM3X8E   |      X     |            |          |
 ATSAM21D    |      X     |            |          |
 Intel Curie |      X     |            |          |
-WICED       |(No HW SPI) |            |          |
+WICED       |      X     |            |          | No hardware SPI - bitbang only
 ATtiny85    |            |      X     |          |
 
   * ATmega328 : Arduino UNO, Adafruit Pro Trinket, Adafruit Metro 328, Adafruit Metro Mini
