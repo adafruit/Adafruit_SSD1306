@@ -166,8 +166,8 @@
 */
 Adafruit_SSD1306::Adafruit_SSD1306(uint8_t w, uint8_t h, TwoWire *twi,
   int8_t rst_pin, uint32_t res) : Adafruit_GFX(w, h),
-  wire(twi ? twi : &Wire), restoreClk(res), rstPin(rst_pin),
-  mosiPin(-1), clkPin(-1), dcPin(-1), csPin(-1), buffer(NULL) {
+  wire(twi ? twi : &Wire), buffer(NULL), mosiPin(-1), clkPin(-1), dcPin(-1),
+  csPin(-1), rstPin(rst_pin), restoreClk(res) {
 #if !defined(ARDUINO_STM32_FEATHER)
   spi = NULL;
 #endif
@@ -202,8 +202,9 @@ Adafruit_SSD1306::Adafruit_SSD1306(uint8_t w, uint8_t h, TwoWire *twi,
 */
 Adafruit_SSD1306::Adafruit_SSD1306(uint8_t w, uint8_t h,
   int8_t mosi_pin, int8_t sclk_pin, int8_t dc_pin, int8_t rst_pin,
-  int8_t cs_pin) : Adafruit_GFX(w, h), mosiPin(mosi_pin), clkPin(sclk_pin),
-  dcPin(dc_pin), rstPin(rst_pin), csPin(cs_pin), wire(NULL), buffer(NULL) {
+  int8_t cs_pin) : Adafruit_GFX(w, h), wire(NULL), buffer(NULL),
+  mosiPin(mosi_pin), clkPin(sclk_pin), dcPin(dc_pin), csPin(cs_pin),
+  rstPin(rst_pin) {
 #if !defined(ARDUINO_STM32_FEATHER)
   spi = NULL;
 #endif
@@ -238,9 +239,8 @@ Adafruit_SSD1306::Adafruit_SSD1306(uint8_t w, uint8_t h,
 #if !defined(ARDUINO_STM32_FEATHER) // No HW SPI on WICED Feather yet
 Adafruit_SSD1306::Adafruit_SSD1306(uint8_t w, uint8_t h, SPIClass *spi,
   int8_t dc_pin, int8_t rst_pin, int8_t cs_pin, uint32_t bitrate) :
-  Adafruit_GFX(w, h), spi(spi ? spi : &SPI), wire(NULL),
-  mosiPin(-1), clkPin(-1), dcPin(dc_pin), rstPin(rst_pin), csPin(cs_pin),
-  buffer(NULL) {
+  Adafruit_GFX(w, h), spi(spi ? spi : &SPI), wire(NULL), buffer(NULL),
+  mosiPin(-1), clkPin(-1), dcPin(dc_pin), csPin(cs_pin), rstPin(rst_pin) {
 #ifdef SPI_HAS_TRANSACTION
   spiSettings = SPISettings(bitrate, MSBFIRST, SPI_MODE0);
 #endif
@@ -275,9 +275,9 @@ Adafruit_SSD1306::Adafruit_SSD1306(uint8_t w, uint8_t h, SPIClass *spi,
 */
 Adafruit_SSD1306::Adafruit_SSD1306(int8_t mosi_pin, int8_t sclk_pin,
   int8_t dc_pin, int8_t rst_pin, int8_t cs_pin) :
-  Adafruit_GFX(SSD1306_LCDWIDTH, SSD1306_LCDHEIGHT),
-  mosiPin(mosi_pin), clkPin(sclk_pin), dcPin(dc_pin), rstPin(rst_pin),
-  csPin(cs_pin), wire(NULL), buffer(NULL) {
+  Adafruit_GFX(SSD1306_LCDWIDTH, SSD1306_LCDHEIGHT), wire(NULL), buffer(NULL),
+  mosiPin(mosi_pin), clkPin(sclk_pin), dcPin(dc_pin), csPin(cs_pin),
+  rstPin(rst_pin) {
 #if !defined(ARDUINO_STM32_FEATHER)
   spi = NULL;
 #endif
@@ -307,8 +307,8 @@ Adafruit_SSD1306::Adafruit_SSD1306(int8_t mosi_pin, int8_t sclk_pin,
 #if !defined(ARDUINO_STM32_FEATHER) // No HW SPI on WICED Feather yet
 Adafruit_SSD1306::Adafruit_SSD1306(int8_t dc_pin, int8_t rst_pin,
   int8_t cs_pin) : Adafruit_GFX(SSD1306_LCDWIDTH, SSD1306_LCDHEIGHT),
-  mosiPin(-1), clkPin(-1), dcPin(dc_pin), rstPin(rst_pin), csPin(cs_pin),
-  spi(&SPI), wire(NULL), buffer(NULL) {
+  spi(&SPI), wire(NULL), buffer(NULL), mosiPin(-1), clkPin(-1),
+  dcPin(dc_pin), csPin(cs_pin), rstPin(rst_pin) {
 #ifdef SPI_HAS_TRANSACTION
   spiSettings = SPISettings(8000000, MSBFIRST, SPI_MODE0);
 #endif
@@ -330,9 +330,9 @@ Adafruit_SSD1306::Adafruit_SSD1306(int8_t dc_pin, int8_t rst_pin,
             allocation is performed there!
 */
 Adafruit_SSD1306::Adafruit_SSD1306(int8_t rst_pin) :
-  Adafruit_GFX(SSD1306_LCDWIDTH, SSD1306_LCDHEIGHT),
-  rstPin(rst_pin), mosiPin(-1), clkPin(-1), dcPin(-1), csPin(-1),
-  wire(&Wire), buffer(NULL) {
+  Adafruit_GFX(SSD1306_LCDWIDTH, SSD1306_LCDHEIGHT), wire(&Wire),
+  buffer(NULL), mosiPin(-1), clkPin(-1), dcPin(-1), csPin(-1),
+  rstPin(rst_pin) {
 #if !defined(ARDUINO_STM32_FEATHER)
   spi = NULL;
 #endif

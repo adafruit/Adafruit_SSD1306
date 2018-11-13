@@ -156,11 +156,11 @@ class Adafruit_SSD1306 : public Adafruit_GFX {
   void         ssd1306_command1(uint8_t c);
   void         ssd1306_commandList(const uint8_t *c, uint8_t n);
 
-  uint8_t     *buffer;
 #if !defined(ARDUINO_STM32_FEATHER)
   SPIClass    *spi;
 #endif
   TwoWire     *wire;
+  uint8_t     *buffer;
   int8_t       i2caddr, vccstate, page_end;
   int8_t       mosiPin    ,  clkPin    ,  dcPin    ,  csPin, rstPin;
 #ifdef HAVE_PORTREG
