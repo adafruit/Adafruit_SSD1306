@@ -64,33 +64,57 @@
  #define SSD1306_MODE_DATA    digitalWrite(dcPin, HIGH);
 #endif
 
-#if defined(SPI_HAS_TRANSACTION) && !defined(ARDUINO_STM32_FEATHER)
- #define SPI_TRANSACTION_START        \
-  spi->beginTransaction(spiSettings); \
-  SSD1306_SELECT
- #define SPI_TRANSACTION_END          \
-  SSD1306_DESELECT                    \
-  spi->endTransaction();
-#else
- #define SPI_TRANSACTION_START SSD1306_SELECT
- #define SPI_TRANSACTION_END   SSD1306_DESELECT
+#if (ARDUINO >= 157)
+ #define SETWIRECLOCK wire->setClock(WIRECLK)
+ #define RESWIRECLOCK wire->setClock(restoreClk)
+#else // setClock() is not present in older Arduino Wire lib
+ #define SETWIRECLOCK
+ #define RESWIRECLOCK
 #endif
 
+#if defined(SPI_HAS_TRANSACTION)
+ #define SPI_TRANSACTION_START spi->beginTransaction(spiSettings)
+ #define SPI_TRANSACTION_END   spi->endTransaction()
+#else // SPI transactions likewise not present in older Arduino SPI lib
+ #define SPI_TRANSACTION_START
+ #define SPI_TRANSACTION_END
+#endif
+
+// The definition of 'transaction' is broadened a bit in the context of
+// this library -- referring not just to SPI transactions (if supported
+// in the version of the SPI library being used), but also chip select
+// (if SPI is being used, whether hardware or soft), and also to the
+// beginning and end of I2C transfers (the Wire clock may be sped up before
+// issuing data to the display, then restored to the default rate afterward
+// so other I2C device types still work).  All of these are encapsulated
+// in the TRANSACTION_* macros.
+
 #if defined(ARDUINO_STM32_FEATHER)
- #define TRANSACTION_START if(!wire) { SPI_TRANSACTION_START }
- #define TRANSACTION_END   if(!wire) { SPI_TRANSACTION_END   }
+ // The WICED board currently has no SPIClass -- hardware SPI is not
+ // supported by this library there -- nor is there a Wire setClock()
+ // function, so the transaction start/end code is a little simpler...
+ #define TRANSACTION_START if(!wire) { SSD1306_SELECT;   }
+ #define TRANSACTION_END   if(!wire) { SSD1306_DESELECT; }
 #else
- #if (ARDUINO >= 157)
-  #define TRANSACTION_START             \
-   if(wire) wire->setClock(WIRECLK);    \
-   else     { SPI_TRANSACTION_START }
-  #define TRANSACTION_END               \
-   if(wire) wire->setClock(restoreClk); \
-   else     { SPI_TRANSACTION_END }
- #else
-  #define TRANSACTION_START if(spi) { SPI_TRANSACTION_START }
-  #define TRANSACTION_END   if(spi) { SPI_TRANSACTION_END   }
- #endif
+ // Everywhere else, check first if Wire, then hardware SPI, then soft SPI:
+ #define TRANSACTION_START   \
+  if(wire) {                 \
+    SETWIRECLOCK;            \
+  } else {                   \
+    if(spi) {                \
+      SPI_TRANSACTION_START; \
+    }                        \
+    SSD1306_SELECT;          \
+  }
+ #define TRANSACTION_END     \
+  if(wire) {                 \
+    RESWIRECLOCK;            \
+  } else {                   \
+    SSD1306_DESELECT;        \
+    if(spi) {                \
+      SPI_TRANSACTION_END;   \
+    }                        \
+  }
 #endif
 
 // CONSTRUCTORS, DESTRUCTOR ------------------------------------------------
@@ -246,7 +270,8 @@ void Adafruit_SSD1306::ssd1306_command(uint8_t c) {
 
 // ALLOCATE & INIT DISPLAY -------------------------------------------------
 
-boolean Adafruit_SSD1306::begin(uint8_t vcs, uint8_t addr, boolean reset) {
+boolean Adafruit_SSD1306::begin(uint8_t vcs, uint8_t addr, boolean reset,
+  boolean periphBegin) {
 
   if((!buffer) && !(buffer = (uint8_t *)malloc(WIDTH * ((HEIGHT + 7) / 8))))
     return false;
@@ -267,7 +292,11 @@ boolean Adafruit_SSD1306::begin(uint8_t vcs, uint8_t addr, boolean reset) {
     // If I2C address is unspecified, use default
     // (0x3C for 32-pixel-tall displays, 0x3D for all others).
     i2caddr = addr ? addr : ((HEIGHT == 32) ? 0x3C : 0x3D);
-    wire->begin();
+    // TwoWire begin() function might be already performed by the calling
+    // function if it has unusual circumstances (e.g. TWI variants that
+    // can accept different SDA/SCL pins, or if two SSD1306 instances
+    // with different addresses -- only a single begin() is needed).
+    if(periphBegin) wire->begin();
   } else { // Using one of the SPI modes, either soft or hardware
     pinMode(dcPin, OUTPUT); // Set data/command pin as output
     pinMode(csPin, OUTPUT); // Same for chip select
@@ -280,7 +309,8 @@ boolean Adafruit_SSD1306::begin(uint8_t vcs, uint8_t addr, boolean reset) {
     SSD1306_DESELECT
 #if !defined(ARDUINO_STM32_FEATHER)
     if(spi) { // Hardware SPI
-      spi->begin();
+      // SPI peripheral begin same as wire check above.
+      if(periphBegin) spi->begin();
     } else {  // Soft SPI
 #endif
       pinMode(mosiPin, OUTPUT); // MOSI and SCLK outputs
@@ -618,6 +648,12 @@ void Adafruit_SSD1306::display(void) {
   ssd1306_command1(WIDTH - 1); // Column end address
 
 #if defined(ESP8266)
+  // ESP8266 needs a periodic yield() call to avoid watchdog reset.
+  // With the limited size of SSD1306 displays, and the fast bitrate
+  // being used (1 MHz or more), I think one yield() immediately before
+  // a screen write and one immediately after should cover it.  But if
+  // not, if this becomes a problem, yields() might be added in the
+  // 32-byte transfer condition below.
   yield();
 #endif
   uint16_t count = WIDTH * ((HEIGHT + 7) / 8);
@@ -642,6 +678,9 @@ void Adafruit_SSD1306::display(void) {
     while(count--) SPIwrite(*ptr++);
   }
   TRANSACTION_END
+#if defined(ESP8266)
+  yield();
+#endif
 }
 
 // SCROLLING FUNCTIONS -----------------------------------------------------
