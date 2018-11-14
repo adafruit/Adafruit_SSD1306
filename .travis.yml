@@ -10,7 +10,7 @@ git:
 env:
   global:
      - ARDUINO_IDE_VERSION="1.8.7"
-     - PRETTYNAME="Adafruit SSD1306 Arduino Library"
+     - PRETTYNAME="Adafruit SSD1306"
 # Optional, will default to "$TRAVIS_BUILD_DIR/Doxyfile"
 #    - DOXYFILE: $TRAVIS_BUILD_DIR/Doxyfile
 
