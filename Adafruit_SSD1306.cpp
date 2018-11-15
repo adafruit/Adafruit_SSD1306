@@ -54,6 +54,14 @@
 
 // SOME DEFINES AND STATIC VARIABLES USED INTERNALLY -----------------------
 
+#if defined(BUFFER_LENGTH)
+ #define WIRE_MAX BUFFER_LENGTH          ///< AVR or similar Wire lib
+#elif defined(SERIAL_BUFFER_SIZE)
+ #define WIRE_MAX (SERIAL_BUFFER_SIZE-1) ///< Newer Wire uses RingBuffer
+#else
+ #define WIRE_MAX 32                     ///< Use common Arduino core default
+#endif
+
 #define ssd1306_swap(a, b) \
   (((a) ^= (b)), ((b) ^= (a)), ((a) ^= (b))) ///< No-temp-var swap operation
 
@@ -399,7 +407,7 @@ void Adafruit_SSD1306::ssd1306_commandList(const uint8_t *c, uint8_t n) {
     WIRE_WRITE((uint8_t)0x00); // Co = 0, D/C = 0
     uint8_t bytesOut = 1;
     while(n--) {
-      if(bytesOut >= 32) { // Wire uses 32-byte transfer blocks max
+      if(bytesOut >= WIRE_MAX) {
         wire->endTransmission();
         wire->beginTransmission(i2caddr);
         WIRE_WRITE((uint8_t)0x00); // Co = 0, D/C = 0
@@ -934,7 +942,7 @@ void Adafruit_SSD1306::display(void) {
     WIRE_WRITE((uint8_t)0x40);
     uint8_t bytesOut = 1;
     while(count--) {
-      if(bytesOut >= 32) { // Wire uses 32-byte transfer blocks max
+      if(bytesOut >= WIRE_MAX) {
         wire->endTransmission();
         wire->beginTransmission(i2caddr);
         WIRE_WRITE((uint8_t)0x40);
