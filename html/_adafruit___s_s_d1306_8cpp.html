@@ -142,7 +142,7 @@ Macros</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line"><span class="keywordflow">if</span>(wire) {                 \</div><div class="line">    SETWIRECLOCK;            \</div><div class="line">  } <span class="keywordflow">else</span> {                   \</div><div class="line">    if(spi) {                \</div><div class="line">      SPI_TRANSACTION_START; \</div><div class="line">    }                        \</div><div class="line">    SSD1306_SELECT;          \</div><div class="line">  }</div></div><!-- fragment -->
+<b>Value:</b><div class="fragment"><div class="line"><span class="keywordflow">if</span>(wire) {                 \</div><div class="line">   SETWIRECLOCK;            \</div><div class="line"> } <span class="keywordflow">else</span> {                   \</div><div class="line">   if(spi) {                \</div><div class="line">     SPI_TRANSACTION_START; \</div><div class="line">   }                        \</div><div class="line">   SSD1306_SELECT;          \</div><div class="line"> }</div></div><!-- fragment -->
 <p>Wire, SPI or bitbang transfer setup. </p>
 
 </div>
@@ -158,7 +158,7 @@ Macros</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line"><span class="keywordflow">if</span>(wire) {                 \</div><div class="line">    RESWIRECLOCK;            \</div><div class="line">  } <span class="keywordflow">else</span> {                   \</div><div class="line">    SSD1306_DESELECT;        \</div><div class="line">    if(spi) {                \</div><div class="line">      SPI_TRANSACTION_END;   \</div><div class="line">    }                        \</div><div class="line">  }</div></div><!-- fragment -->
+<b>Value:</b><div class="fragment"><div class="line"><span class="keywordflow">if</span>(wire) {                 \</div><div class="line">   RESWIRECLOCK;            \</div><div class="line"> } <span class="keywordflow">else</span> {                   \</div><div class="line">   SSD1306_DESELECT;        \</div><div class="line">   if(spi) {                \</div><div class="line">     SPI_TRANSACTION_END;   \</div><div class="line">   }                        \</div><div class="line"> }</div></div><!-- fragment -->
 <p>Wire, SPI or bitbang transfer end. </p>
 
 </div>
