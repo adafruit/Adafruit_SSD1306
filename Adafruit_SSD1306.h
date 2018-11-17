@@ -32,6 +32,10 @@
 // (NEW CODE SHOULD IGNORE THIS, USE THE CONSTRUCTORS THAT ACCEPT WIDTH
 // AND HEIGHT ARGUMENTS).
 
+#if defined(ARDUINO_STM32_FEATHER)
+  typedef class HardwareSPI SPIClass;
+#endif
+
 #include <Wire.h>
 #include <SPI.h>
 #include <Adafruit_GFX.h>
@@ -115,10 +119,8 @@ class Adafruit_SSD1306 : public Adafruit_GFX {
     int8_t rst_pin=-1, uint32_t res=100000L);
   Adafruit_SSD1306(uint8_t w, uint8_t h, int8_t mosi_pin, int8_t sclk_pin,
     int8_t dc_pin, int8_t rst_pin, int8_t cs_pin);
-#if !defined(ARDUINO_STM32_FEATHER) // No HW SPI on WICED Feather yet
   Adafruit_SSD1306(uint8_t w, uint8_t h, SPIClass *spi,
     int8_t dc_pin, int8_t rst_pin, int8_t cs_pin, uint32_t bitrate=8000000UL);
-#endif
 
   // DEPRECATED CONSTRUCTORS - for back compatibility, avoid in new projects
   Adafruit_SSD1306(int8_t mosi_pin, int8_t sclk_pin, int8_t dc_pin,
@@ -156,9 +158,7 @@ class Adafruit_SSD1306 : public Adafruit_GFX {
   void         ssd1306_command1(uint8_t c);
   void         ssd1306_commandList(const uint8_t *c, uint8_t n);
 
-#if !defined(ARDUINO_STM32_FEATHER)
   SPIClass    *spi;
-#endif
   TwoWire     *wire;
   uint8_t     *buffer;
   int8_t       i2caddr, vccstate, page_end;
@@ -167,7 +167,7 @@ class Adafruit_SSD1306 : public Adafruit_GFX {
   PortReg     *mosiPort   , *clkPort   , *dcPort   , *csPort;
   PortMask     mosiPinMask,  clkPinMask,  dcPinMask,  csPinMask;
 #endif
-#if defined(SPI_HAS_TRANSACTION) && !defined(ARDUINO_STM32_FEATHER)
+#if defined(SPI_HAS_TRANSACTION)
   SPISettings  spiSettings;
 #endif
 #if ARDUINO >= 157

@@ -91,10 +91,10 @@
  #define SSD1306_MODE_DATA    digitalWrite(dcPin, HIGH); ///< Data mode
 #endif
 
-#if (ARDUINO >= 157)
+#if (ARDUINO >= 157) && !defined(ARDUINO_STM32_FEATHER)
  #define SETWIRECLOCK wire->setClock(WIRECLK)    ///< Set before I2C transfer
  #define RESWIRECLOCK wire->setClock(restoreClk) ///< Restore after I2C xfer
-#else // setClock() is not present in older Arduino Wire lib
+#else // setClock() is not present in older Arduino Wire lib (or WICED)
  #define SETWIRECLOCK ///< Dummy stand-in define
  #define RESWIRECLOCK ///< keeps compiler happy
 #endif
@@ -116,33 +116,25 @@
 // so other I2C device types still work).  All of these are encapsulated
 // in the TRANSACTION_* macros.
 
-#if defined(ARDUINO_STM32_FEATHER)
- // The WICED board currently has no SPIClass -- hardware SPI is not
- // supported by this library there -- nor is there a Wire setClock()
- // function, so the transaction start/end code is a little simpler...
- #define TRANSACTION_START if(!wire) { SSD1306_SELECT;   } ///< SW SPI select
- #define TRANSACTION_END   if(!wire) { SSD1306_DESELECT; } ///< SW SPI deselect
-#else
- // Everywhere else, check first if Wire, then hardware SPI, then soft SPI:
- #define TRANSACTION_START   \
-  if(wire) {                 \
-    SETWIRECLOCK;            \
-  } else {                   \
-    if(spi) {                \
-      SPI_TRANSACTION_START; \
-    }                        \
-    SSD1306_SELECT;          \
-  } ///< Wire, SPI or bitbang transfer setup
- #define TRANSACTION_END     \
-  if(wire) {                 \
-    RESWIRECLOCK;            \
-  } else {                   \
-    SSD1306_DESELECT;        \
-    if(spi) {                \
-      SPI_TRANSACTION_END;   \
-    }                        \
-  } ///< Wire, SPI or bitbang transfer end
-#endif
+// Check first if Wire, then hardware SPI, then soft SPI:
+#define TRANSACTION_START   \
+ if(wire) {                 \
+   SETWIRECLOCK;            \
+ } else {                   \
+   if(spi) {                \
+     SPI_TRANSACTION_START; \
+   }                        \
+   SSD1306_SELECT;          \
+ } ///< Wire, SPI or bitbang transfer setup
+#define TRANSACTION_END     \
+ if(wire) {                 \
+   RESWIRECLOCK;            \
+ } else {                   \
+   SSD1306_DESELECT;        \
+   if(spi) {                \
+     SPI_TRANSACTION_END;   \
+   }                        \
+ } ///< Wire, SPI or bitbang transfer end
 
 // CONSTRUCTORS, DESTRUCTOR ------------------------------------------------
 
@@ -174,11 +166,8 @@
 */
 Adafruit_SSD1306::Adafruit_SSD1306(uint8_t w, uint8_t h, TwoWire *twi,
   int8_t rst_pin, uint32_t res) : Adafruit_GFX(w, h),
-  wire(twi ? twi : &Wire), buffer(NULL), mosiPin(-1), clkPin(-1), dcPin(-1),
-  csPin(-1), rstPin(rst_pin), restoreClk(res) {
-#if !defined(ARDUINO_STM32_FEATHER)
-  spi = NULL;
-#endif
+  spi(NULL), wire(twi ? twi : &Wire), buffer(NULL), mosiPin(-1), clkPin(-1),
+  dcPin(-1), csPin(-1), rstPin(rst_pin), restoreClk(res) {
 }
 
 /*!
@@ -210,12 +199,9 @@ Adafruit_SSD1306::Adafruit_SSD1306(uint8_t w, uint8_t h, TwoWire *twi,
 */
 Adafruit_SSD1306::Adafruit_SSD1306(uint8_t w, uint8_t h,
   int8_t mosi_pin, int8_t sclk_pin, int8_t dc_pin, int8_t rst_pin,
-  int8_t cs_pin) : Adafruit_GFX(w, h), wire(NULL), buffer(NULL),
+  int8_t cs_pin) : Adafruit_GFX(w, h), spi(NULL), wire(NULL), buffer(NULL),
   mosiPin(mosi_pin), clkPin(sclk_pin), dcPin(dc_pin), csPin(cs_pin),
   rstPin(rst_pin) {
-#if !defined(ARDUINO_STM32_FEATHER)
-  spi = NULL;
-#endif
 }
 
 /*!
@@ -244,7 +230,6 @@ Adafruit_SSD1306::Adafruit_SSD1306(uint8_t w, uint8_t h,
     @note   Call the object's begin() function before use -- buffer
             allocation is performed there!
 */
-#if !defined(ARDUINO_STM32_FEATHER) // No HW SPI on WICED Feather yet
 Adafruit_SSD1306::Adafruit_SSD1306(uint8_t w, uint8_t h, SPIClass *spi,
   int8_t dc_pin, int8_t rst_pin, int8_t cs_pin, uint32_t bitrate) :
   Adafruit_GFX(w, h), spi(spi ? spi : &SPI), wire(NULL), buffer(NULL),
@@ -253,7 +238,6 @@ Adafruit_SSD1306::Adafruit_SSD1306(uint8_t w, uint8_t h, SPIClass *spi,
   spiSettings = SPISettings(bitrate, MSBFIRST, SPI_MODE0);
 #endif
 }
-#endif
 
 /*!
     @brief  DEPRECATED constructor for SPI SSD1306 displays, using software
@@ -283,12 +267,9 @@ Adafruit_SSD1306::Adafruit_SSD1306(uint8_t w, uint8_t h, SPIClass *spi,
 */
 Adafruit_SSD1306::Adafruit_SSD1306(int8_t mosi_pin, int8_t sclk_pin,
   int8_t dc_pin, int8_t rst_pin, int8_t cs_pin) :
-  Adafruit_GFX(SSD1306_LCDWIDTH, SSD1306_LCDHEIGHT), wire(NULL), buffer(NULL),
-  mosiPin(mosi_pin), clkPin(sclk_pin), dcPin(dc_pin), csPin(cs_pin),
-  rstPin(rst_pin) {
-#if !defined(ARDUINO_STM32_FEATHER)
-  spi = NULL;
-#endif
+  Adafruit_GFX(SSD1306_LCDWIDTH, SSD1306_LCDHEIGHT), spi(NULL), wire(NULL),
+  buffer(NULL), mosiPin(mosi_pin), clkPin(sclk_pin), dcPin(dc_pin),
+  csPin(cs_pin), rstPin(rst_pin) {
 }
 
 /*!
@@ -312,7 +293,6 @@ Adafruit_SSD1306::Adafruit_SSD1306(int8_t mosi_pin, int8_t sclk_pin,
     @note   Call the object's begin() function before use -- buffer
             allocation is performed there!
 */
-#if !defined(ARDUINO_STM32_FEATHER) // No HW SPI on WICED Feather yet
 Adafruit_SSD1306::Adafruit_SSD1306(int8_t dc_pin, int8_t rst_pin,
   int8_t cs_pin) : Adafruit_GFX(SSD1306_LCDWIDTH, SSD1306_LCDHEIGHT),
   spi(&SPI), wire(NULL), buffer(NULL), mosiPin(-1), clkPin(-1),
@@ -321,7 +301,6 @@ Adafruit_SSD1306::Adafruit_SSD1306(int8_t dc_pin, int8_t rst_pin,
   spiSettings = SPISettings(8000000, MSBFIRST, SPI_MODE0);
 #endif
 }
-#endif
 
 /*!
     @brief  DEPRECATED constructor for I2C SSD1306 displays. Provided for
@@ -338,12 +317,9 @@ Adafruit_SSD1306::Adafruit_SSD1306(int8_t dc_pin, int8_t rst_pin,
             allocation is performed there!
 */
 Adafruit_SSD1306::Adafruit_SSD1306(int8_t rst_pin) :
-  Adafruit_GFX(SSD1306_LCDWIDTH, SSD1306_LCDHEIGHT), wire(&Wire),
+  Adafruit_GFX(SSD1306_LCDWIDTH, SSD1306_LCDHEIGHT), spi(NULL), wire(&Wire),
   buffer(NULL), mosiPin(-1), clkPin(-1), dcPin(-1), csPin(-1),
   rstPin(rst_pin) {
-#if !defined(ARDUINO_STM32_FEATHER)
-  spi = NULL;
-#endif
 }
 
 /*!
@@ -361,11 +337,9 @@ Adafruit_SSD1306::~Adafruit_SSD1306(void) {
 // Issue single byte out SPI, either soft or hardware as appropriate.
 // SPI transaction/selection must be performed in calling function.
 inline void Adafruit_SSD1306::SPIwrite(uint8_t d) {
-#if !defined(ARDUINO_STM32_FEATHER)
   if(spi) {
     (void)spi->transfer(d);
   } else {
-#endif
     for(uint8_t bit = 0x80; bit; bit >>= 1) {
 #ifdef HAVE_PORTREG
       if(d & bit) *mosiPort |=  mosiPinMask;
@@ -378,9 +352,7 @@ inline void Adafruit_SSD1306::SPIwrite(uint8_t d) {
       digitalWrite(clkPin , LOW);
 #endif
     }
-#if !defined(ARDUINO_STM32_FEATHER)
   }
-#endif
 }
 
 // Issue single command to SSD1306, using I2C or hard/soft SPI as needed.
@@ -513,12 +485,10 @@ boolean Adafruit_SSD1306::begin(uint8_t vcs, uint8_t addr, boolean reset,
     csPinMask = digitalPinToBitMask(csPin);
 #endif
     SSD1306_DESELECT
-#if !defined(ARDUINO_STM32_FEATHER)
     if(spi) { // Hardware SPI
       // SPI peripheral begin same as wire check above.
       if(periphBegin) spi->begin();
     } else {  // Soft SPI
-#endif
       pinMode(mosiPin, OUTPUT); // MOSI and SCLK outputs
       pinMode(clkPin , OUTPUT);
 #ifdef HAVE_PORTREG
@@ -530,9 +500,7 @@ boolean Adafruit_SSD1306::begin(uint8_t vcs, uint8_t addr, boolean reset,
 #else
       digitalWrite(clkPin, LOW); // Clock low
 #endif
-#if !defined(ARDUINO_STM32_FEATHER)
     }
-#endif
   }
 
   // Reset SSD1306 if requested and reset pin specified in constructor
