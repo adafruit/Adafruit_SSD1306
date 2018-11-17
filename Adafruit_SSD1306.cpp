@@ -71,14 +71,6 @@
  #define WIRE_WRITE wire->send  ///< Wire write function in older Arduino lib
 #endif
 
-#if defined(__AVR__)
-  #define WIRECLK 400000L  ///< AVR: use 400 KHz I2C clock
-#elif defined(ESP32)
-  #define WIRECLK 800000L  ///< ESP32: use 800 KHz I2C clock
-#else
-  #define WIRECLK 1000000L ///< All others: use 1 MHz I2C clock
-#endif
-
 #ifdef HAVE_PORTREG
  #define SSD1306_SELECT       *csPort &= ~csPinMask; ///< Device select
  #define SSD1306_DESELECT     *csPort |=  csPinMask; ///< Device deselect
@@ -92,7 +84,7 @@
 #endif
 
 #if (ARDUINO >= 157) && !defined(ARDUINO_STM32_FEATHER)
- #define SETWIRECLOCK wire->setClock(WIRECLK)    ///< Set before I2C transfer
+ #define SETWIRECLOCK wire->setClock(wireClk)    ///< Set before I2C transfer
  #define RESWIRECLOCK wire->setClock(restoreClk) ///< Restore after I2C xfer
 #else // setClock() is not present in older Arduino Wire lib (or WICED)
  #define SETWIRECLOCK ///< Dummy stand-in define
@@ -151,23 +143,31 @@
             Reset pin (using Arduino pin numbering), or -1 if not used
             (some displays might be wired to share the microcontroller's
             reset pin).
-    @param  res
-            Restore-to speed for Wire transmissions following library calls.
-            The library uses a faster-than-default Wire clock for quicker
-            screen updates, but this might not always be compatible with
-            other devices connected to the I2C bus. Arduino default Wire
-            speed (and the default value used here if not specified) is
-            100000 (100 KHz), but if your application knows it can reliably
-            use a higher data rate for other devices, that rate can be
-            specified here. (Ignored if using pre-1.5.7 Arduino software.)
+    @param  clkDuring
+            Speed (in Hz) for Wire transmissions in SSD1306 library calls.
+            Defaults to 400000 (400 KHz), a known 'safe' value for most
+            microcontrollers, and meets the SSD1306 datasheet spec.
+            Some systems can operate I2C faster (800 KHz for ESP32, 1 MHz
+            for many other 32-bit MCUs), and some (perhaps not all)
+            SSD1306's can work with this -- so it's optionally be specified
+            here and is not a default behavior. (Ignored if using pre-1.5.7
+            Arduino software, which operates I2C at a fixed 100 KHz.)
+    @param  clkAfter
+            Speed (in Hz) for Wire transmissions following SSD1306 library
+            calls. Defaults to 100000 (100 KHz), the default Arduino Wire
+            speed. This is done rather than leaving it at the 'during' speed
+            because other devices on the I2C bus might not be compatible
+            with the faster rate. (Ignored if using pre-1.5.7 Arduino
+            software, which operates I2C at a fixed 100 KHz.)
     @return Adafruit_SSD1306 object.
     @note   Call the object's begin() function before use -- buffer
             allocation is performed there!
 */
 Adafruit_SSD1306::Adafruit_SSD1306(uint8_t w, uint8_t h, TwoWire *twi,
-  int8_t rst_pin, uint32_t res) : Adafruit_GFX(w, h),
-  spi(NULL), wire(twi ? twi : &Wire), buffer(NULL), mosiPin(-1), clkPin(-1),
-  dcPin(-1), csPin(-1), rstPin(rst_pin), restoreClk(res) {
+  int8_t rst_pin, uint32_t clkDuring, uint32_t clkAfter) :
+  Adafruit_GFX(w, h), spi(NULL), wire(twi ? twi : &Wire), buffer(NULL),
+  mosiPin(-1), clkPin(-1), dcPin(-1), csPin(-1), rstPin(rst_pin),
+  wireClk(clkDuring), restoreClk(clkAfter) {
 }
 
 /*!
