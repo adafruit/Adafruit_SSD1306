@@ -9,7 +9,7 @@ git:
   quiet: true
 env:
   global:
-     - ARDUINO_IDE_VERSION="1.8.7"
+     - ARDUINO_IDE_VERSION="1.8.5"
      - PRETTYNAME="Adafruit SSD1306"
 # Optional, will default to "$TRAVIS_BUILD_DIR/Doxyfile"
 #    - DOXYFILE: $TRAVIS_BUILD_DIR/Doxyfile
