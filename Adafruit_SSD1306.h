@@ -102,6 +102,8 @@
 #if defined SSD1306_128_32
  #define SSD1306_LCDWIDTH  128 ///< DEPRECATED: width w/SSD1306_128_32 defined
  #define SSD1306_LCDHEIGHT  32 ///< DEPRECATED: height w/SSD1306_128_32 defined
+ #define SSD1306_PIXEL_CHUNK 8 /// for scrollUP()
+ #define SSD1306_BUFF_SIZE (SSD1306_LCDWIDTH * ((SSD1306_LCDHEIGHT + 7) / 8)) // for scrollUP()
 #endif
 #if defined SSD1306_96_16
  #define SSD1306_LCDWIDTH   96 ///< DEPRECATED: width w/SSD1306_96_16 defined
@@ -148,6 +150,10 @@ class Adafruit_SSD1306 : public Adafruit_GFX {
   void         ssd1306_command(uint8_t c);
   boolean      getPixel(int16_t x, int16_t y);
   uint8_t     *getBuffer(void);
+
+	// adding function to scroll display up a line; for use with println
+	void				scrollUp(void); 		// scroll display up one line of text
+
 
  private:
   inline void  SPIwrite(uint8_t d) __attribute__((always_inline));
