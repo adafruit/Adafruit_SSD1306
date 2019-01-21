@@ -102,15 +102,15 @@
 #if defined SSD1306_128_32
  #define SSD1306_LCDWIDTH  128 ///< DEPRECATED: width w/SSD1306_128_32 defined
  #define SSD1306_LCDHEIGHT  32 ///< DEPRECATED: height w/SSD1306_128_32 defined
- #define SSD1306_PIXEL_CHUNK 8 /// for scrollUP()
- #define SSD1306_BUFF_SIZE (SSD1306_LCDWIDTH * ((SSD1306_LCDHEIGHT + 7) / 8)) // for scrollUP()
+ #define SSD1306_PIXEL_CHUNK 8 ///< for scrollUP()
+ #define SSD1306_BUFF_SIZE (128 * ((32 + 7) / SSD1306_PIXEL_CHUNK)) ///< for scrollUP()
 #endif
 #if defined SSD1306_96_16
  #define SSD1306_LCDWIDTH   96 ///< DEPRECATED: width w/SSD1306_96_16 defined
  #define SSD1306_LCDHEIGHT  16 ///< DEPRECATED: height w/SSD1306_96_16 defined
 #endif
 
-/*! 
+/*!
     @brief  Class that stores state and functions for interacting with
             SSD1306 OLED displays.
 */
