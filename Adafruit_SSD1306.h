@@ -102,8 +102,8 @@
 #if defined SSD1306_128_32
  #define SSD1306_LCDWIDTH  128 ///< DEPRECATED: width w/SSD1306_128_32 defined
  #define SSD1306_LCDHEIGHT  32 ///< DEPRECATED: height w/SSD1306_128_32 defined
- #define SSD1306_PIXEL_CHUNK 8 ///< for scrollUP()
- #define SSD1306_BUFF_SIZE (128 * ((32 + 7) / SSD1306_PIXEL_CHUNK)) ///< for scrollUP()
+ #define SSD1306_PIXEL_CHUNK 8 ///< for scrollUP(); 8 bit "pages"; see datasheet
+ #define SSD1306_BUFF_SIZE (128 * ((32 + 7) / 8)) ///< for scrollUP()
 #endif
 #if defined SSD1306_96_16
  #define SSD1306_LCDWIDTH   96 ///< DEPRECATED: width w/SSD1306_96_16 defined
