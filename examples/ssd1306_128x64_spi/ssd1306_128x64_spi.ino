@@ -21,7 +21,8 @@
 #include <SPI.h>
 #include <Wire.h>
 #include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
+#include "Adafruit_SSD1306.h"
+#include "ssd1306_sw_spi_driver.h"
 
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
@@ -32,8 +33,8 @@
 #define OLED_DC    11
 #define OLED_CS    12
 #define OLED_RESET 13
-SSD1306_SW_SPI_Driver spi_driver(OLED_MOSI, OLED_CLK, OLED_DC, OLED_CS);
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &spi_driver, OLED_RESET);
+SSD1306_SW_SPI_Driver spi_driver(OLED_MOSI, OLED_CLK, OLED_DC, OLED_CS, OLED_RESET);
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &spi_driver);
 
 /* Comment out above, uncomment this block to use hardware SPI
 #include <ssd1306_spi_driver.h>

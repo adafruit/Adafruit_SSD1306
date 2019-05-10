@@ -4,7 +4,7 @@
  Pick one up today in the adafruit shop!
  ------> http://www.adafruit.com/category/63_98
 
- This example is for a 128x32 pixel display using SPI to communicate
+ This example is for a 128x64 pixel display using SPI to communicate
  4 or 5 pins are required to interface.
 
  Adafruit invests time and resources providing this open
@@ -21,13 +21,11 @@
 #include <SPI.h>
 #include <Wire.h>
 #include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
+#include "Adafruit_SSD1306.h"
+#include "ssd1306_sw_spi_driver.h"
 
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 32 // OLED display height, in pixels
-
-// If using software SPI (the default case):
-#include <ssd1306_sw_spi_driver.h>
 
 // Declaration for SSD1306 display connected using software SPI (default case):
 #define OLED_MOSI   9
@@ -35,9 +33,8 @@
 #define OLED_DC    11
 #define OLED_CS    12
 #define OLED_RESET 13
-
-SSD1306_SW_SPI_Driver spi_driver(OLED_MOSI, OLED_CLK, OLED_DC, OLED_CS);
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &spi_driver, OLED_RESET)
+SSD1306_SW_SPI_Driver spi_driver(OLED_MOSI, OLED_CLK, OLED_DC, OLED_CS, OLED_RESET);
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &spi_driver);
 
 /* Comment out above, uncomment this block to use hardware SPI
 #include <ssd1306_spi_driver.h>
@@ -45,10 +42,9 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &spi_driver, OLED_RESET)
 #define OLED_CS     7
 #define OLED_RESET  8
 SSD1306_SPI_Driver spi_driver(OLED_DC, OLED_CS);
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &spi_driver, OLED_RESET)
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, spi_driver. OLED_RESET);
 */
 
-Adafruit_SSD1306 display(&spi_driver, OLED_RESET);
 
 #define NUMFLAKES     10 // Number of snowflakes in the animation example
 
@@ -80,6 +76,7 @@ void setup() {
     Serial.println(F("SSD1306 allocation failed"));
     for(;;); // Don't proceed, loop forever
   }
+
 
   // Show initial display buffer contents on the screen --
   // the library initializes this with an Adafruit splash screen.
