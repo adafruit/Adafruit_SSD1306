@@ -28,13 +28,20 @@
     SSD1306 Displays
     -------------------------------------------------------------------
     SSD1306 display support communication over SPI and I2C interfaces.
-    In order to avoid bringing both SPI and I2C code to user firmware
-    (and therefore increasing firmware size) the hardware interaction 
-    is extracted to a driver. User can select which driver to use according
-    to hardware display connection. Moreover this simplifies porintg of
-    the library code to other platforms - it just requires creation of a 
-    driver, rather than patching the library.
-    
+    In order to avoid bringing both SPI and I2C code to user firmware at the
+    same time (and therefore increasing firmware size and memory consumptuin)
+    hardware interaction is extracted to a driver. User can select which
+    driver to use according to hardware display connection. Moreover this 
+    simplifies porintg of the library code to other platforms - it just 
+    requires creation of a new driver, rather than patching the library.
+
+    Classes responsibilities:
+    - Adafruit_SSD1306 knows how to draw pixels (over Adafruit_GFX), knows
+      which commands shall be sent to the display, but the actual communication
+      is delegated to the driver. Adafruit_SSD1306 class does not have any
+      hardware specific code
+    - Driver knows how to initialize and then transfer data to the hardware
+
     The library comes with a few drivers:
     - SSD1306_I2C_Driver - for communication via hardware I2C
     - SSD1306_SPI_Driver - for communication via hardware SPI
@@ -91,47 +98,77 @@
 #define SSD1306_ACTIVATE_SCROLL                      0x2F ///< Start scroll
 #define SSD1306_SET_VERTICAL_SCROLL_AREA             0xA3 ///< Set scroll range
 
-// Deprecated size stuff for backwards compatibility with old sketches
-#if defined SSD1306_128_64
- #define SSD1306_LCDWIDTH  128 ///< DEPRECATED: width w/SSD1306_128_64 defined
- #define SSD1306_LCDHEIGHT  64 ///< DEPRECATED: height w/SSD1306_128_64 defined
-#endif
-#if defined SSD1306_128_32
- #define SSD1306_LCDWIDTH  128 ///< DEPRECATED: width w/SSD1306_128_32 defined
- #define SSD1306_LCDHEIGHT  32 ///< DEPRECATED: height w/SSD1306_128_32 defined
-#endif
-#if defined SSD1306_96_16
- #define SSD1306_LCDWIDTH   96 ///< DEPRECATED: width w/SSD1306_96_16 defined
- #define SSD1306_LCDHEIGHT  16 ///< DEPRECATED: height w/SSD1306_96_16 defined
-#endif
 
 /*! 
-    @brief  Interface for hardware driver
+    @brief  Hardware driver Interface 
      
     The Adafruit_SSD1306 does not work directly with the hardware
     All the communcation requests are forwarded to the driver which
-    actually communicate with the ardware. 
+    actually communicate with the hardware. 
 */
 class ISSD1306Driver
 {
 public:
+  /*!
+    @brief  Initialize display driver and hardware underneath
+
+    Adafruit_SSD1306 calls this method during its begin() method            
+  */
   virtual void begin() = 0;
+
+  /*!
+    @brief  Prepare hardware for a communication transaction
+
+    Driver implementation may perform some communication preparations here, e.g.
+    set up a communication channel, prepare target device for the data transfer.
+  */
   virtual void startTransaction() = 0;
-  virtual void sendCommand(uint8_t c) = 0;
-  virtual void sendCommands(const uint8_t *c, size_t n) = 0;
+
+  /*!
+    @brief  Send a single command to the display
+
+    @param  cmd - A command to send    
+  */
+  virtual void sendCommand(uint8_t cmd) = 0;
+
+  /*!
+    @brief  Send multiple commands to the display
+
+    @param  cmds - Pointer to the commands list to send
+    @param  size - number of commands to send
+  
+    @note   cmds is a pointer in program memory, not RAM. Implementation must 
+            read commands using pgm_read_byte
+  */
+  virtual void sendCommands(const uint8_t *cmds, size_t size) = 0;
+
+  /*!
+    @brief  Send data to the display
+
+    @param  data - Pointer to the data buffer to send
+    @param  size - number of commands to send
+  
+    @note   c is a pointer RAM, not program memory.
+  */
   virtual void sendData(const uint8_t * data, size_t size) = 0;
+
+  /*!
+    @brief Finalize communication transaction
+
+    Driver implementation may perform some communication finalization here, e.g.
+    deactivate communication channel, restore channel settings.
+  */
   virtual void endTransaction() = 0;
 };
 
 
 /*! 
-    @brief  Class that stores state and functions for interacting with
+    @brief  Class that holds a state and contains functions for interacting with
             SSD1306 OLED displays over the supplied driver.
 
     The Adafruit_SSD1306 class itself is hardware and platform independent. This class
     implements communication logic with SSD1306 displays, while actuall communication with
-    the hardware is performed in the driver. This design is needed for easier porting the
-    library to other platforms (including non-Arduino ones).
+    the hardware is performed by the driver. 
 */
 class Adafruit_SSD1306 : public Adafruit_GFX {
  public:

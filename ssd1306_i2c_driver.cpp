@@ -65,19 +65,19 @@ void SSD1306_I2C_Driver::sendCommand(uint8_t cmd)
   wire->endTransmission();
 }
 
-void SSD1306_I2C_Driver::sendCommands(const uint8_t *c, size_t n)
+void SSD1306_I2C_Driver::sendCommands(const uint8_t *cmds, size_t size)
 {
   wire->beginTransmission(i2caddr);
   WIRE_WRITE((uint8_t)0x00); // Co = 0, D/C = 0
   uint8_t bytesOut = 1;
-  while(n--) {
+  while(size--) {
     if(bytesOut >= WIRE_MAX) {
       wire->endTransmission();
       wire->beginTransmission(i2caddr);
       WIRE_WRITE((uint8_t)0x00); // Co = 0, D/C = 0
       bytesOut = 1;
     }
-    WIRE_WRITE(pgm_read_byte(c++));
+    WIRE_WRITE(pgm_read_byte(cmds++));
     bytesOut++;
   }
   wire->endTransmission();

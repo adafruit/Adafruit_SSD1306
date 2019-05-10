@@ -75,8 +75,8 @@ public:
 
   virtual void begin();
   virtual void startTransaction();
-  virtual void sendCommand(uint8_t c);
-  virtual void sendCommands(const uint8_t *c, size_t n);
+  virtual void sendCommand(uint8_t cmd);
+  virtual void sendCommands(const uint8_t *cmds, size_t size);
   virtual void sendData(const uint8_t * data, size_t size);
   virtual void endTransaction();
 };
