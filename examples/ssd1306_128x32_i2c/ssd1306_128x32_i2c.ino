@@ -18,7 +18,6 @@
  included in any redistribution.
  **************************************************************************/
 
-#include <SPI.h>
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
@@ -30,9 +29,8 @@
 
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
 #define OLED_RESET     4 // Reset pin # (or -1 if sharing Arduino reset pin)
-
-SSD1306_I2C_Driver i2c_driver(0x3C);    // initialize with the I2C addr 0x3C (for the 128x32)
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &i2c_driver, OLED_RESET);
+SSD1306_I2C_Driver i2c_driver(0x3C, OLED_RESET); // initialize with the I2C addr 0x3C (for the 128x32)
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &i2c_driver);
 
 #define NUMFLAKES     10 // Number of snowflakes in the animation example
 
@@ -60,7 +58,7 @@ void setup() {
   Serial.begin(9600);
 
   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
-  if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3C for 128x32
+  if(!display.begin(SSD1306_SWITCHCAPVCC)) {
     Serial.println(F("SSD1306 allocation failed"));
     for(;;); // Don't proceed, loop forever
   }
