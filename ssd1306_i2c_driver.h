@@ -8,11 +8,11 @@
 #define SSD1306_I2C_ADDRESS   0x3C  // 011110+SA0+RW - 0x3C or 0x3D
 
 /*! 
-    @brief I2C driver for SSD1306 display (based on Arduino's TwoWire class)
+  @brief I2C driver for SSD1306 display (based on Arduino's TwoWire class)
      
-    This class implements communication over I2C using TwoWire interface. The class
-    encapsulate all the work related to hardware interfaces including initialization the
-    hardware, maintaining communication speed, and transferring the data
+  This class implements communication over I2C using TwoWire interface. The class
+  encapsulate all the work related to hardware interfaces including initialization the
+  hardware, maintaining communication speed, and transferring the data
 */
 
 class SSD1306_I2C_Driver : public ISSD1306Driver
