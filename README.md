@@ -26,6 +26,32 @@ Version 1.2 (November 2018) introduces some significant changes:
   * SPI transactions are used and SPI bitrate can be specified (both require Arduino 1.6 or later).
   * SPI and Wire (I2C) interfaces other than the defaults are supported.
 
+Version 1.10 (2019) introduces another significant changes:
+
+  * All hadrware communication moved to a driver class, while main Adafruit_SSD1306 class focuses on the display logic. This significantly improves internal library architecture, and reduces memory footprint as unused interfaces do not compile. 
+    Thus if the display is connected via SPI, the I2C related code is not even compiled into the program. 
+  * The change requires minor adjustments in the user sketch as follows
+
+Prior the change:
+```
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+...
+display.begin(SSD1306_SWITCHCAPVCC, 0x3D)
+```
+
+Now:
+```
+#include <ssd1306_i2c_driver.h>
+SSD1306_I2C_Driver i2c_driver(0x3D, OLED_RESET); // initialize with the I2C addr 0x3D (for the 128x64)
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &i2c_driver);
+...
+display.begin(SSD1306_SWITCHCAPVCC)
+
+```
+
+See examples and header files for more details
+
+
 <!-- START COMPATIBILITY TABLE -->
 
 ## Compatibility
