@@ -3,15 +3,6 @@
 
 #include "Adafruit_SSD1306.h"
 
-/*! 
-    @brief I2C driver for SSD1306 display (based on Arduino's TwoWire class)
-     
-    This class implements communication over I2C using TwoWire interface. The class
-    encapsulate all the work related to hardware interfaces including initialization the
-    hardware, maintaining communication speed, and transferring the data
-*/
-
-
 #if defined(__AVR__)
   typedef volatile uint8_t  PortReg;
   typedef uint8_t           PortMask;
