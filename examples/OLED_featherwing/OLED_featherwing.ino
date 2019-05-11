@@ -2,8 +2,10 @@
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
+#include <ssd1306_i2c_driver.h>
 
-Adafruit_SSD1306 display = Adafruit_SSD1306(128, 32, &Wire);
+SSD1306_I2C_Driver i2c_driver(0x3C);  // Address 0x3C for 128x32
+Adafruit_SSD1306 display = Adafruit_SSD1306(128, 32, &i2c_driver);
 
 // OLED FeatherWing buttons map to different pins depending on board:
 #if defined(ESP8266)
@@ -37,7 +39,7 @@ void setup() {
 
   Serial.println("OLED FeatherWing test");
   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
-  display.begin(SSD1306_SWITCHCAPVCC, 0x3C); // Address 0x3C for 128x32
+  display.begin(SSD1306_SWITCHCAPVCC);
 
   Serial.println("OLED begun");
 
