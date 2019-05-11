@@ -128,6 +128,10 @@ public:
     @brief  Send a single command to the display
 
     @param  cmd - A command to send    
+  
+    @note   Because command calls are often grouped, a transaction and chip selection
+            must be started/ended using startTransaction()/endTransaction() functions
+            for efficiency.
   */
   virtual void sendCommand(uint8_t cmd) = 0;
 
@@ -139,6 +143,9 @@ public:
   
     @note   cmds is a pointer in program memory, not RAM. Implementation must 
             read commands using pgm_read_byte
+    @note   Because command calls are often grouped, a transaction and chip selection
+            must be started/ended using startTransaction()/endTransaction() functions
+            for efficiency.
   */
   virtual void sendCommands(const uint8_t *cmds, size_t size) = 0;
 
@@ -149,6 +156,9 @@ public:
     @param  size - number of commands to send
   
     @note   c is a pointer RAM, not program memory.
+    @note   Because command calls are often grouped, a transaction and chip selection
+            must be started/ended using startTransaction()/endTransaction() functions
+            for efficiency.
   */
   virtual void sendData(const uint8_t * data, size_t size) = 0;
 
