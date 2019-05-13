@@ -463,7 +463,7 @@ void Adafruit_SSD1306::ssd1306_command(uint8_t c) {
 bool Adafruit_SSD1306::begin(uint8_t vcs, uint8_t addr, bool reset,
                              bool periphBegin) {
 
-  if ((!buffer) && !(buffer = (uint8_t *)malloc(WIDTH * ((HEIGHT + 7) / 8))))
+  if ((!buffer) && !(buffer = (uint8_t *)malloc(SSD1306_SEGMENTS * ((HEIGHT + 7) / 8))))
     return false;
 
   clearDisplay();
@@ -632,16 +632,17 @@ void Adafruit_SSD1306::drawPixel(int16_t x, int16_t y, uint16_t color) {
       y = HEIGHT - y - 1;
       break;
     }
+    if ((WIDTH == 64) && (HEIGHT == 48)) x += 32;
     switch (color) {
-    case SSD1306_WHITE:
-      buffer[x + (y / 8) * WIDTH] |= (1 << (y & 7));
-      break;
-    case SSD1306_BLACK:
-      buffer[x + (y / 8) * WIDTH] &= ~(1 << (y & 7));
-      break;
-    case SSD1306_INVERSE:
-      buffer[x + (y / 8) * WIDTH] ^= (1 << (y & 7));
-      break;
+     case SSD1306_WHITE:
+       buffer[x + (y / 8) * SSD1306_SEGMENTS] |=  (1 << (y & 7));
+       break;
+     case SSD1306_BLACK:
+       buffer[x + (y / 8) * SSD1306_SEGMENTS] &= ~(1 << (y & 7));
+       break;
+     case SSD1306_INVERSE:
+       buffer[x + (y / 8) * SSD1306_SEGMENTS] ^=  (1 << (y & 7));
+       break;
     }
   }
 }
@@ -654,7 +655,7 @@ void Adafruit_SSD1306::drawPixel(int16_t x, int16_t y, uint16_t color) {
             commands as needed by one's own application.
 */
 void Adafruit_SSD1306::clearDisplay(void) {
-  memset(buffer, 0, WIDTH * ((HEIGHT + 7) / 8));
+  memset(buffer, 0, SSD1306_SEGMENTS * ((HEIGHT + 7) / 8));
 }
 
 /*!
@@ -717,7 +718,9 @@ void Adafruit_SSD1306::drawFastHLineInternal(int16_t x, int16_t y, int16_t w,
       w = (WIDTH - x);
     }
     if (w > 0) { // Proceed only if width is positive
-      uint8_t *pBuf = &buffer[(y / 8) * WIDTH + x], mask = 1 << (y & 7);
+      if ((WIDTH == 64) && (HEIGHT == 48)) x += 32;
+      uint8_t* pBuf = &buffer[x + (y / 8) * SSD1306_SEGMENTS];
+      uint8_t mask = 1 << (y & 7);
       switch (color) {
       case SSD1306_WHITE:
         while (w--) {
@@ -803,7 +806,8 @@ void Adafruit_SSD1306::drawFastVLineInternal(int16_t x, int16_t __y,
       // this display doesn't need ints for coordinates,
       // use local byte registers for faster juggling
       uint8_t y = __y, h = __h;
-      uint8_t *pBuf = &buffer[(y / 8) * WIDTH + x];
+      if ((WIDTH == 64) && (HEIGHT == 48)) x += 32;
+      uint8_t *pBuf = &buffer[x + (y / 8) * SSD1306_SEGMENTS];
 
       // do the first partial byte, if necessary - this requires some masking
       uint8_t mod = (y & 7);
@@ -831,7 +835,7 @@ void Adafruit_SSD1306::drawFastVLineInternal(int16_t x, int16_t __y,
           *pBuf ^= mask;
           break;
         }
-        pBuf += WIDTH;
+        pBuf += SSD1306_SEGMENTS;
       }
 
       if (h >= mod) { // More to go?
@@ -843,7 +847,7 @@ void Adafruit_SSD1306::drawFastVLineInternal(int16_t x, int16_t __y,
             // black/white write version with an extra comparison per loop
             do {
               *pBuf ^= 0xFF; // Invert byte
-              pBuf += WIDTH; // Advance pointer 8 rows
+              pBuf  += SSD1306_SEGMENTS; // Advance pointer 8 rows
               h -= 8;        // Subtract 8 rows from height
             } while (h >= 8);
           } else {
@@ -851,7 +855,7 @@ void Adafruit_SSD1306::drawFastVLineInternal(int16_t x, int16_t __y,
             uint8_t val = (color != SSD1306_BLACK) ? 255 : 0;
             do {
               *pBuf = val;   // Set byte
-              pBuf += WIDTH; // Advance pointer 8 rows
+              pBuf += SSD1306_SEGMENTS;  // Advance pointer 8 rows
               h -= 8;        // Subtract 8 rows from height
             } while (h >= 8);
           }
@@ -912,7 +916,8 @@ bool Adafruit_SSD1306::getPixel(int16_t x, int16_t y) {
       y = HEIGHT - y - 1;
       break;
     }
-    return (buffer[x + (y / 8) * WIDTH] & (1 << (y & 7)));
+    if ((WIDTH == 64) && (HEIGHT == 48)) x += 32;
+    return (buffer[x + (y / 8) * SSD1306_SEGMENTS] & (1 << (y & 7)));
   }
   return false; // Pixel out of bounds
 }
@@ -935,27 +940,16 @@ uint8_t *Adafruit_SSD1306::getBuffer(void) { return buffer; }
 */
 void Adafruit_SSD1306::display(void) {
   TRANSACTION_START
-  if ((WIDTH != 64) || (HEIGHT != 48)) {
-    static const uint8_t PROGMEM dlist1a[] = {
-      SSD1306_PAGEADDR,
-      0,                         // Page start address
-      0xFF,                      // Page end (not really, but works here)
-      SSD1306_COLUMNADDR,
-      0 };                       // Column start address
-    ssd1306_commandList(dlist1a, sizeof(dlist1a));
-    ssd1306_command1(WIDTH - 1); // Column end address
-  } else {
-    static const uint8_t PROGMEM dlist1b[] = {
-      SSD1306_PAGEADDR,
-      0 };                       // Page start address
-    ssd1306_commandList(dlist1b, sizeof(dlist1b));
-    ssd1306_command1((HEIGHT / 8) - 1); // Page end address
-    static const uint8_t PROGMEM dlist2b[] = {
-      SSD1306_COLUMNADDR,
-      32 };                       // Column start address
-    ssd1306_commandList(dlist2b, sizeof(dlist2b));
-    ssd1306_command1(32 + WIDTH - 1); // Column end address
-  }
+  static const uint8_t PROGMEM dlist1[] = {
+    SSD1306_PAGEADDR,
+    0 };                       // Page start address
+  ssd1306_commandList(dlist1, sizeof(dlist1));
+  ssd1306_command1((HEIGHT + 7) / 8 - 1); // Page end address
+  static const uint8_t PROGMEM dlist2[] = {
+    SSD1306_COLUMNADDR,
+    0 };                       // Column start address
+  ssd1306_commandList(dlist2, sizeof(dlist2));
+  ssd1306_command1(SSD1306_SEGMENTS - 1); // Column end address
 
 #if defined(ESP8266)
   // ESP8266 needs a periodic yield() call to avoid watchdog reset.
@@ -966,7 +960,7 @@ void Adafruit_SSD1306::display(void) {
   // 32-byte transfer condition below.
   yield();
 #endif
-  uint16_t count = WIDTH * ((HEIGHT + 7) / 8);
+  uint16_t count = SSD1306_SEGMENTS * ((HEIGHT + 7) / 8);
   uint8_t *ptr = buffer;
   if (wire) { // I2C
     wire->beginTransmission(i2caddr);

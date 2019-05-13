@@ -106,6 +106,8 @@ typedef uint32_t PortMask;
 #define SSD1306_ACTIVATE_SCROLL 0x2F                      ///< Start scroll
 #define SSD1306_SET_VERTICAL_SCROLL_AREA 0xA3             ///< Set scroll range
 
+#define SSD1306_SEGMENTS			128 ///< See datasheet
+
 // Deprecated size stuff for backwards compatibility with old sketches
 #if defined SSD1306_128_64
 #define SSD1306_LCDWIDTH 128 ///< DEPRECATED: width w/SSD1306_128_64 defined
@@ -151,11 +153,11 @@ public:
              bool reset = true, bool periphBegin = true);
   void display(void);
   void clearDisplay(void);
-  void invertDisplay(bool i);
+  virtual void invertDisplay(bool i) override;
   void dim(bool dim);
-  void drawPixel(int16_t x, int16_t y, uint16_t color);
-  virtual void drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color);
-  virtual void drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color);
+  virtual void drawPixel(int16_t x, int16_t y, uint16_t color) override;
+  virtual void drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color) override;
+  virtual void drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color) override;
   void startscrollright(uint8_t start, uint8_t stop);
   void startscrollleft(uint8_t start, uint8_t stop);
   void startscrolldiagright(uint8_t start, uint8_t stop);
