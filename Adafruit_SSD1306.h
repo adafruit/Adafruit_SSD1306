@@ -182,7 +182,7 @@ public:
 */
 class Adafruit_SSD1306 : public Adafruit_GFX {
  public:
-  Adafruit_SSD1306(uint8_t w, uint8_t h, ISSD1306Driver * drvu, int8_t switchvcc=SSD1306_SWITCHCAPVCC);
+  Adafruit_SSD1306(uint8_t w, uint8_t h, ISSD1306Driver * drv, int8_t switchvcc=SSD1306_SWITCHCAPVCC);
   ~Adafruit_SSD1306(void);
 
   boolean      begin();

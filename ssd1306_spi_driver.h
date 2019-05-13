@@ -47,9 +47,37 @@ class SSD1306_SPI_Driver : public ISSD1306Driver
   SPISettings  spiSettings;
 #endif
 
+  // Do a spi->begin() during initialization
   bool needsInit;
 
 public:
+  /*!
+    @brief  Constructor for SPI driver.
+    @param  dc_pin
+            Data/command pin (using Arduino pin numbering), selects whether
+            display is receiving commands (low) or data (high).
+    @param  cs_pin
+            Chip-select pin (using Arduino pin numbering) for sharing the
+            bus with other devices. Active low.
+    @param  rst_pin
+            Reset pin if specified (using Arduino pin numbering), or -1 if not used
+            (some displays might be wired to share the microcontroller's
+            reset pin). If the pin is not -1, a hard reset will be performed before
+            initializing the display. If using multiple SSD1306 displays on the same
+            bus, and if they all share the same reset pin, you should only pass reset
+            pin number on the first display being initialized, and -1 on all others
+            Default if unspecified is -1.
+    @param  spi
+            Pointer to an existing SPIClass instance - the actual hardware interface to
+            communicate with.
+    @param  periphBegin
+            Perform SPI peripheral initialization (in case if caller does not call
+            spi->begin() elsewhere)
+    @param  bitrate
+            SPI clock rate for transfers to this display. Default if
+            unspecified is 8000000UL (8 MHz).
+    @return SSD1306_SPI_Driver object.
+  */
   SSD1306_SPI_Driver(int8_t dc_pin, int8_t cs_pin, int8_t rst_pin = -1, SPIClass *spi = &SPI, bool periphBegin = true, uint32_t bitrate=8000000UL);
 
   virtual void begin();

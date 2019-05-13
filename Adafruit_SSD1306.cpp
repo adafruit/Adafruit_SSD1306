@@ -65,9 +65,14 @@
             Display width in pixels
     @param  h
             Display height in pixels
-    @param  driver
+    @param  drv
             Pointer to an existing hardware driver that supposed to communicate
             with the display
+    @param  switchvcc
+            VCC selection. Pass SSD1306_SWITCHCAPVCC to generate the display
+            voltage (step up) from the 3.3V source, or SSD1306_EXTERNALVCC
+            otherwise. Most situations with Adafruit SSD1306 breakouts will
+            want SSD1306_SWITCHCAPVCC.
     @return Adafruit_SSD1306 object.
     @note   Call the object's begin() function before use -- buffer
             allocation is performed there!
@@ -109,7 +114,7 @@ void Adafruit_SSD1306::ssd1306_commandList(const uint8_t *c, uint8_t n) {
     @brief  Issue a single low-level command directly to the SSD1306
             display, bypassing the library.
     @param  c
-            Command to issue (0x00 to 0xFF, see datasheet).
+            Command to issue (see datasheet).
     @return None (void).
 */
 void Adafruit_SSD1306::ssd1306_command(uint8_t c) {
@@ -122,34 +127,6 @@ void Adafruit_SSD1306::ssd1306_command(uint8_t c) {
 
 /*!
     @brief  Allocate RAM for image buffer, initialize peripherals and pins.
-    @param  vcs
-            VCC selection. Pass SSD1306_SWITCHCAPVCC to generate the display
-            voltage (step up) from the 3.3V source, or SSD1306_EXTERNALVCC
-            otherwise. Most situations with Adafruit SSD1306 breakouts will
-            want SSD1306_SWITCHCAPVCC.
-    @param  addr
-            I2C address of corresponding SSD1306 display (or pass 0 to use
-            default of 0x3C for 128x32 display, 0x3D for all others).
-            SPI displays (hardware or software) do not use addresses, but
-            this argument is still required (pass 0 or any value really,
-            it will simply be ignored). Default if unspecified is 0.
-    @param  reset
-            If true, and if the reset pin passed to the constructor is
-            valid, a hard reset will be performed before initializing the
-            display. If using multiple SSD1306 displays on the same bus, and
-            if they all share the same reset pin, you should only pass true
-            on the first display being initialized, false on all others,
-            else the already-initialized displays would be reset. Default if
-            unspecified is true.
-    @param  periphBegin
-            If true, and if a hardware peripheral is being used (I2C or SPI,
-            but not software SPI), call that peripheral's begin() function,
-            else (false) it has already been done in one's sketch code.
-            Cases where false might be used include multiple displays or
-            other devices sharing a common bus, or situations on some
-            platforms where a nonstandard begin() function is available
-            (e.g. a TwoWire interface on non-default pins, as can be done
-            on the ESP8266 and perhaps others).
     @return true on successful allocation/init, false otherwise.
             Well-behaved code should check the return value before
             proceeding.

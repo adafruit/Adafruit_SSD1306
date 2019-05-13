@@ -37,9 +37,13 @@ public:
     @param  addr
             The I2C device address. Usually 0x3C for 128x32, and 0x3D for 128x64
     @param  rst_pin
-            Reset pin (using Arduino pin numbering), or -1 if not used
+            Reset pin if specified (using Arduino pin numbering), or -1 if not used
             (some displays might be wired to share the microcontroller's
-            reset pin).
+            reset pin). If the pin is not -1, a hard reset will be performed before
+            initializing the display. If using multiple SSD1306 displays on the same
+            bus, and if they all share the same reset pin, you should only pass reset
+            pin number on the first display being initialized, and -1 on all others
+            Default if unspecified is -1.
     @param  twi
             Pointer to an existing TwoWire instance (e.g. &Wire, the
             microcontroller's primary I2C bus).
@@ -66,9 +70,6 @@ public:
             with the faster rate. (Ignored if using pre-1.5.7 Arduino
             software, which operates I2C at a fixed 100 KHz.)
     @return SSD1306_I2C_Driver object.
-
-    @note   Call the object's begin() function before use -- buffer
-            allocation is performed there!
   */
   SSD1306_I2C_Driver(int8_t addr = SSD1306_I2C_ADDRESS, int8_t rst_pin = -1, TwoWire *twi = &Wire, 
                      bool periphBegin = true, uint32_t clkDuring = 400000UL, uint32_t clkAfter = 100000UL);
