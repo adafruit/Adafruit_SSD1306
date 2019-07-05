@@ -26,6 +26,32 @@ Version 1.2 (November 2018) introduces some significant changes:
   * SPI transactions are used and SPI bitrate can be specified (both require Arduino 1.6 or later).
   * SPI and Wire (I2C) interfaces other than the defaults are supported.
 
+Version 1.10 (2019) introduces another significant changes:
+
+  * All hadrware communication moved to a driver class, while main Adafruit_SSD1306 class focuses on the display logic. This significantly improves internal library architecture, and reduces memory footprint as unused interfaces do not compile. 
+    Thus if the display is connected via SPI, the I2C related code is not even compiled into the program. 
+  * The change requires minor adjustments in the user sketch as follows
+
+Prior the change:
+```
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+...
+display.begin(SSD1306_SWITCHCAPVCC, 0x3D)
+```
+
+Now:
+```
+#include <ssd1306_i2c_driver.h>
+SSD1306_I2C_Driver i2c_driver(0x3D, OLED_RESET); // initialize with the I2C addr 0x3D (for the 128x64)
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &i2c_driver);
+...
+display.begin(SSD1306_SWITCHCAPVCC)
+
+```
+
+See examples and header files for more details
+
+
 <!-- START COMPATIBILITY TABLE -->
 
 ## Compatibility
@@ -42,6 +68,8 @@ ATSAM21D    |      X     |            |          |
 Intel Curie |      X     |            |          |
 WICED       |      X     |            |          | No hardware SPI - bitbang only
 ATtiny85    |            |      X     |          |
+STM32F1     |      X     |            |          | Tested with STM32GENERIC and stm32duino
+
 
   * ATmega328 : Arduino UNO, Adafruit Pro Trinket, Adafruit Metro 328, Adafruit Metro Mini
   * ATmega32u4 : Arduino Leonardo, Arduino Micro, Arduino Yun, Teensy 2.0, Adafruit Flora, Bluefruit Micro
@@ -50,5 +78,6 @@ ATtiny85    |            |      X     |          |
   * ATSAM3X8E : Arduino Due
   * ATSAM21D : Arduino Zero, M0 Pro, Adafruit Metro Express, Feather M0
   * ATtiny85 : Adafruit Gemma, Arduino Gemma, Adafruit Trinket
+  * STM32F1: Blue Pill board (STM32F103C8)
 
 <!-- END COMPATIBILITY TABLE -->

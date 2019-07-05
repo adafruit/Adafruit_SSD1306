@@ -26,22 +26,26 @@
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 
+#include <ssd1306_sw_spi_driver.h>
 // Declaration for SSD1306 display connected using software SPI (default case):
 #define OLED_MOSI   9
 #define OLED_CLK   10
 #define OLED_DC    11
 #define OLED_CS    12
 #define OLED_RESET 13
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT,
-  OLED_MOSI, OLED_CLK, OLED_DC, OLED_RESET, OLED_CS);
+SSD1306_SW_SPI_Driver spi_driver(OLED_MOSI, OLED_CLK, OLED_DC, OLED_CS, OLED_RESET);
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &spi_driver);
 
-/* Comment out above, uncomment this block to use hardware SPI
+/*
+#include <ssd1306_spi_driver.h>
+// Alternatively you may use hardware SPI which is much faster
 #define OLED_DC     6
 #define OLED_CS     7
 #define OLED_RESET  8
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT,
-  &SPI, OLED_DC, OLED_RESET, OLED_CS);
+SSD1306_SPI_Driver spi_driver(OLED_DC, OLED_CS, OLED_RESET);
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &spi_driver);
 */
+
 
 #define NUMFLAKES     10 // Number of snowflakes in the animation example
 
@@ -68,8 +72,7 @@ static const unsigned char PROGMEM logo_bmp[] =
 void setup() {
   Serial.begin(9600);
 
-  // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
-  if(!display.begin(SSD1306_SWITCHCAPVCC)) {
+  if(!display.begin()) {
     Serial.println(F("SSD1306 allocation failed"));
     for(;;); // Don't proceed, loop forever
   }

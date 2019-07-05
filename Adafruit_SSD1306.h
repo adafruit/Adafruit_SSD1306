@@ -24,35 +24,39 @@
 #ifndef _Adafruit_SSD1306_H_
 #define _Adafruit_SSD1306_H_
 
-// ONE of the following three lines must be #defined:
-//#define SSD1306_128_64 ///< DEPRECTAED: old way to specify 128x64 screen
-#define SSD1306_128_32   ///< DEPRECATED: old way to specify 128x32 screen
-//#define SSD1306_96_16  ///< DEPRECATED: old way to specify 96x16 screen
-// This establishes the screen dimensions in old Adafruit_SSD1306 sketches
-// (NEW CODE SHOULD IGNORE THIS, USE THE CONSTRUCTORS THAT ACCEPT WIDTH
-// AND HEIGHT ARGUMENTS).
+/*=========================================================================
+    SSD1306 Displays
+    -------------------------------------------------------------------
+    SSD1306 display support communication over SPI and I2C interfaces.
+    In order to avoid bringing both SPI and I2C code to user firmware at the
+    same time (and therefore increasing firmware size and memory consumptuin)
+    hardware interaction is extracted to a driver. User can select which
+    driver to use according to hardware display connection. Moreover this 
+    simplifies porintg of the library code to other platforms - it just 
+    requires creation of a new driver, rather than patching the library.
 
-#if defined(ARDUINO_STM32_FEATHER)
-  typedef class HardwareSPI SPIClass;
-#endif
+    Classes responsibilities:
+    - Adafruit_SSD1306 knows how to draw pixels (over Adafruit_GFX), knows
+      which commands shall be sent to the display, but the actual communication
+      is delegated to the driver. Adafruit_SSD1306 class does not have any
+      hardware specific code
+    - Driver knows how to initialize and then transfer data to the hardware
 
-#include <Wire.h>
-#include <SPI.h>
+    The library comes with a few drivers:
+    - SSD1306_I2C_Driver - for communication via hardware I2C
+    - SSD1306_SPI_Driver - for communication via hardware SPI
+    - SSD1306_SW_SPI_Driver - SPI interface software emulation (bitbanging)
+    
+    Usage:
+        SSD1306_I2C_Driver i2c_driver(0x3C);
+        Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &i2c_driver);
+        
+        display.begin();
+        display.draw...
+        display.display();
+  =========================================================================*/
+
 #include <Adafruit_GFX.h>
-
-#if defined(__AVR__)
-  typedef volatile uint8_t  PortReg;
-  typedef uint8_t           PortMask;
-  #define HAVE_PORTREG
-#elif defined(__SAM3X8E__)
-  typedef volatile RwReg    PortReg;
-  typedef uint32_t          PortMask;
-  #define HAVE_PORTREG
-#elif defined(__arm__) || defined(ARDUINO_FEATHER52)
-  typedef volatile uint32_t PortReg;
-  typedef uint32_t          PortMask;
-  #define HAVE_PORTREG
-#endif
 
 #define BLACK                          0 ///< Draw 'off' pixels
 #define WHITE                          1 ///< Draw 'on' pixels
@@ -94,45 +98,94 @@
 #define SSD1306_ACTIVATE_SCROLL                      0x2F ///< Start scroll
 #define SSD1306_SET_VERTICAL_SCROLL_AREA             0xA3 ///< Set scroll range
 
-// Deprecated size stuff for backwards compatibility with old sketches
-#if defined SSD1306_128_64
- #define SSD1306_LCDWIDTH  128 ///< DEPRECATED: width w/SSD1306_128_64 defined
- #define SSD1306_LCDHEIGHT  64 ///< DEPRECATED: height w/SSD1306_128_64 defined
-#endif
-#if defined SSD1306_128_32
- #define SSD1306_LCDWIDTH  128 ///< DEPRECATED: width w/SSD1306_128_32 defined
- #define SSD1306_LCDHEIGHT  32 ///< DEPRECATED: height w/SSD1306_128_32 defined
-#endif
-#if defined SSD1306_96_16
- #define SSD1306_LCDWIDTH   96 ///< DEPRECATED: width w/SSD1306_96_16 defined
- #define SSD1306_LCDHEIGHT  16 ///< DEPRECATED: height w/SSD1306_96_16 defined
-#endif
 
 /*! 
-    @brief  Class that stores state and functions for interacting with
-            SSD1306 OLED displays.
+    @brief  Hardware driver Interface 
+     
+    The Adafruit_SSD1306 does not work directly with the hardware
+    All the communcation requests are forwarded to the driver which
+    actually communicate with the hardware. 
+*/
+class ISSD1306Driver
+{
+public:
+  /*!
+    @brief  Initialize display driver and hardware underneath
+
+    Adafruit_SSD1306 calls this method during its begin() method            
+  */
+  virtual void begin() = 0;
+
+  /*!
+    @brief  Prepare hardware for a communication transaction
+
+    Driver implementation may perform some communication preparations here, e.g.
+    set up a communication channel, prepare target device for the data transfer.
+  */
+  virtual void startTransaction() = 0;
+
+  /*!
+    @brief  Send a single command to the display
+
+    @param  cmd - A command to send    
+  
+    @note   Because command calls are often grouped, a transaction and chip selection
+            must be started/ended using startTransaction()/endTransaction() functions
+            for efficiency.
+  */
+  virtual void sendCommand(uint8_t cmd) = 0;
+
+  /*!
+    @brief  Send multiple commands to the display
+
+    @param  cmds - Pointer to the commands list to send
+    @param  size - number of commands to send
+  
+    @note   cmds is a pointer in program memory, not RAM. Implementation must 
+            read commands using pgm_read_byte
+    @note   Because command calls are often grouped, a transaction and chip selection
+            must be started/ended using startTransaction()/endTransaction() functions
+            for efficiency.
+  */
+  virtual void sendCommands(const uint8_t *cmds, size_t size) = 0;
+
+  /*!
+    @brief  Send data to the display
+
+    @param  data - Pointer to the data buffer to send
+    @param  size - number of commands to send
+  
+    @note   c is a pointer RAM, not program memory.
+    @note   Because command calls are often grouped, a transaction and chip selection
+            must be started/ended using startTransaction()/endTransaction() functions
+            for efficiency.
+  */
+  virtual void sendData(const uint8_t * data, size_t size) = 0;
+
+  /*!
+    @brief Finalize communication transaction
+
+    Driver implementation may perform some communication finalization here, e.g.
+    deactivate communication channel, restore channel settings.
+  */
+  virtual void endTransaction() = 0;
+};
+
+
+/*! 
+    @brief  Class that holds a state and contains functions for interacting with
+            SSD1306 OLED displays over the supplied driver.
+
+    The Adafruit_SSD1306 class itself is hardware and platform independent. This class
+    implements communication logic with SSD1306 displays, while actuall communication with
+    the hardware is performed by the driver. 
 */
 class Adafruit_SSD1306 : public Adafruit_GFX {
  public:
-  // NEW CONSTRUCTORS -- recommended for new projects
-  Adafruit_SSD1306(uint8_t w, uint8_t h, TwoWire *twi=&Wire, int8_t rst_pin=-1,
-    uint32_t clkDuring=400000UL, uint32_t clkAfter=100000UL);
-  Adafruit_SSD1306(uint8_t w, uint8_t h, int8_t mosi_pin, int8_t sclk_pin,
-    int8_t dc_pin, int8_t rst_pin, int8_t cs_pin);
-  Adafruit_SSD1306(uint8_t w, uint8_t h, SPIClass *spi,
-    int8_t dc_pin, int8_t rst_pin, int8_t cs_pin, uint32_t bitrate=8000000UL);
-
-  // DEPRECATED CONSTRUCTORS - for back compatibility, avoid in new projects
-  Adafruit_SSD1306(int8_t mosi_pin, int8_t sclk_pin, int8_t dc_pin,
-    int8_t rst_pin, int8_t cs_pin);
-  Adafruit_SSD1306(int8_t dc_pin, int8_t rst_pin, int8_t cs_pin);
-  Adafruit_SSD1306(int8_t rst_pin = -1);
-
+  Adafruit_SSD1306(uint8_t w, uint8_t h, ISSD1306Driver * drv, uint8_t switchvcc=SSD1306_SWITCHCAPVCC);
   ~Adafruit_SSD1306(void);
 
-  boolean      begin(uint8_t switchvcc=SSD1306_SWITCHCAPVCC,
-                 uint8_t i2caddr=0, boolean reset=true,
-                 boolean periphBegin=true);
+  boolean      begin();
   void         display(void);
   void         clearDisplay(void);
   void         invertDisplay(boolean i);
@@ -150,7 +203,6 @@ class Adafruit_SSD1306 : public Adafruit_GFX {
   uint8_t     *getBuffer(void);
 
  private:
-  inline void  SPIwrite(uint8_t d) __attribute__((always_inline));
   void         drawFastHLineInternal(int16_t x, int16_t y, int16_t w,
                  uint16_t color);
   void         drawFastVLineInternal(int16_t x, int16_t y, int16_t h,
@@ -158,22 +210,9 @@ class Adafruit_SSD1306 : public Adafruit_GFX {
   void         ssd1306_command1(uint8_t c);
   void         ssd1306_commandList(const uint8_t *c, uint8_t n);
 
-  SPIClass    *spi;
-  TwoWire     *wire;
+  ISSD1306Driver * driver;
   uint8_t     *buffer;
-  int8_t       i2caddr, vccstate, page_end;
-  int8_t       mosiPin    ,  clkPin    ,  dcPin    ,  csPin, rstPin;
-#ifdef HAVE_PORTREG
-  PortReg     *mosiPort   , *clkPort   , *dcPort   , *csPort;
-  PortMask     mosiPinMask,  clkPinMask,  dcPinMask,  csPinMask;
-#endif
-#if defined(SPI_HAS_TRANSACTION)
-  SPISettings  spiSettings;
-#endif
-#if ARDUINO >= 157
-  uint32_t     wireClk;    // Wire speed for SSD1306 transfers
-  uint32_t     restoreClk; // Wire speed following SSD1306 transfers
-#endif
+  int8_t       vccstate;
 };
 
 #endif // _Adafruit_SSD1306_H_
