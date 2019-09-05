@@ -54,9 +54,9 @@
   #define HAVE_PORTREG
 #endif
 
-#define BLACK                          0 ///< Draw 'off' pixels
-#define WHITE                          1 ///< Draw 'on' pixels
-#define INVERSE                        2 ///< Invert pixels
+//#define BLACK                          0 ///< Draw 'off' pixels
+//#define WHITE                          1 ///< Draw 'on' pixels
+//#define INVERSE                        2 ///< Invert pixels
 
 #define SSD1306_MEMORYMODE          0x20 ///< See datasheet
 #define SSD1306_COLUMNADDR          0x21 ///< See datasheet
@@ -129,6 +129,8 @@ class Adafruit_SSD1306 : public Adafruit_GFX {
   Adafruit_SSD1306(int8_t rst_pin = -1);
 
   ~Adafruit_SSD1306(void);
+
+  enum SSD1306_Colors { BLACK=0, WHITE=1, INVERSE=2 };
 
   boolean      begin(uint8_t switchvcc=SSD1306_SWITCHCAPVCC,
                  uint8_t i2caddr=0, boolean reset=true,
