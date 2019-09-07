@@ -19,6 +19,11 @@ Preferred installation method is to use the Arduino IDE Library Manager. To down
 You will also have to install the **Adafruit GFX library** which provides graphics primitves such as lines, circles, text, etc. This also can be found in the Arduino Library Manager, or you can get the source from https://github.com/adafruit/Adafruit-GFX-Library
 
 ## Changes
+Pull Request:
+   (September 2019) 
+   * Changed #defines for BLACK, WHITE and INVERSE into a class Adafruit_SSD1306 scoped enum to eliminate compiler errors in code that used either those words or defined other values to them. This means that there is a required code change, from (e.g.) WHITE to Adafruit_SSD1306::WHITE:
+     * <code> display.drawPixel(10, 10, WHITE);</code>    // to
+     * <code>display.drawPixel(10, 10, Adafruit_SSD1306::WHITE);</code>
 
 Version 1.2 (November 2018) introduces some significant changes:
 
