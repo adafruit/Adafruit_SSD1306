@@ -21,9 +21,8 @@ You will also have to install the **Adafruit GFX library** which provides graphi
 ## Changes
 Pull Request:
    (September 2019) 
-   * Changed #defines for BLACK, WHITE and INVERSE into a class Adafruit_SSD1306 scoped enum to eliminate compiler errors in code that used either those words or defined other values to them. This means that there is a required code change, from (e.g.) WHITE to Adafruit_SSD1306::WHITE:
-     * <code> display.drawPixel(10, 10, WHITE);</code>    // to
-     * <code>display.drawPixel(10, 10, Adafruit_SSD1306::WHITE);</code>
+   * new #defines for SSD1306_BLACK, SSD1306_WHITE and SSD1306_INVERSE that match existing #define naming scheme and won't conflict with common color names
+   * old #defines for BLACK, WHITE and INVERSE kept for backwards compat (opt-out with #define NO_ADAFRUIT_SSD1306_COLOR_COMPATIBILITY)
 
 Version 1.2 (November 2018) introduces some significant changes:
 
