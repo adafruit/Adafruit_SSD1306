@@ -326,10 +326,7 @@ Adafruit_SSD1306::Adafruit_SSD1306(int8_t rst_pin) :
     @brief  Destructor for Adafruit_SSD1306 object.
 */
 Adafruit_SSD1306::~Adafruit_SSD1306(void) {
-  if(buffer) {
-    free(buffer);
-    buffer = NULL;
-  }
+  deallocateBuffer();
 }
 
 // LOW-LEVEL UTILS ---------------------------------------------------------
@@ -579,6 +576,17 @@ boolean Adafruit_SSD1306::begin(uint8_t vcs, uint8_t addr, boolean reset,
   TRANSACTION_END
 
   return true; // Success
+}
+
+/*!
+    @brief  If this display owns a display buffer, deallocate it.
+    @return None (void).
+*/
+void Adafruit_SSD1306::deallocateBuffer(void) {
+  if(buffer && bufferPolicy == Allocated) {
+    free(buffer);
+    buffer = NULL;
+  }
 }
 
 // DRAWING FUNCTIONS -------------------------------------------------------
@@ -872,6 +880,20 @@ boolean Adafruit_SSD1306::getPixel(int16_t x, int16_t y) {
 */
 uint8_t *Adafruit_SSD1306::getBuffer(void) {
   return buffer;
+}
+
+/*!
+    @brief  Set the display buffer to be used.
+            If a buffer was allocated before, it is freed.
+    @return None (void).
+    @param  buffer
+            A pointer to the new display buffer. Must be at least 
+            `⌈WIDTH * HEIGHT / 8⌉` bytes in size.
+*/
+void Adafruit_SSD1306::setBuffer(uint8_t *buffer) {
+  deallocateBuffer();
+  this->bufferPolicy = Borrowed;
+  this->buffer = buffer;
 }
 
 // REFRESH DISPLAY ---------------------------------------------------------
