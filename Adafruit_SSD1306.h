@@ -179,6 +179,7 @@ class Adafruit_SSD1306 : public Adafruit_GFX {
 #endif
 };
 
+/// Macro to determine whether this version supports `setBuffer`. 
 #define ADAFRUIT_SSD1306_HAS_SETBUFFER 1
 
 #endif // _Adafruit_SSD1306_H_
