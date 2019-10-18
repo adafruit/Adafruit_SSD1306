@@ -19,6 +19,10 @@ Preferred installation method is to use the Arduino IDE Library Manager. To down
 You will also have to install the **Adafruit GFX library** which provides graphics primitves such as lines, circles, text, etc. This also can be found in the Arduino Library Manager, or you can get the source from https://github.com/adafruit/Adafruit-GFX-Library
 
 ## Changes
+Pull Request:
+   (September 2019) 
+   * new #defines for SSD1306_BLACK, SSD1306_WHITE and SSD1306_INVERSE that match existing #define naming scheme and won't conflict with common color names
+   * old #defines for BLACK, WHITE and INVERSE kept for backwards compat (opt-out with #define NO_ADAFRUIT_SSD1306_COLOR_COMPATIBILITY)
 
 Version 1.2 (November 2018) introduces some significant changes:
 

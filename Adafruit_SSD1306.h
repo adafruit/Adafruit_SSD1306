@@ -54,9 +54,18 @@
   #define HAVE_PORTREG
 #endif
 
-#define BLACK                          0 ///< Draw 'off' pixels
-#define WHITE                          1 ///< Draw 'on' pixels
-#define INVERSE                        2 ///< Invert pixels
+/// The following "raw" color names are kept for backwards client compatability
+/// They can be disabled by predefining this macro before including the Adafruit header
+/// client code will then need to be modified to use the scoped enum values directly
+#ifndef NO_ADAFRUIT_SSD1306_COLOR_COMPATIBILITY
+#define BLACK                     SSD1306_BLACK    ///< Draw 'off' pixels
+#define WHITE                     SSD1306_WHITE    ///< Draw 'on' pixels
+#define INVERSE                   SSD1306_INVERSE  ///< Invert pixels
+#endif
+        /// fit into the SSD1306_ naming scheme
+#define SSD1306_BLACK               0    ///< Draw 'off' pixels
+#define SSD1306_WHITE               1    ///< Draw 'on' pixels
+#define SSD1306_INVERSE             2    ///< Invert pixels
 
 #define SSD1306_MEMORYMODE          0x20 ///< See datasheet
 #define SSD1306_COLUMNADDR          0x21 ///< See datasheet

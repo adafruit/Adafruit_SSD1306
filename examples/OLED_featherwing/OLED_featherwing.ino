@@ -59,7 +59,7 @@ void setup() {
 
   // text display tests
   display.setTextSize(1);
-  display.setTextColor(WHITE);
+  display.setTextColor(SSD1306_WHITE);
   display.setCursor(0,0);
   display.print("Connecting to SSID\n'adafruit':");
   display.print("connected!");

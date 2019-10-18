@@ -592,7 +592,7 @@ boolean Adafruit_SSD1306::begin(uint8_t vcs, uint8_t addr, boolean reset,
     @param  y
             Row of display -- 0 at top to (screen height -1) at bottom.
     @param  color
-            Pixel color, one of: BLACK, WHITE or INVERT.
+            Pixel color, one of: SSD1306_BLACK, SSD1306_WHITE or SSD1306_INVERT.
     @return None (void).
     @note   Changes buffer contents only, no immediate effect on display.
             Follow up with a call to display(), or with other graphics
@@ -616,9 +616,9 @@ void Adafruit_SSD1306::drawPixel(int16_t x, int16_t y, uint16_t color) {
       break;
     }
     switch(color) {
-     case WHITE:   buffer[x + (y/8)*WIDTH] |=  (1 << (y&7)); break;
-     case BLACK:   buffer[x + (y/8)*WIDTH] &= ~(1 << (y&7)); break;
-     case INVERSE: buffer[x + (y/8)*WIDTH] ^=  (1 << (y&7)); break;
+     case SSD1306_WHITE:   buffer[x + (y/8)*WIDTH] |=  (1 << (y&7)); break;
+     case SSD1306_BLACK:   buffer[x + (y/8)*WIDTH] &= ~(1 << (y&7)); break;
+     case SSD1306_INVERSE: buffer[x + (y/8)*WIDTH] ^=  (1 << (y&7)); break;
     }
   }
 }
@@ -644,7 +644,7 @@ void Adafruit_SSD1306::clearDisplay(void) {
     @param  w
             Width of line, in pixels.
     @param  color
-            Line color, one of: BLACK, WHITE or INVERT.
+            Line color, one of: SSD1306_BLACK, SSD1306_WHITE or SSD1306_INVERT.
     @return None (void).
     @note   Changes buffer contents only, no immediate effect on display.
             Follow up with a call to display(), or with other graphics
@@ -695,9 +695,9 @@ void Adafruit_SSD1306::drawFastHLineInternal(
       uint8_t *pBuf = &buffer[(y / 8) * WIDTH + x],
                mask = 1 << (y & 7);
       switch(color) {
-       case WHITE:               while(w--) { *pBuf++ |= mask; }; break;
-       case BLACK: mask = ~mask; while(w--) { *pBuf++ &= mask; }; break;
-       case INVERSE:             while(w--) { *pBuf++ ^= mask; }; break;
+       case SSD1306_WHITE:               while(w--) { *pBuf++ |= mask; }; break;
+       case SSD1306_BLACK: mask = ~mask; while(w--) { *pBuf++ &= mask; }; break;
+       case SSD1306_INVERSE:             while(w--) { *pBuf++ ^= mask; }; break;
       }
     }
   }
@@ -713,7 +713,7 @@ void Adafruit_SSD1306::drawFastHLineInternal(
     @param  h
             Height of line, in pixels.
     @param  color
-            Line color, one of: BLACK, WHITE or INVERT.
+            Line color, one of: SSD1306_BLACK, SSD1306_WHITE or SSD1306_INVERT.
     @return None (void).
     @note   Changes buffer contents only, no immediate effect on display.
             Follow up with a call to display(), or with other graphics
@@ -781,9 +781,9 @@ void Adafruit_SSD1306::drawFastVLineInternal(
         if(h < mod) mask &= (0XFF >> (mod - h));
 
         switch(color) {
-         case WHITE:   *pBuf |=  mask; break;
-         case BLACK:   *pBuf &= ~mask; break;
-         case INVERSE: *pBuf ^=  mask; break;
+         case SSD1306_WHITE:   *pBuf |=  mask; break;
+         case SSD1306_BLACK:   *pBuf &= ~mask; break;
+         case SSD1306_INVERSE: *pBuf ^=  mask; break;
         }
         pBuf += WIDTH;
       }
@@ -792,7 +792,7 @@ void Adafruit_SSD1306::drawFastVLineInternal(
         h -= mod;
         // Write solid bytes while we can - effectively 8 rows at a time
         if(h >= 8) {
-          if(color == INVERSE) {
+          if(color == SSD1306_INVERSE) {
             // separate copy of the code so we don't impact performance of
             // black/white write version with an extra comparison per loop
             do {
@@ -802,7 +802,7 @@ void Adafruit_SSD1306::drawFastVLineInternal(
             } while(h >= 8);
           } else {
             // store a local value to work with
-            uint8_t val = (color != BLACK) ? 255 : 0;
+            uint8_t val = (color != SSD1306_BLACK) ? 255 : 0;
             do {
               *pBuf = val;    // Set byte
               pBuf += WIDTH;  // Advance pointer 8 rows
@@ -822,9 +822,9 @@ void Adafruit_SSD1306::drawFastVLineInternal(
             { 0x00, 0x01, 0x03, 0x07, 0x0F, 0x1F, 0x3F, 0x7F };
           uint8_t mask = pgm_read_byte(&postmask[mod]);
           switch(color) {
-           case WHITE:   *pBuf |=  mask; break;
-           case BLACK:   *pBuf &= ~mask; break;
-           case INVERSE: *pBuf ^=  mask; break;
+           case SSD1306_WHITE:   *pBuf |=  mask; break;
+           case SSD1306_BLACK:   *pBuf &= ~mask; break;
+           case SSD1306_INVERSE: *pBuf ^=  mask; break;
           }
         }
       }
@@ -838,8 +838,8 @@ void Adafruit_SSD1306::drawFastVLineInternal(
             Column of display -- 0 at left to (screen width - 1) at right.
     @param  y
             Row of display -- 0 at top to (screen height -1) at bottom.
-    @return true if pixel is set (usually WHITE, unless display invert mode
-            is enabled), false if clear (BLACK).
+    @return true if pixel is set (usually SSD1306_WHITE, unless display invert mode
+            is enabled), false if clear (SSD1306_BLACK).
     @note   Reads from buffer contents; may not reflect current contents of
             screen if display() has not been called.
 */
@@ -1066,8 +1066,8 @@ void Adafruit_SSD1306::stopscroll(void) {
     @note   This has an immediate effect on the display, no need to call the
             display() function -- buffer contents are not changed, rather a
             different pixel mode of the display hardware is used. When
-            enabled, drawing BLACK (value 0) pixels will actually draw white,
-            WHITE (value 1) will draw black.
+            enabled, drawing SSD1306_BLACK (value 0) pixels will actually draw white,
+            SSD1306_WHITE (value 1) will draw black.
 */
 void Adafruit_SSD1306::invertDisplay(boolean i) {
   TRANSACTION_START
