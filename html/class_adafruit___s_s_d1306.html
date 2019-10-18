@@ -626,7 +626,7 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>None (void). </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>This has an immediate effect on the display, no need to call the <a class="el" href="class_adafruit___s_s_d1306.html#a0ef45af1adca923ef66233b2998a150b" title="Push data currently in RAM to SSD1306 display. ">display()</a> function &ndash; buffer contents are not changed, rather a different pixel mode of the display hardware is used. When enabled, drawing BLACK (value 0) pixels will actually draw white, WHITE (value 1) will draw black. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>This has an immediate effect on the display, no need to call the <a class="el" href="class_adafruit___s_s_d1306.html#a0ef45af1adca923ef66233b2998a150b" title="Push data currently in RAM to SSD1306 display. ">display()</a> function &ndash; buffer contents are not changed, rather a different pixel mode of the display hardware is used. When enabled, drawing SSD1306_BLACK (value 0) pixels will actually draw white, SSD1306_WHITE (value 1) will draw black. </dd></dl>
 
 </div>
 </div>
@@ -695,7 +695,7 @@ Public Member Functions</h2></td></tr>
   <table class="params">
     <tr><td class="paramname">x</td><td>Column of display &ndash; 0 at left to (screen width - 1) at right. </td></tr>
     <tr><td class="paramname">y</td><td>Row of display &ndash; 0 at top to (screen height -1) at bottom. </td></tr>
-    <tr><td class="paramname">color</td><td>Pixel color, one of: BLACK, WHITE or INVERT. </td></tr>
+    <tr><td class="paramname">color</td><td>Pixel color, one of: SSD1306_BLACK, SSD1306_WHITE or SSD1306_INVERT. </td></tr>
   </table>
   </dd>
 </dl>
@@ -756,7 +756,7 @@ Public Member Functions</h2></td></tr>
     <tr><td class="paramname">x</td><td>Leftmost column &ndash; 0 at left to (screen width - 1) at right. </td></tr>
     <tr><td class="paramname">y</td><td>Row of display &ndash; 0 at top to (screen height -1) at bottom. </td></tr>
     <tr><td class="paramname">w</td><td>Width of line, in pixels. </td></tr>
-    <tr><td class="paramname">color</td><td>Line color, one of: BLACK, WHITE or INVERT. </td></tr>
+    <tr><td class="paramname">color</td><td>Line color, one of: SSD1306_BLACK, SSD1306_WHITE or SSD1306_INVERT. </td></tr>
   </table>
   </dd>
 </dl>
@@ -817,7 +817,7 @@ Public Member Functions</h2></td></tr>
     <tr><td class="paramname">x</td><td>Column of display &ndash; 0 at left to (screen width -1) at right. </td></tr>
     <tr><td class="paramname">y</td><td>Topmost row &ndash; 0 at top to (screen height - 1) at bottom. </td></tr>
     <tr><td class="paramname">h</td><td>Height of line, in pixels. </td></tr>
-    <tr><td class="paramname">color</td><td>Line color, one of: BLACK, WHITE or INVERT. </td></tr>
+    <tr><td class="paramname">color</td><td>Line color, one of: SSD1306_BLACK, SSD1306_WHITE or SSD1306_INVERT. </td></tr>
   </table>
   </dd>
 </dl>
@@ -1060,7 +1060,7 @@ Public Member Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>true if pixel is set (usually WHITE, unless display invert mode is enabled), false if clear (BLACK). </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>true if pixel is set (usually SSD1306_WHITE, unless display invert mode is enabled), false if clear (SSD1306_BLACK). </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Reads from buffer contents; may not reflect current contents of screen if <a class="el" href="class_adafruit___s_s_d1306.html#a0ef45af1adca923ef66233b2998a150b" title="Push data currently in RAM to SSD1306 display. ">display()</a> has not been called. </dd></dl>
 
 </div>
