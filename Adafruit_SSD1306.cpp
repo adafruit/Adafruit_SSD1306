@@ -1099,3 +1099,28 @@ void Adafruit_SSD1306::dim(boolean dim) {
   TRANSACTION_END
 }
 
+
+/**************************************************************************/
+/*!
+   @brief Scroll display up one line, reseting cursor y to print at bottom
+*/
+/**************************************************************************/
+void Adafruit_SSD1306::scrollUp(void) {
+	/*
+	* - supporting oled 128x32 pixel display so know width
+	* -- a row of pixels 128 columns x 8 down is 8 * 16, left to right
+	*/
+	
+	// copy 2nd to last line from buffer to top of scroll buffer; (char pixel width with 8 as base size of 1) * (total pixel width / 8 as that is how this display is addressed) * (lines)
+	int intLineSize = ((textsize * SSD1306_PIXEL_CHUNK) * (WIDTH / SSD1306_PIXEL_CHUNK));
+	memcpy(buffer, buffer + intLineSize, SSD1306_BUFF_SIZE - intLineSize);
+
+	// clear buffer last line; (char pixel width with 8 as base size of 1) * (total pixel width / 8 as that is how this display is addressed) * (font size for height * lines)
+	int intOffsetLastLine = intLineSize * 3;
+	memset(buffer + intOffsetLastLine, 0, SSD1306_BUFF_SIZE - intOffsetLastLine);
+
+	setCursor(cursor_x, (textsize * SSD1306_PIXEL_CHUNK) * 3);
+
+}
+
+

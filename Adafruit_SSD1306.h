@@ -111,13 +111,15 @@
 #if defined SSD1306_128_32
  #define SSD1306_LCDWIDTH  128 ///< DEPRECATED: width w/SSD1306_128_32 defined
  #define SSD1306_LCDHEIGHT  32 ///< DEPRECATED: height w/SSD1306_128_32 defined
+ #define SSD1306_PIXEL_CHUNK 8 ///< for scrollUP(); 8 bit "pages"; see datasheet
+ #define SSD1306_BUFF_SIZE (128 * ((32 + 7) / 8)) ///< for scrollUP()
 #endif
 #if defined SSD1306_96_16
  #define SSD1306_LCDWIDTH   96 ///< DEPRECATED: width w/SSD1306_96_16 defined
  #define SSD1306_LCDHEIGHT  16 ///< DEPRECATED: height w/SSD1306_96_16 defined
 #endif
 
-/*! 
+/*!
     @brief  Class that stores state and functions for interacting with
             SSD1306 OLED displays.
 */
@@ -157,6 +159,10 @@ class Adafruit_SSD1306 : public Adafruit_GFX {
   void         ssd1306_command(uint8_t c);
   boolean      getPixel(int16_t x, int16_t y);
   uint8_t     *getBuffer(void);
+
+	// adding function to scroll display up a line; for use with println
+	void				scrollUp(void); 		// scroll display up one line of text
+
 
  private:
   inline void  SPIwrite(uint8_t d) __attribute__((always_inline));
