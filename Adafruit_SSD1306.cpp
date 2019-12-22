@@ -77,61 +77,36 @@
 #endif
 
 #ifdef HAVE_PORTREG
-#define SSD1306_SELECT *csPort &= ~csPinMask;       ///< Device select
-#define SSD1306_DESELECT *csPort |= csPinMask;      ///< Device deselect
-#define SSD1306_MODE_COMMAND *dcPort &= ~dcPinMask; ///< Command mode
-#define SSD1306_MODE_DATA *dcPort |= dcPinMask;     ///< Data mode
+#define SSD1306_SELECT(s) *((s).csPort) &= ~(s).csPinMask;  ///< Device select
+#define SSD1306_DESELECT(s) *((s).csPort) |= (s).csPinMask; ///< Device deselect
+#define SSD1306_MODE_COMMAND(s)                                                \
+  *((s).dcPort) &= ~(s).dcPinMask;                           ///< Command mode
+#define SSD1306_MODE_DATA(s) *((s).dcPort) |= (s).dcPinMask; ///< Data mode
 #else
-#define SSD1306_SELECT digitalWrite(csPin, LOW);       ///< Device select
-#define SSD1306_DESELECT digitalWrite(csPin, HIGH);    ///< Device deselect
-#define SSD1306_MODE_COMMAND digitalWrite(dcPin, LOW); ///< Command mode
-#define SSD1306_MODE_DATA digitalWrite(dcPin, HIGH);   ///< Data mode
+#define SSD1306_SELECT(s) digitalWrite((s).csPin, LOW);    ///< Device select
+#define SSD1306_DESELECT(s) digitalWrite((s).csPin, HIGH); ///< Device deselect
+#define SSD1306_MODE_COMMAND(s) digitalWrite((s).dcPin, LOW); ///< Command mode
+#define SSD1306_MODE_DATA(s) digitalWrite((s).dcPin, HIGH);   ///< Data mode
 #endif
 
 #if (ARDUINO >= 157) && !defined(ARDUINO_STM32_FEATHER)
-#define SETWIRECLOCK wire->setClock(wireClk)    ///< Set before I2C transfer
-#define RESWIRECLOCK wire->setClock(restoreClk) ///< Restore after I2C xfer
+#define SETWIRECLOCK(s)                                                        \
+  (s).wire->setClock((s).wireClk) ///< Set before I2C transfer
+#define RESWIRECLOCK(s)                                                        \
+  (s).wire->setClock((s).restoreClk) ///< Restore after I2C xfer
 #else // setClock() is not present in older Arduino Wire lib (or WICED)
-#define SETWIRECLOCK ///< Dummy stand-in define
-#define RESWIRECLOCK ///< keeps compiler happy
+#define SETWIRECLOCK(s) ///< Dummy stand-in define
+#define RESWIRECLOCK(s) ///< keeps compiler happy
 #endif
 
 #if defined(SPI_HAS_TRANSACTION)
-#define SPI_TRANSACTION_START spi->beginTransaction(spiSettings) ///< Pre-SPI
-#define SPI_TRANSACTION_END spi->endTransaction()                ///< Post-SPI
+#define SPI_TRANSACTION_START(s)                                               \
+  (s).spi->beginTransaction((s).spiSettings)             ///< Pre-SPI
+#define SPI_TRANSACTION_END(s) (s).spi->endTransaction() ///< Post-SPI
 #else // SPI transactions likewise not present in older Arduino SPI lib
-#define SPI_TRANSACTION_START ///< Dummy stand-in define
-#define SPI_TRANSACTION_END   ///< keeps compiler happy
+#define SPI_TRANSACTION_START(s) ///< Dummy stand-in define
+#define SPI_TRANSACTION_END(s)   ///< keeps compiler happy
 #endif
-
-// The definition of 'transaction' is broadened a bit in the context of
-// this library -- referring not just to SPI transactions (if supported
-// in the version of the SPI library being used), but also chip select
-// (if SPI is being used, whether hardware or soft), and also to the
-// beginning and end of I2C transfers (the Wire clock may be sped up before
-// issuing data to the display, then restored to the default rate afterward
-// so other I2C device types still work).  All of these are encapsulated
-// in the TRANSACTION_* macros.
-
-// Check first if Wire, then hardware SPI, then soft SPI:
-#define TRANSACTION_START                                                      \
-  if (wire) {                                                                  \
-    SETWIRECLOCK;                                                              \
-  } else {                                                                     \
-    if (spi) {                                                                 \
-      SPI_TRANSACTION_START;                                                   \
-    }                                                                          \
-    SSD1306_SELECT;                                                            \
-  } ///< Wire, SPI or bitbang transfer setup
-#define TRANSACTION_END                                                        \
-  if (wire) {                                                                  \
-    RESWIRECLOCK;                                                              \
-  } else {                                                                     \
-    SSD1306_DESELECT;                                                          \
-    if (spi) {                                                                 \
-      SPI_TRANSACTION_END;                                                     \
-    }                                                                          \
-  } ///< Wire, SPI or bitbang transfer end
 
 // CONSTRUCTORS, DESTRUCTOR ------------------------------------------------
 
@@ -366,50 +341,159 @@ inline void Adafruit_SSD1306::SPIwrite(uint8_t d) {
   }
 }
 
-// Issue single command to SSD1306, using I2C or hard/soft SPI as needed.
-// Because command calls are often grouped, SPI transaction and selection
-// must be started/ended in calling function for efficiency.
-// This is a private function, not exposed (see ssd1306_command() instead).
-void Adafruit_SSD1306::ssd1306_command1(uint8_t c) {
-  if (wire) { // I2C
-    wire->beginTransmission(i2caddr);
-    WIRE_WRITE((uint8_t)0x00); // Co = 0, D/C = 0
-    WIRE_WRITE(c);
-    wire->endTransmission();
-  } else { // SPI (hw or soft) -- transaction started in calling function
-    SSD1306_MODE_COMMAND
-    SPIwrite(c);
-  }
-}
+// The definition of 'transaction' is broadened a bit in the context of
+// this library -- referring not just to SPI transactions (if supported
+// in the version of the SPI library being used), but also chip select
+// (if SPI is being used, whether hardware or soft), and also to the
+// beginning and end of I2C transfers (the Wire clock may be sped up before
+// issuing data to the display, then restored to the default rate afterward
+// so other I2C device types still work).
 
-// Issue list of commands to SSD1306, same rules as above re: transactions.
-// This is a private function, not exposed.
-void Adafruit_SSD1306::ssd1306_commandList(const uint8_t *c, uint8_t n) {
-  if (wire) { // I2C
-    wire->beginTransmission(i2caddr);
-    WIRE_WRITE((uint8_t)0x00); // Co = 0, D/C = 0
-    uint16_t bytesOut = 1;
-    while (n--) {
-      if (bytesOut >= WIRE_MAX) {
-        wire->endTransmission();
-        wire->beginTransmission(i2caddr);
-        WIRE_WRITE((uint8_t)0x00); // Co = 0, D/C = 0
-        bytesOut = 1;
-      }
-      WIRE_WRITE(pgm_read_byte(c++));
-      bytesOut++;
+// The constructor and destructor of Transaction take care of encapulating
+// all of the above idea of 'transaction'.
+//
+// The command() and data() methods take care of sending the bytes, keeping
+// track of bytes sent and modes, for the I2C transfers if needed.
+
+/*!
+    @brief  Internal class used to manage a transaction to the display.
+    @note   Normally, you construct this object as a local variable in a block
+            and use it to send commands and data to the display. Construction
+            of this object will start the transaction (I2C or SPI, depending
+            on how the display is configured). On destruction, the transaction
+            is ended.  For I2C transfers, additional transactions are issued
+            as needed automatically for long data transfers.
+*/
+class Adafruit_SSD1306::Transaction {
+public:
+  Transaction(Adafruit_SSD1306 &ssd1306);
+  ~Transaction();
+
+  void command(uint8_t cmd);
+  void command(uint8_t cmd, uint8_t a);
+  void command(uint8_t cmd, uint8_t a, uint8_t b);
+
+  void data(uint8_t byte);
+
+private:
+  void send(bool wireCmdMode, uint8_t byte);
+
+  Adafruit_SSD1306 &ssd1306;
+
+  uint16_t bytesOut;
+  bool inCmdMode;
+};
+
+/*!
+    @brief  Constructor for Transactions to SSD1306 displays.
+    @param  ssd1306
+            The display object this transaction is for.
+    @return Transaction object.
+*/
+Adafruit_SSD1306::Transaction::Transaction(Adafruit_SSD1306 &ssd1306)
+    : ssd1306(ssd1306) {
+  // Check first if Wire, then hardware SPI, then soft SPI:
+
+  if (ssd1306.wire) { // I2C
+    SETWIRECLOCK(ssd1306);
+    ssd1306.wire->beginTransmission(ssd1306.i2caddr);
+    ssd1306.WIRE_WRITE((uint8_t)0x00); // Co = 0, D/C = 0
+    bytesOut = 1;
+    inCmdMode = true; // start off in command mode, as all transactions do
+  } else {            // SPI
+    if (ssd1306.spi) {
+      SPI_TRANSACTION_START(ssd1306);
     }
-    wire->endTransmission();
-  } else { // SPI -- transaction started in calling function
-    SSD1306_MODE_COMMAND
-    while (n--)
-      SPIwrite(pgm_read_byte(c++));
+    SSD1306_SELECT(ssd1306);
+    SSD1306_MODE_COMMAND(ssd1306);
+    inCmdMode = true;
   }
 }
 
-// A public version of ssd1306_command1(), for existing user code that
-// might rely on that function. This encapsulates the command transfer
-// in a transaction start/end, similar to old library's handling of it.
+void Adafruit_SSD1306::Transaction::send(bool cmdMode, uint8_t byte) {
+  if (ssd1306.wire) {
+    if (bytesOut >= WIRE_MAX || cmdMode != inCmdMode) {
+      ssd1306.wire->endTransmission();
+      ssd1306.wire->beginTransmission(ssd1306.i2caddr);
+      ssd1306.WIRE_WRITE((uint8_t)(cmdMode ? 0x00 : 0x40));
+      bytesOut = 1;
+      inCmdMode = cmdMode;
+    }
+    ssd1306.WIRE_WRITE(byte);
+    bytesOut++;
+  } else {
+    if (cmdMode != inCmdMode) {
+      if (cmdMode) {
+        SSD1306_MODE_COMMAND(ssd1306);
+      } else {
+        SSD1306_MODE_DATA(ssd1306);
+      }
+      inCmdMode = cmdMode;
+    }
+    ssd1306.SPIwrite(byte);
+  }
+}
+
+Adafruit_SSD1306::Transaction::~Transaction() {
+  if (ssd1306.wire) { // I2C
+    ssd1306.wire->endTransmission();
+    RESWIRECLOCK(ssd1306);
+  } else { // SPI
+    SSD1306_DESELECT(ssd1306);
+    if (ssd1306.spi) {
+      SPI_TRANSACTION_END(ssd1306);
+    }
+  }
+}
+
+/*!
+    @brief  Send one command byte to the SSD1306.
+    @param  cmd
+            The command byte.
+    @return None (void).
+*/
+void Adafruit_SSD1306::Transaction::command(uint8_t cmd) { send(true, cmd); }
+
+/*!
+    @brief  Send two command bytes to the SSD1306.
+    @param  cmd
+            First command byte.
+    @param  a
+            Second command byte.
+    @return None (void).
+*/
+void Adafruit_SSD1306::Transaction::command(uint8_t cmd, uint8_t a) {
+  send(true, cmd);
+  send(true, a);
+}
+
+/*!
+    @brief  Send three command bytes to the SSD1306.
+    @param  cmd
+            First command byte.
+    @param  a
+            Second command byte.
+    @param  b
+            Third command byte.
+    @return None (void).
+*/
+void Adafruit_SSD1306::Transaction::command(uint8_t cmd, uint8_t a, uint8_t b) {
+  send(true, cmd);
+  send(true, a);
+  send(true, b);
+}
+
+/*!
+    @brief  Send a data byte to the SSD1306.
+    @param  byte
+            The data byte.
+    @return None (void).
+*/
+void Adafruit_SSD1306::Transaction::data(uint8_t byte) { send(false, byte); }
+
+// ssd1306_command(), for existing user code that might rely on that function.
+// This encapsulates the command transfer in a transaction start/end, similar
+// to old library's handling of it.
 /*!
     @brief  Issue a single low-level command directly to the SSD1306
             display, bypassing the library.
@@ -418,9 +502,8 @@ void Adafruit_SSD1306::ssd1306_commandList(const uint8_t *c, uint8_t n) {
     @return None (void).
 */
 void Adafruit_SSD1306::ssd1306_command(uint8_t c) {
-  TRANSACTION_START
-  ssd1306_command1(c);
-  TRANSACTION_END
+  Transaction trans(*this);
+  trans.command(c);
 }
 
 // ALLOCATE & INIT DISPLAY -------------------------------------------------
@@ -497,7 +580,7 @@ bool Adafruit_SSD1306::begin(uint8_t vcs, uint8_t addr, bool reset,
     csPort = (PortReg *)portOutputRegister(digitalPinToPort(csPin));
     csPinMask = digitalPinToBitMask(csPin);
 #endif
-    SSD1306_DESELECT
+    SSD1306_DESELECT(*this);
     if (spi) { // Hardware SPI
       // SPI peripheral begin same as wire check above.
       if (periphBegin)
@@ -527,63 +610,46 @@ bool Adafruit_SSD1306::begin(uint8_t vcs, uint8_t addr, bool reset,
     digitalWrite(rstPin, HIGH); // Bring out of reset
   }
 
-  TRANSACTION_START
+  {
+    Transaction trans(*this);
 
-  // Init sequence
-  static const uint8_t PROGMEM init1[] = {SSD1306_DISPLAYOFF,         // 0xAE
-                                          SSD1306_SETDISPLAYCLOCKDIV, // 0xD5
-                                          0x80, // the suggested ratio 0x80
-                                          SSD1306_SETMULTIPLEX}; // 0xA8
-  ssd1306_commandList(init1, sizeof(init1));
-  ssd1306_command1(HEIGHT - 1);
+    trans.command(SSD1306_DISPLAYOFF);
+    trans.command(SSD1306_SETDISPLAYCLOCKDIV, 0x80); // the suggested ratio
+    trans.command(SSD1306_SETMULTIPLEX, HEIGHT - 1);
+    trans.command(SSD1306_SETDISPLAYOFFSET, 0x0);
+    trans.command(SSD1306_SETSTARTLINE | 0x0);
+    trans.command(SSD1306_CHARGEPUMP,
+                  (vccstate == SSD1306_EXTERNALVCC) ? 0x10 : 0x14);
+    trans.command(SSD1306_MEMORYMODE, 0x00); // act like ks0108
+    trans.command(SSD1306_SEGREMAP | 0x1);
+    trans.command(SSD1306_COMSCANDEC);
 
-  static const uint8_t PROGMEM init2[] = {SSD1306_SETDISPLAYOFFSET, // 0xD3
-                                          0x0,                      // no offset
-                                          SSD1306_SETSTARTLINE | 0x0, // line #0
-                                          SSD1306_CHARGEPUMP};        // 0x8D
-  ssd1306_commandList(init2, sizeof(init2));
-
-  ssd1306_command1((vccstate == SSD1306_EXTERNALVCC) ? 0x10 : 0x14);
-
-  static const uint8_t PROGMEM init3[] = {SSD1306_MEMORYMODE, // 0x20
-                                          0x00, // 0x0 act like ks0108
-                                          SSD1306_SEGREMAP | 0x1,
-                                          SSD1306_COMSCANDEC};
-  ssd1306_commandList(init3, sizeof(init3));
-
-  uint8_t comPins = 0x02;
-  contrast = 0x8F;
-
-  if ((WIDTH == 128) && (HEIGHT == 32)) {
-    comPins = 0x02;
+    uint8_t comPins = 0x02;
     contrast = 0x8F;
-  } else if ((WIDTH == 128) && (HEIGHT == 64)) {
-    comPins = 0x12;
-    contrast = (vccstate == SSD1306_EXTERNALVCC) ? 0x9F : 0xCF;
-  } else if ((WIDTH == 96) && (HEIGHT == 16)) {
-    comPins = 0x2; // ada x12
-    contrast = (vccstate == SSD1306_EXTERNALVCC) ? 0x10 : 0xAF;
-  } else {
-    // Other screen varieties -- TBD
+
+    if ((WIDTH == 128) && (HEIGHT == 32)) {
+      comPins = 0x02;
+      contrast = 0x8F;
+    } else if ((WIDTH == 128) && (HEIGHT == 64)) {
+      comPins = 0x12;
+      contrast = (vccstate == SSD1306_EXTERNALVCC) ? 0x9F : 0xCF;
+    } else if ((WIDTH == 96) && (HEIGHT == 16)) {
+      comPins = 0x2; // ada x12
+      contrast = (vccstate == SSD1306_EXTERNALVCC) ? 0x10 : 0xAF;
+    } else {
+      // Other screen varieties -- TBD
+    }
+
+    trans.command(SSD1306_SETCOMPINS, comPins);
+    trans.command(SSD1306_SETCONTRAST, contrast);
+    trans.command(SSD1306_SETPRECHARGE,
+                  (vccstate == SSD1306_EXTERNALVCC) ? 0x22 : 0xF1);
+    trans.command(SSD1306_SETVCOMDETECT, 0x40);
+    trans.command(SSD1306_DISPLAYALLON_RESUME);
+    trans.command(SSD1306_NORMALDISPLAY);
+    trans.command(SSD1306_DEACTIVATE_SCROLL);
+    trans.command(SSD1306_DISPLAYON); // Main screen turn on
   }
-
-  ssd1306_command1(SSD1306_SETCOMPINS);
-  ssd1306_command1(comPins);
-  ssd1306_command1(SSD1306_SETCONTRAST);
-  ssd1306_command1(contrast);
-
-  ssd1306_command1(SSD1306_SETPRECHARGE); // 0xd9
-  ssd1306_command1((vccstate == SSD1306_EXTERNALVCC) ? 0x22 : 0xF1);
-  static const uint8_t PROGMEM init5[] = {
-      SSD1306_SETVCOMDETECT, // 0xDB
-      0x40,
-      SSD1306_DISPLAYALLON_RESUME, // 0xA4
-      SSD1306_NORMALDISPLAY,       // 0xA6
-      SSD1306_DEACTIVATE_SCROLL,
-      SSD1306_DISPLAYON}; // Main screen turn on
-  ssd1306_commandList(init5, sizeof(init5));
-
-  TRANSACTION_END
 
   return true; // Success
 }
@@ -808,7 +874,7 @@ void Adafruit_SSD1306::drawFastVLineInternal(int16_t x, int16_t __y,
         uint8_t mask = pgm_read_byte(&premask[mod]);
         // adjust the mask if we're not going to reach the end of this byte
         if (h < mod)
-          mask &= (0XFF >> (mod - h));
+          mask &= (0xFF >> (mod - h));
 
         switch (color) {
         case SSD1306_WHITE:
@@ -924,47 +990,26 @@ uint8_t *Adafruit_SSD1306::getBuffer(void) { return buffer; }
             of graphics commands, as best needed by one's own application.
 */
 void Adafruit_SSD1306::display(void) {
-  TRANSACTION_START
-  static const uint8_t PROGMEM dlist1[] = {
-      SSD1306_PAGEADDR,
-      0,                      // Page start address
-      0xFF,                   // Page end (not really, but works here)
-      SSD1306_COLUMNADDR, 0}; // Column start address
-  ssd1306_commandList(dlist1, sizeof(dlist1));
-  ssd1306_command1(WIDTH - 1); // Column end address
+  Transaction trans(*this);
+
+  trans.command(SSD1306_PAGEADDR, 0, 0xFF);
+  // 0xFF for page end: not really, but works here
+  trans.command(SSD1306_COLUMNADDR, 0, WIDTH - 1);
 
 #if defined(ESP8266)
   // ESP8266 needs a periodic yield() call to avoid watchdog reset.
   // With the limited size of SSD1306 displays, and the fast bitrate
   // being used (1 MHz or more), I think one yield() immediately before
   // a screen write and one immediately after should cover it.  But if
-  // not, if this becomes a problem, yields() might be added in the
-  // 32-byte transfer condition below.
+  // not, if this becomes a problem, yields() might be added every 32
+  // bytes in the while loop.
   yield();
 #endif
   uint16_t count = WIDTH * ((HEIGHT + 7) / 8);
   uint8_t *ptr = buffer;
-  if (wire) { // I2C
-    wire->beginTransmission(i2caddr);
-    WIRE_WRITE((uint8_t)0x40);
-    uint16_t bytesOut = 1;
-    while (count--) {
-      if (bytesOut >= WIRE_MAX) {
-        wire->endTransmission();
-        wire->beginTransmission(i2caddr);
-        WIRE_WRITE((uint8_t)0x40);
-        bytesOut = 1;
-      }
-      WIRE_WRITE(*ptr++);
-      bytesOut++;
-    }
-    wire->endTransmission();
-  } else { // SPI
-    SSD1306_MODE_DATA
-    while (count--)
-      SPIwrite(*ptr++);
+  while (count--) {
+    trans.data(*ptr++);
   }
-  TRANSACTION_END
 #if defined(ESP8266)
   yield();
 #endif
@@ -982,17 +1027,11 @@ void Adafruit_SSD1306::display(void) {
 */
 // To scroll the whole display, run: display.startscrollright(0x00, 0x0F)
 void Adafruit_SSD1306::startscrollright(uint8_t start, uint8_t stop) {
-  TRANSACTION_START
-  static const uint8_t PROGMEM scrollList1a[] = {
-      SSD1306_RIGHT_HORIZONTAL_SCROLL, 0X00};
-  ssd1306_commandList(scrollList1a, sizeof(scrollList1a));
-  ssd1306_command1(start);
-  ssd1306_command1(0X00);
-  ssd1306_command1(stop);
-  static const uint8_t PROGMEM scrollList1b[] = {0X00, 0XFF,
-                                                 SSD1306_ACTIVATE_SCROLL};
-  ssd1306_commandList(scrollList1b, sizeof(scrollList1b));
-  TRANSACTION_END
+  Transaction trans(*this);
+  trans.command(SSD1306_RIGHT_HORIZONTAL_SCROLL, 0x00);
+  trans.command(start, 0x00, stop); // continuation of SCROLL command
+  trans.command(0x00, 0xFF);        // final bytes of SCROLL command
+  trans.command(SSD1306_ACTIVATE_SCROLL);
 }
 
 /*!
@@ -1005,17 +1044,11 @@ void Adafruit_SSD1306::startscrollright(uint8_t start, uint8_t stop) {
 */
 // To scroll the whole display, run: display.startscrollleft(0x00, 0x0F)
 void Adafruit_SSD1306::startscrollleft(uint8_t start, uint8_t stop) {
-  TRANSACTION_START
-  static const uint8_t PROGMEM scrollList2a[] = {SSD1306_LEFT_HORIZONTAL_SCROLL,
-                                                 0X00};
-  ssd1306_commandList(scrollList2a, sizeof(scrollList2a));
-  ssd1306_command1(start);
-  ssd1306_command1(0X00);
-  ssd1306_command1(stop);
-  static const uint8_t PROGMEM scrollList2b[] = {0X00, 0XFF,
-                                                 SSD1306_ACTIVATE_SCROLL};
-  ssd1306_commandList(scrollList2b, sizeof(scrollList2b));
-  TRANSACTION_END
+  Transaction trans(*this);
+  trans.command(SSD1306_LEFT_HORIZONTAL_SCROLL, 0x00);
+  trans.command(start, 0x00, stop); // continuation of SCROLL command
+  trans.command(0x00, 0xFF);        // final bytes of SCROLL command
+  trans.command(SSD1306_ACTIVATE_SCROLL);
 }
 
 /*!
@@ -1028,20 +1061,12 @@ void Adafruit_SSD1306::startscrollleft(uint8_t start, uint8_t stop) {
 */
 // display.startscrolldiagright(0x00, 0x0F)
 void Adafruit_SSD1306::startscrolldiagright(uint8_t start, uint8_t stop) {
-  TRANSACTION_START
-  static const uint8_t PROGMEM scrollList3a[] = {
-      SSD1306_SET_VERTICAL_SCROLL_AREA, 0X00};
-  ssd1306_commandList(scrollList3a, sizeof(scrollList3a));
-  ssd1306_command1(HEIGHT);
-  static const uint8_t PROGMEM scrollList3b[] = {
-      SSD1306_VERTICAL_AND_RIGHT_HORIZONTAL_SCROLL, 0X00};
-  ssd1306_commandList(scrollList3b, sizeof(scrollList3b));
-  ssd1306_command1(start);
-  ssd1306_command1(0X00);
-  ssd1306_command1(stop);
-  static const uint8_t PROGMEM scrollList3c[] = {0X01, SSD1306_ACTIVATE_SCROLL};
-  ssd1306_commandList(scrollList3c, sizeof(scrollList3c));
-  TRANSACTION_END
+  Transaction trans(*this);
+  trans.command(SSD1306_SET_VERTICAL_SCROLL_AREA, 0x00, HEIGHT);
+  trans.command(SSD1306_VERTICAL_AND_RIGHT_HORIZONTAL_SCROLL, 0x00);
+  trans.command(start, 0x00, stop); // continuation of SCROLL command
+  trans.command(0x01);              // final bytes of SCROLL command
+  trans.command(SSD1306_ACTIVATE_SCROLL);
 }
 
 /*!
@@ -1054,20 +1079,12 @@ void Adafruit_SSD1306::startscrolldiagright(uint8_t start, uint8_t stop) {
 */
 // To scroll the whole display, run: display.startscrolldiagleft(0x00, 0x0F)
 void Adafruit_SSD1306::startscrolldiagleft(uint8_t start, uint8_t stop) {
-  TRANSACTION_START
-  static const uint8_t PROGMEM scrollList4a[] = {
-      SSD1306_SET_VERTICAL_SCROLL_AREA, 0X00};
-  ssd1306_commandList(scrollList4a, sizeof(scrollList4a));
-  ssd1306_command1(HEIGHT);
-  static const uint8_t PROGMEM scrollList4b[] = {
-      SSD1306_VERTICAL_AND_LEFT_HORIZONTAL_SCROLL, 0X00};
-  ssd1306_commandList(scrollList4b, sizeof(scrollList4b));
-  ssd1306_command1(start);
-  ssd1306_command1(0X00);
-  ssd1306_command1(stop);
-  static const uint8_t PROGMEM scrollList4c[] = {0X01, SSD1306_ACTIVATE_SCROLL};
-  ssd1306_commandList(scrollList4c, sizeof(scrollList4c));
-  TRANSACTION_END
+  Transaction trans(*this);
+  trans.command(SSD1306_SET_VERTICAL_SCROLL_AREA, 0x00, HEIGHT);
+  trans.command(SSD1306_VERTICAL_AND_LEFT_HORIZONTAL_SCROLL, 0x00);
+  trans.command(start, 0x00, stop); // continuation of SCROLL command
+  trans.command(0x01);              // final bytes of SCROLL command
+  trans.command(SSD1306_ACTIVATE_SCROLL);
 }
 
 /*!
@@ -1075,9 +1092,8 @@ void Adafruit_SSD1306::startscrolldiagleft(uint8_t start, uint8_t stop) {
     @return None (void).
 */
 void Adafruit_SSD1306::stopscroll(void) {
-  TRANSACTION_START
-  ssd1306_command1(SSD1306_DEACTIVATE_SCROLL);
-  TRANSACTION_END
+  Transaction trans(*this);
+  trans.command(SSD1306_DEACTIVATE_SCROLL);
 }
 
 // OTHER HARDWARE SETTINGS -------------------------------------------------
@@ -1096,9 +1112,8 @@ void Adafruit_SSD1306::stopscroll(void) {
    white, SSD1306_WHITE (value 1) will draw black.
 */
 void Adafruit_SSD1306::invertDisplay(bool i) {
-  TRANSACTION_START
-  ssd1306_command1(i ? SSD1306_INVERTDISPLAY : SSD1306_NORMALDISPLAY);
-  TRANSACTION_END
+  Transaction trans(*this);
+  trans.command(i ? SSD1306_INVERTDISPLAY : SSD1306_NORMALDISPLAY);
 }
 
 /*!
@@ -1112,8 +1127,6 @@ void Adafruit_SSD1306::invertDisplay(bool i) {
 void Adafruit_SSD1306::dim(bool dim) {
   // the range of contrast to too small to be really useful
   // it is useful to dim the display
-  TRANSACTION_START
-  ssd1306_command1(SSD1306_SETCONTRAST);
-  ssd1306_command1(dim ? 0 : contrast);
-  TRANSACTION_END
+  Transaction trans(*this);
+  trans.command(SSD1306_SETCONTRAST, dim ? 0 : contrast);
 }

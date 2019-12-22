@@ -164,8 +164,8 @@ private:
   inline void SPIwrite(uint8_t d) __attribute__((always_inline));
   void drawFastHLineInternal(int16_t x, int16_t y, int16_t w, uint16_t color);
   void drawFastVLineInternal(int16_t x, int16_t y, int16_t h, uint16_t color);
-  void ssd1306_command1(uint8_t c);
-  void ssd1306_commandList(const uint8_t *c, uint8_t n);
+
+  class Transaction;
 
   SPIClass *spi;
   TwoWire *wire;
