@@ -497,13 +497,58 @@ void Adafruit_SSD1306::Transaction::data(uint8_t byte) { send(false, byte); }
 /*!
     @brief  Issue a single low-level command directly to the SSD1306
             display, bypassing the library.
-    @param  c
+    @param  cmd
             Command to issue (0x00 to 0xFF, see datasheet).
     @return None (void).
 */
-void Adafruit_SSD1306::ssd1306_command(uint8_t c) {
+void Adafruit_SSD1306::ssd1306_command(uint8_t cmd) {
   Transaction trans(*this);
-  trans.command(c);
+  trans.command(cmd);
+}
+
+/*!
+    @brief  Issue a two byte low-level command directly to the SSD1306
+            display, bypassing the library.
+    @param  cmd
+            Command to issue (0x00 to 0xFF, see datasheet).
+    @param  a
+            The second byte of the command.
+    @return None (void).
+*/
+void Adafruit_SSD1306::ssd1306_command(uint8_t cmd, uint8_t a) {
+  Transaction trans(*this);
+  trans.command(cmd, a);
+}
+
+/*!
+    @brief  Issue a three byte low-level command directly to the SSD1306
+            display, bypassing the library.
+    @param  cmd
+            Command to issue (0x00 to 0xFF, see datasheet).
+    @param  a
+            The second byte of the command.
+    @param  b
+            The third byte of the command.
+    @return None (void).
+*/
+void Adafruit_SSD1306::ssd1306_command(uint8_t cmd, uint8_t a, uint8_t b) {
+  Transaction trans(*this);
+  trans.command(cmd, a, b);
+}
+
+/*!
+    @brief  Issue a multi byte low-level command directly to the SSD1306
+            display, bypassing the library.
+    @param  cmd
+            Pointer to command bytes to issue.
+    @param  n
+            Number of bytes in the command.
+    @return None (void).
+*/
+void Adafruit_SSD1306::ssd1306_command(const uint8_t *cmd, uint8_t n) {
+  Transaction trans(*this);
+  while (n--)
+    trans.command(pgm_read_byte(cmd++));
 }
 
 // ALLOCATE & INIT DISPLAY -------------------------------------------------
