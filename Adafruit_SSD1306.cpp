@@ -543,30 +543,26 @@ boolean Adafruit_SSD1306::begin(uint8_t vcs, uint8_t addr, boolean reset,
     SSD1306_COMSCANDEC };
   ssd1306_commandList(init3, sizeof(init3));
 
+  uint8_t comPins = 0x02;
+  contrast = 0x8F;
+
   if((WIDTH == 128) && (HEIGHT == 32)) {
-    static const uint8_t PROGMEM init4a[] = {
-      SSD1306_SETCOMPINS,                 // 0xDA
-      0x02,
-      SSD1306_SETCONTRAST,                // 0x81
-      0x8F };
-    ssd1306_commandList(init4a, sizeof(init4a));
+    comPins = 0x02;
+    contrast = 0x8F;
   } else if((WIDTH == 128) && (HEIGHT == 64)) {
-    static const uint8_t PROGMEM init4b[] = {
-      SSD1306_SETCOMPINS,                 // 0xDA
-      0x12,
-      SSD1306_SETCONTRAST };              // 0x81
-    ssd1306_commandList(init4b, sizeof(init4b));
-    ssd1306_command1((vccstate == SSD1306_EXTERNALVCC) ? 0x9F : 0xCF);
+    comPins = 0x12;
+    contrast = (vccstate == SSD1306_EXTERNALVCC) ? 0x9F : 0xCF;
   } else if((WIDTH == 96) && (HEIGHT == 16)) {
-    static const uint8_t PROGMEM init4c[] = {
-      SSD1306_SETCOMPINS,                 // 0xDA
-      0x2,    // ada x12
-      SSD1306_SETCONTRAST };              // 0x81
-    ssd1306_commandList(init4c, sizeof(init4c));
-    ssd1306_command1((vccstate == SSD1306_EXTERNALVCC) ? 0x10 : 0xAF);
+    comPins = 0x2;    // ada x12
+    contrast = (vccstate == SSD1306_EXTERNALVCC) ? 0x10 : 0xAF;
   } else {
     // Other screen varieties -- TBD
   }
+
+  ssd1306_command1(SSD1306_SETCOMPINS);
+  ssd1306_command1(comPins);
+  ssd1306_command1(SSD1306_SETCONTRAST);
+  ssd1306_command1(contrast);
 
   ssd1306_command1(SSD1306_SETPRECHARGE); // 0xd9
   ssd1306_command1((vccstate == SSD1306_EXTERNALVCC) ? 0x22 : 0xF1);
@@ -1087,17 +1083,10 @@ void Adafruit_SSD1306::invertDisplay(boolean i) {
             display() function -- buffer contents are not changed.
 */
 void Adafruit_SSD1306::dim(boolean dim) {
-  uint8_t contrast;
-
-  if(dim) {
-    contrast = 0; // Dimmed display
-  } else {
-    contrast = (vccstate == SSD1306_EXTERNALVCC) ? 0x9F : 0xCF;
-  }
   // the range of contrast to too small to be really useful
   // it is useful to dim the display
   TRANSACTION_START
   ssd1306_command1(SSD1306_SETCONTRAST);
-  ssd1306_command1(contrast);
+  ssd1306_command1(dim ? 0 : contrast);
   TRANSACTION_END
 }
