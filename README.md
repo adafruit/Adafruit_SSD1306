@@ -6,6 +6,7 @@ This is a library for our Monochrome OLEDs based on SSD1306 drivers
   ------> http://www.adafruit.com/category/63_98
 
 These displays use I2C or SPI to communicate, 2 to 5 pins are required to interface.
+For more details see the [datasheet](https://cdn-shop.adafruit.com/datasheets/SSD1306.pdf).
 
 Adafruit invests time and resources providing this open source code,
 please support Adafruit and open-source hardware by purchasing
@@ -20,7 +21,7 @@ You will also have to install the **Adafruit GFX library** which provides graphi
 
 ## Changes
 Pull Request:
-   (September 2019) 
+   (September 2019)
    * new #defines for SSD1306_BLACK, SSD1306_WHITE and SSD1306_INVERSE that match existing #define naming scheme and won't conflict with common color names
    * old #defines for BLACK, WHITE and INVERSE kept for backwards compat (opt-out with #define NO_ADAFRUIT_SSD1306_COLOR_COMPATIBILITY)
 
