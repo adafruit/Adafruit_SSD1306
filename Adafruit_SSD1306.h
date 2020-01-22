@@ -103,6 +103,16 @@
 #define SSD1306_ACTIVATE_SCROLL                      0x2F ///< Start scroll
 #define SSD1306_SET_VERTICAL_SCROLL_AREA             0xA3 ///< Set scroll range
 
+// hardware scroll rates, fastest is once every 2 frames, slowest is once every 256 frames
+#define SSD1306_SCROLLFRAMERATE_5      0x00 ///< See datasheet 000b
+#define SSD1306_SCROLLFRAMERATE_64     0x01 ///< See datasheet 001b
+#define SSD1306_SCROLLFRAMERATE_128    0x02 ///< See datasheet 010b
+#define SSD1306_SCROLLFRAMERATE_256    0x03 ///< See datasheet 011b
+#define SSD1306_SCROLLFRAMERATE_3      0x04 ///< See datasheet 100b
+#define SSD1306_SCROLLFRAMERATE_4      0x05 ///< See datasheet 101b
+#define SSD1306_SCROLLFRAMERATE_25     0x06 ///< See datasheet 110b
+#define SSD1306_SCROLLFRAMERATE_2      0x07 ///< See datasheet 111b
+
 // Deprecated size stuff for backwards compatibility with old sketches
 #if defined SSD1306_128_64
  #define SSD1306_LCDWIDTH  128 ///< DEPRECATED: width w/SSD1306_128_64 defined
@@ -149,10 +159,10 @@ class Adafruit_SSD1306 : public Adafruit_GFX {
   void         drawPixel(int16_t x, int16_t y, uint16_t color);
   virtual void drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color);
   virtual void drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color);
-  void         startscrollright(uint8_t start, uint8_t stop);
-  void         startscrollleft(uint8_t start, uint8_t stop);
-  void         startscrolldiagright(uint8_t start, uint8_t stop);
-  void         startscrolldiagleft(uint8_t start, uint8_t stop);
+  void         startscrollright(uint8_t start, uint8_t stop, uint8_t rate=SSD1306_SCROLLFRAMERATE_5);
+  void         startscrollleft(uint8_t start, uint8_t stop, uint8_t rate=SSD1306_SCROLLFRAMERATE_5);
+  void         startscrolldiagright(uint8_t start, uint8_t stop, uint8_t rate=SSD1306_SCROLLFRAMERATE_5);
+  void         startscrolldiagleft(uint8_t start, uint8_t stop, uint8_t rate=SSD1306_SCROLLFRAMERATE_5);
   void         stopscroll(void);
   void         ssd1306_command(uint8_t c);
   boolean      getPixel(int16_t x, int16_t y);
