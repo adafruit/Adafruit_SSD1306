@@ -934,20 +934,22 @@ void Adafruit_SSD1306::display(void) {
 /*!
     @brief  Activate a right-handed scroll for all or part of the display.
     @param  start
-            First row.
+            First page of 8 pixels (0x00 to 0x03 for 32 row screen or 0x07 for 64 row screen).
     @param  stop
-            Last row.
+            Last page of 8 pixels (inclusive).
+    @param  rate
+            Control scroll speed with SSD1306_SCROLLFRAMERATE_* values
     @return None (void).
 */
 // To scroll the whole display, run: display.startscrollright(0x00, 0x0F)
-void Adafruit_SSD1306::startscrollright(uint8_t start, uint8_t stop) {
+void Adafruit_SSD1306::startscrollright(uint8_t start, uint8_t stop, uint8_t rate) {
   TRANSACTION_START
   static const uint8_t PROGMEM scrollList1a[] = {
     SSD1306_RIGHT_HORIZONTAL_SCROLL,
     0X00 };
   ssd1306_commandList(scrollList1a, sizeof(scrollList1a));
   ssd1306_command1(start);
-  ssd1306_command1(0X00);
+  ssd1306_command1(rate);
   ssd1306_command1(stop);
   static const uint8_t PROGMEM scrollList1b[] = {
     0X00,
@@ -960,20 +962,22 @@ void Adafruit_SSD1306::startscrollright(uint8_t start, uint8_t stop) {
 /*!
     @brief  Activate a left-handed scroll for all or part of the display.
     @param  start
-            First row.
+            First page of 8 pixels.
     @param  stop
-            Last row.
+            Last page of 8 pixels (inclusive).
+    @param  rate
+            Control scroll speed with SSD1306_SCROLLFRAMERATE_* values
     @return None (void).
 */
 // To scroll the whole display, run: display.startscrollleft(0x00, 0x0F)
-void Adafruit_SSD1306::startscrollleft(uint8_t start, uint8_t stop) {
+void Adafruit_SSD1306::startscrollleft(uint8_t start, uint8_t stop, uint8_t rate) {
   TRANSACTION_START
   static const uint8_t PROGMEM scrollList2a[] = {
     SSD1306_LEFT_HORIZONTAL_SCROLL,
     0X00 };
   ssd1306_commandList(scrollList2a, sizeof(scrollList2a));
   ssd1306_command1(start);
-  ssd1306_command1(0X00);
+  ssd1306_command1(rate);
   ssd1306_command1(stop);
   static const uint8_t PROGMEM scrollList2b[] = {
     0X00,
@@ -986,13 +990,15 @@ void Adafruit_SSD1306::startscrollleft(uint8_t start, uint8_t stop) {
 /*!
     @brief  Activate a diagonal scroll for all or part of the display.
     @param  start
-            First row.
+            First page of 8 pixels.
     @param  stop
-            Last row.
+            Last page of 8 pixels (inclusive).
+    @param  rate
+            Control scroll speed with SSD1306_SCROLLFRAMERATE_* values
     @return None (void).
 */
 // display.startscrolldiagright(0x00, 0x0F)
-void Adafruit_SSD1306::startscrolldiagright(uint8_t start, uint8_t stop) {
+void Adafruit_SSD1306::startscrolldiagright(uint8_t start, uint8_t stop, uint8_t rate) {
   TRANSACTION_START
   static const uint8_t PROGMEM scrollList3a[] = {
     SSD1306_SET_VERTICAL_SCROLL_AREA,
@@ -1004,7 +1010,7 @@ void Adafruit_SSD1306::startscrolldiagright(uint8_t start, uint8_t stop) {
     0X00 };
   ssd1306_commandList(scrollList3b, sizeof(scrollList3b));
   ssd1306_command1(start);
-  ssd1306_command1(0X00);
+  ssd1306_command1(rate);
   ssd1306_command1(stop);
   static const uint8_t PROGMEM scrollList3c[] = {
     0X01,
@@ -1016,13 +1022,15 @@ void Adafruit_SSD1306::startscrolldiagright(uint8_t start, uint8_t stop) {
 /*!
     @brief  Activate alternate diagonal scroll for all or part of the display.
     @param  start
-            First row.
+            First page of 8 pixels.
     @param  stop
-            Last row.
+            Last page of 8 pixels (inclusive).
+    @param  rate
+            Control scroll speed with SSD1306_SCROLLFRAMERATE_* values
     @return None (void).
 */
 // To scroll the whole display, run: display.startscrolldiagleft(0x00, 0x0F)
-void Adafruit_SSD1306::startscrolldiagleft(uint8_t start, uint8_t stop) {
+void Adafruit_SSD1306::startscrolldiagleft(uint8_t start, uint8_t stop, uint8_t rate) {
   TRANSACTION_START
   static const uint8_t PROGMEM scrollList4a[] = {
     SSD1306_SET_VERTICAL_SCROLL_AREA,
@@ -1034,7 +1042,7 @@ void Adafruit_SSD1306::startscrolldiagleft(uint8_t start, uint8_t stop) {
     0X00 };
   ssd1306_commandList(scrollList4b, sizeof(scrollList4b));
   ssd1306_command1(start);
-  ssd1306_command1(0X00);
+  ssd1306_command1(rate);
   ssd1306_command1(stop);
   static const uint8_t PROGMEM scrollList4c[] = {
     0X01,
