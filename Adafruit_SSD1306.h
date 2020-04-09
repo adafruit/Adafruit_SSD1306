@@ -157,6 +157,7 @@ class Adafruit_SSD1306 : public Adafruit_GFX {
   void         ssd1306_command(uint8_t c);
   boolean      getPixel(int16_t x, int16_t y);
   uint8_t     *getBuffer(void);
+  void         setBuffer(uint8_t *buffer);
 
  private:
   inline void  SPIwrite(uint8_t d) __attribute__((always_inline));
@@ -166,10 +167,12 @@ class Adafruit_SSD1306 : public Adafruit_GFX {
                  uint16_t color);
   void         ssd1306_command1(uint8_t c);
   void         ssd1306_commandList(const uint8_t *c, uint8_t n);
+  void         deallocateBuffer(void);
 
   SPIClass    *spi;
   TwoWire     *wire;
   uint8_t     *buffer;
+  enum : bool { Borrowed, Allocated } bufferPolicy = Allocated;
   int8_t       i2caddr, vccstate, page_end;
   int8_t       mosiPin    ,  clkPin    ,  dcPin    ,  csPin, rstPin;
 #ifdef HAVE_PORTREG
@@ -187,5 +190,8 @@ protected:
   SPISettings  spiSettings;
 #endif
 };
+
+/// Macro to determine whether this version supports `setBuffer`. 
+#define ADAFRUIT_SSD1306_HAS_SETBUFFER 1
 
 #endif // _Adafruit_SSD1306_H_
