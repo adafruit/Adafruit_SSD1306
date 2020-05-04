@@ -146,6 +146,7 @@ class Adafruit_SSD1306 : public Adafruit_GFX {
   void         clearDisplay(void);
   void         invertDisplay(boolean i);
   void         dim(boolean dim);
+  void         setBrightness(uint8_t contrast);
   void         drawPixel(int16_t x, int16_t y, uint16_t color);
   virtual void drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color);
   virtual void drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color);

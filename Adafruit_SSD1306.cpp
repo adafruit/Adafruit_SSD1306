@@ -1090,3 +1090,27 @@ void Adafruit_SSD1306::dim(boolean dim) {
   ssd1306_command1(dim ? 0 : contrast);
   TRANSACTION_END
 }
+
+/*!
+    @brief  Set display brightness.
+    @param  contrast
+            255 for full brightness.
+    @return None (void).
+    @note   Max contrast value is 255
+*/
+void Adafruit_SSD1306::setBrightness(uint8_t contrast) {
+  // low brigthness can be set with the help of precharge
+  TRANSACTION_START
+  if(contrast>255) {
+    contrast = 255;
+  }
+  ssd1306_command(SSD1306_SETCONTRAST);
+  ssd1306_command(contrast); 
+  ssd1306_command(SSD1306_SETPRECHARGE);
+  if (contrast <= 80) {        
+    ssd1306_command(17); 
+  } else {
+    ssd1306_command(34); 
+  }
+  TRANSACTION_END
+}
