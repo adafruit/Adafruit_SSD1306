@@ -65,9 +65,9 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><code>#include &lt;util/delay.h&gt;</code><br />
-<code>#include &lt;Adafruit_GFX.h&gt;</code><br />
 <code>#include &quot;<a class="el" href="_adafruit___s_s_d1306_8h_source.html">Adafruit_SSD1306.h</a>&quot;</code><br />
 <code>#include &quot;splash.h&quot;</code><br />
+<code>#include &lt;Adafruit_GFX.h&gt;</code><br />
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
 Macros</h2></td></tr>
@@ -138,7 +138,7 @@ Macros</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line"><span class="keywordflow">if</span>(wire) {                 \</div><div class="line">   SETWIRECLOCK;            \</div><div class="line"> } <span class="keywordflow">else</span> {                   \</div><div class="line">   if(spi) {                \</div><div class="line">     SPI_TRANSACTION_START; \</div><div class="line">   }                        \</div><div class="line">   SSD1306_SELECT;          \</div><div class="line"> }</div></div><!-- fragment -->
+<b>Value:</b><div class="fragment"><div class="line"><span class="keywordflow">if</span> (wire) {                                                                  \</div><div class="line">    SETWIRECLOCK;                                                              \</div><div class="line">  } <span class="keywordflow">else</span> {                                                                     \</div><div class="line">    if (spi) {                                                                 \</div><div class="line">      SPI_TRANSACTION_START;                                                   \</div><div class="line">    }                                                                          \</div><div class="line">    SSD1306_SELECT;                                                            \</div><div class="line">  }</div></div><!-- fragment -->
 <p>Wire, SPI or bitbang transfer setup. </p>
 
 </div>
@@ -154,7 +154,7 @@ Macros</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line"><span class="keywordflow">if</span>(wire) {                 \</div><div class="line">   RESWIRECLOCK;            \</div><div class="line"> } <span class="keywordflow">else</span> {                   \</div><div class="line">   SSD1306_DESELECT;        \</div><div class="line">   if(spi) {                \</div><div class="line">     SPI_TRANSACTION_END;   \</div><div class="line">   }                        \</div><div class="line"> }</div></div><!-- fragment -->
+<b>Value:</b><div class="fragment"><div class="line"><span class="keywordflow">if</span> (wire) {                                                                  \</div><div class="line">    RESWIRECLOCK;                                                              \</div><div class="line">  } <span class="keywordflow">else</span> {                                                                     \</div><div class="line">    SSD1306_DESELECT;                                                          \</div><div class="line">    if (spi) {                                                                 \</div><div class="line">      SPI_TRANSACTION_END;                                                     \</div><div class="line">    }                                                                          \</div><div class="line">  }</div></div><!-- fragment -->
 <p>Wire, SPI or bitbang transfer end. </p>
 
 </div>
