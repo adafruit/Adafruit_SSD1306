@@ -142,12 +142,12 @@ public:
 
   ~Adafruit_SSD1306(void);
 
-  boolean begin(uint8_t switchvcc = SSD1306_SWITCHCAPVCC, uint8_t i2caddr = 0,
-                boolean reset = true, boolean periphBegin = true);
+  bool begin(uint8_t switchvcc = SSD1306_SWITCHCAPVCC, uint8_t i2caddr = 0,
+             bool reset = true, bool periphBegin = true);
   void display(void);
   void clearDisplay(void);
-  void invertDisplay(boolean i);
-  void dim(boolean dim);
+  void invertDisplay(bool i);
+  void dim(bool dim);
   void drawPixel(int16_t x, int16_t y, uint16_t color);
   virtual void drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color);
   virtual void drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color);
@@ -157,7 +157,7 @@ public:
   void startscrolldiagleft(uint8_t start, uint8_t stop);
   void stopscroll(void);
   void ssd1306_command(uint8_t c);
-  boolean getPixel(int16_t x, int16_t y);
+  bool getPixel(int16_t x, int16_t y);
   uint8_t *getBuffer(void);
 
 private:
