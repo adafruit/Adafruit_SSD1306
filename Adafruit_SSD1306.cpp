@@ -1102,7 +1102,7 @@ void Adafruit_SSD1306::setBrightness(uint8_t contrast) {
   // low brigthness can be set with the help of precharge
   TRANSACTION_START
   if(contrast>255) {
-    contrast = 255;
+    contrast = constrain(contrast, 0, 255);
   }
   ssd1306_command(SSD1306_SETCONTRAST);
   ssd1306_command(contrast); 
