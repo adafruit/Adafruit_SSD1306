@@ -551,9 +551,9 @@ bool Adafruit_SSD1306::begin(uint8_t vcs, uint8_t addr, bool reset,
                                           SSD1306_SEGREMAP | 0x1,
                                           SSD1306_COMSCANDEC};
   static const uint8_t PROGMEM init3Flipped[] = {SSD1306_MEMORYMODE, // 0x20
-                                          0x00, // 0x0 act like ks0108
-                                          SSD1306_SEGREMAP,
-                                          SSD1306_COMSCANINC};
+                                                 0x00, // 0x0 act like ks0108
+                                                 SSD1306_SEGREMAP,
+                                                 SSD1306_COMSCANINC};
 
   if (flip) {
     ssd1306_commandList(init3Flipped, sizeof(init3Flipped));
