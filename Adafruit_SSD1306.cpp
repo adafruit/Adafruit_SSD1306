@@ -452,13 +452,17 @@ void Adafruit_SSD1306::ssd1306_command(uint8_t c) {
             platforms where a nonstandard begin() function is available
             (e.g. a TwoWire interface on non-default pins, as can be done
             on the ESP8266 and perhaps others).
+    @param  flip
+            If true, flips the display by 180 degrees. This allows flexibility
+            for designs that require the display in a reversed position. Calls
+            to drawing functions can be called as normal.
     @return true on successful allocation/init, false otherwise.
             Well-behaved code should check the return value before
             proceeding.
     @note   MUST call this function before any drawing or updates!
 */
 bool Adafruit_SSD1306::begin(uint8_t vcs, uint8_t addr, bool reset,
-                             bool periphBegin) {
+                             bool periphBegin, bool flip) {
 
   if ((!buffer) && !(buffer = (uint8_t *)malloc(WIDTH * ((HEIGHT + 7) / 8))))
     return false;
@@ -546,7 +550,16 @@ bool Adafruit_SSD1306::begin(uint8_t vcs, uint8_t addr, bool reset,
                                           0x00, // 0x0 act like ks0108
                                           SSD1306_SEGREMAP | 0x1,
                                           SSD1306_COMSCANDEC};
-  ssd1306_commandList(init3, sizeof(init3));
+  static const uint8_t PROGMEM init3Flipped[] = {SSD1306_MEMORYMODE, // 0x20
+                                          0x00, // 0x0 act like ks0108
+                                          SSD1306_SEGREMAP,
+                                          SSD1306_COMSCANINC};
+
+  if (flip) {
+    ssd1306_commandList(init3Flipped, sizeof(init3Flipped));
+  } else {
+    ssd1306_commandList(init3, sizeof(init3));
+  }
 
   uint8_t comPins = 0x02;
   contrast = 0x8F;
