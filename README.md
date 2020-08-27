@@ -46,6 +46,7 @@ ATSAM21D    |      X     |            |          |
 Intel Curie |      X     |            |          |
 WICED       |      X     |            |          | No hardware SPI - bitbang only
 ATtiny85    |            |      X     |          |
+Particle    |      X     |            |          |
 
   * ATmega328 : Arduino UNO, Adafruit Pro Trinket, Adafruit Metro 328, Adafruit Metro Mini
   * ATmega32u4 : Arduino Leonardo, Arduino Micro, Arduino Yun, Teensy 2.0, Adafruit Flora, Bluefruit Micro
@@ -54,5 +55,6 @@ ATtiny85    |            |      X     |          |
   * ATSAM3X8E : Arduino Due
   * ATSAM21D : Arduino Zero, M0 Pro, Adafruit Metro Express, Feather M0
   * ATtiny85 : Adafruit Gemma, Arduino Gemma, Adafruit Trinket
+  * Particle: Particle Argon
 
 <!-- END COMPATIBILITY TABLE -->
