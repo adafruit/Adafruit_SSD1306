@@ -56,7 +56,9 @@
 
 // SOME DEFINES AND STATIC VARIABLES USED INTERNALLY -----------------------
 
-#if defined(BUFFER_LENGTH)
+#if defined(I2C_BUFFER_LENGTH)
+#define WIRE_MAX I2C_BUFFER_LENGTH ///< Particle or similar Wire lib
+#elif defined(BUFFER_LENGTH)
 #define WIRE_MAX BUFFER_LENGTH ///< AVR or similar Wire lib
 #elif defined(SERIAL_BUFFER_SIZE)
 #define WIRE_MAX (SERIAL_BUFFER_SIZE - 1) ///< Newer Wire uses RingBuffer
