@@ -906,6 +906,19 @@ bool Adafruit_SSD1306::getPixel(int16_t x, int16_t y) {
   return false; // Pixel out of bounds
 }
 
+void Adafruit_SSD1306::printTextWithUmlauts(String text) {
+  String result = text;
+  result.replace("ä", "\204");
+  result.replace("ë", "\211");
+  result.replace("ï", "\213");
+  result.replace("ö", "\224");
+  result.replace("ü", "\201");
+  result.replace("Ä", "\216");
+  result.replace("Ö", "\231");
+  result.replace("Ü", "\232");
+  print(result);
+}
+
 /*!
     @brief  Get base address of display buffer for direct reading or writing.
     @return Pointer to an unsigned 8-bit array, column-major, columns padded
