@@ -635,6 +635,19 @@ void Adafruit_SSD1306::drawPixel(int16_t x, int16_t y, uint16_t color) {
   }
 }
 
+void Adafruit_SSD1306::printTextWithUmlauts(String text) {
+  String result = text;
+  result.replace("ä", "\204");
+  result.replace("ë", "\211");
+  result.replace("ï", "\213");
+  result.replace("ö", "\224");
+  result.replace("ü", "\201");
+  result.replace("Ä", "\216");
+  result.replace("Ö", "\231");
+  result.replace("Ü", "\232");
+  print(result);
+}
+
 /*!
     @brief  Clear contents of display buffer (set all pixels to off).
     @return None (void).
