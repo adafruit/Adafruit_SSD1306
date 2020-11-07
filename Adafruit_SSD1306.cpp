@@ -245,7 +245,7 @@ Adafruit_SSD1306::Adafruit_SSD1306(uint8_t w, uint8_t h, SPIClass *spi,
     : Adafruit_GFX(w, h), spi(spi ? spi : &SPI), wire(NULL), buffer(NULL),
       mosiPin(-1), clkPin(-1), dcPin(dc_pin), csPin(cs_pin), rstPin(rst_pin) {
 #ifdef SPI_HAS_TRANSACTION
-  spiSettings = SPISettings(bitrate, MSBFIRST, SPI_MODE0);
+  spiSettings = SPISettings(bitrate, MSBFIRST, SPI_MODE3);
 #endif
 }
 
@@ -307,7 +307,7 @@ Adafruit_SSD1306::Adafruit_SSD1306(int8_t dc_pin, int8_t rst_pin, int8_t cs_pin)
       buffer(NULL), mosiPin(-1), clkPin(-1), dcPin(dc_pin), csPin(cs_pin),
       rstPin(rst_pin) {
 #ifdef SPI_HAS_TRANSACTION
-  spiSettings = SPISettings(8000000, MSBFIRST, SPI_MODE0);
+  spiSettings = SPISettings(8000000, MSBFIRST, SPI_MODE3);
 #endif
 }
 
@@ -350,16 +350,16 @@ inline void Adafruit_SSD1306::SPIwrite(uint8_t d) {
   } else {
     for (uint8_t bit = 0x80; bit; bit >>= 1) {
 #ifdef HAVE_PORTREG
+      *clkPort &= ~clkPinMask; // Clock low
       if (d & bit)
         *mosiPort |= mosiPinMask;
       else
         *mosiPort &= ~mosiPinMask;
-      *clkPort |= clkPinMask;  // Clock high
-      *clkPort &= ~clkPinMask; // Clock low
+      *clkPort |= clkPinMask; // Clock high
 #else
+      digitalWrite(clkPin, LOW);
       digitalWrite(mosiPin, d & bit);
       digitalWrite(clkPin, HIGH);
-      digitalWrite(clkPin, LOW);
 #endif
     }
   }
@@ -499,8 +499,12 @@ bool Adafruit_SSD1306::begin(uint8_t vcs, uint8_t addr, bool reset,
     SSD1306_DESELECT
     if (spi) { // Hardware SPI
       // SPI peripheral begin same as wire check above.
-      if (periphBegin)
+      if (periphBegin) {
         spi->begin();
+#ifndef SPI_HAS_TRANSACTION
+        spi->setDataMode(SPI_MODE3);
+#endif
+      }
     } else {                    // Soft SPI
       pinMode(mosiPin, OUTPUT); // MOSI and SCLK outputs
       pinMode(clkPin, OUTPUT);
@@ -509,9 +513,9 @@ bool Adafruit_SSD1306::begin(uint8_t vcs, uint8_t addr, bool reset,
       mosiPinMask = digitalPinToBitMask(mosiPin);
       clkPort = (PortReg *)portOutputRegister(digitalPinToPort(clkPin));
       clkPinMask = digitalPinToBitMask(clkPin);
-      *clkPort &= ~clkPinMask; // Clock low
+      *clkPort |= clkPinMask; // Clock high
 #else
-      digitalWrite(clkPin, LOW); // Clock low
+      digitalWrite(clkPin, HIGH); // Clock high
 #endif
     }
   }
