@@ -61,7 +61,8 @@
 #elif defined(BUFFER_LENGTH)
 #define WIRE_MAX min(256, BUFFER_LENGTH) ///< AVR or similar Wire lib
 #elif defined(SERIAL_BUFFER_SIZE)
-#define WIRE_MAX min(255, SERIAL_BUFFER_SIZE - 1) ///< Newer Wire uses RingBuffer
+#define WIRE_MAX                                                               \
+  min(255, SERIAL_BUFFER_SIZE - 1) ///< Newer Wire uses RingBuffer
 #else
 #define WIRE_MAX 32 ///< Use common Arduino core default
 #endif
