@@ -27,6 +27,10 @@
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
+// The pins for I2C are fixed and defined by the Wire-library. 
+// On an arduino UNO it's: A4(SDA), A5(SCL)
+// On an arduino DUE or a MEGA2560 it's: 20(SDA), 21(SCL)
+// On an arduino LEONARDO it's: 2(SDA), 3(SCL), ...
 #define OLED_RESET     4 // Reset pin # (or -1 if sharing Arduino reset pin)
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
