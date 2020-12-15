@@ -5,7 +5,7 @@ This is a library for our Monochrome OLEDs based on SSD1306 drivers
   Pick one up today in the adafruit shop!
   ------> http://www.adafruit.com/category/63_98
 
-These displays use I2C or SPI to communicate, 2 to 5 pins are required to interface.
+These displays use I2C or SPI to communicate, 2 to 5 pins are required to interface. Arduinos have dedicated I2C-pins that are used by the Wire-Library. Like A4(SDA), A5(SCL) on a UNO or 20(SDA), 21(SCL) on a MEGA 2560. Look out for the I2C-pins of your board. 
 
 Adafruit invests time and resources providing this open source code,
 please support Adafruit and open-source hardware by purchasing
