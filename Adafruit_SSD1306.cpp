@@ -541,10 +541,16 @@ bool Adafruit_SSD1306::begin(uint8_t vcs, uint8_t addr, bool reset,
   ssd1306_command1(HEIGHT - 1);
 
   static const uint8_t PROGMEM init2[] = {SSD1306_SETDISPLAYOFFSET, // 0xD3
-                                          0x0,                      // no offset
-                                          SSD1306_SETSTARTLINE | 0x0, // line #0
-                                          SSD1306_CHARGEPUMP};        // 0x8D
+                                          0x0);                     // no offset
   ssd1306_commandList(init2, sizeof(init2));
+
+  if ((WIDTH == 64) && (HEIGHT == 32)) {
+    ssd1306_command1(0x00); // line #0
+  } else {
+    ssd1306_command1(SSD1306_SETSTARTLINE); // 0x40
+  }
+
+  ssd1306_command1(SSD1306_CHARGEPUMP}; // 0x8D
 
   ssd1306_command1((vccstate == SSD1306_EXTERNALVCC) ? 0x10 : 0x14);
 
@@ -566,13 +572,9 @@ bool Adafruit_SSD1306::begin(uint8_t vcs, uint8_t addr, bool reset,
   } else if ((WIDTH == 96) && (HEIGHT == 16)) {
     comPins = 0x2; // ada x12
     contrast = (vccstate == SSD1306_EXTERNALVCC) ? 0x10 : 0xAF;
-  } else if ((WIDTH == 64) && (HEIGHT == 48)) {
-    static const uint8_t PROGMEM init4d[] = {
-      SSD1306_SETCOMPINS,                 // 0xDA
-      0x12,
-      SSD1306_SETCONTRAST };              // 0x81
-    ssd1306_commandList(init4d, sizeof(init4d));
-    ssd1306_command1((vccstate == SSD1306_EXTERNALVCC) ? 0x9F : 0xCF);
+  } else if ((WIDTH == 64) && ((HEIGHT == 48) || (HEIGHT == 32))) {
+    comPins = 0x12;
+    contrast = (vccstate == SSD1306_EXTERNALVCC) ? 0x9F : 0xCF);
   } else {
     // Other screen varieties -- TBD
   }
