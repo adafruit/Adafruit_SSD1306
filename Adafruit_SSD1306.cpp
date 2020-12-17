@@ -470,12 +470,12 @@ bool Adafruit_SSD1306::begin(uint8_t vcs, uint8_t addr, bool reset,
   if (WIDTH > 64 && HEIGHT > 32) {
     drawBitmap((WIDTH - splash1_width) / 2, (HEIGHT - splash1_height) / 2,
                splash1_data, splash1_width, splash1_height, 1);
-  } else if(WIDTH > 64) {
+  } else if (WIDTH > 64) {
     drawBitmap((WIDTH - splash2_width) / 2, (HEIGHT - splash2_height) / 2,
                splash2_data, splash2_width, splash2_height, 1);
   } else {
     drawBitmap((WIDTH - splash3_width) / 2, (HEIGHT - splash3_height) / 2,
-      splash3_data, splash3_width, splash3_height, 1);
+               splash3_data, splash3_width, splash3_height, 1);
   }
 
   vccstate = vcs;
@@ -636,15 +636,15 @@ void Adafruit_SSD1306::drawPixel(int16_t x, int16_t y, uint16_t color) {
     }
     if ((WIDTH == 64) && (HEIGHT == 48)) x += 32;
     switch (color) {
-     case SSD1306_WHITE:
-       buffer[x + (y / 8) * SSD1306_SEGMENTS] |=  (1 << (y & 7));
-       break;
-     case SSD1306_BLACK:
-       buffer[x + (y / 8) * SSD1306_SEGMENTS] &= ~(1 << (y & 7));
-       break;
-     case SSD1306_INVERSE:
-       buffer[x + (y / 8) * SSD1306_SEGMENTS] ^=  (1 << (y & 7));
-       break;
+    case SSD1306_WHITE:
+      buffer[x + (y / 8) * SSD1306_SEGMENTS] |=  (1 << (y & 7));
+      break;
+    case SSD1306_BLACK:
+      buffer[x + (y / 8) * SSD1306_SEGMENTS] &= ~(1 << (y & 7));
+      break;
+    case SSD1306_INVERSE:
+      buffer[x + (y / 8) * SSD1306_SEGMENTS] ^=  (1 << (y & 7));
+      break;
     }
   }
 }
@@ -849,7 +849,7 @@ void Adafruit_SSD1306::drawFastVLineInternal(int16_t x, int16_t __y,
             // black/white write version with an extra comparison per loop
             do {
               *pBuf ^= 0xFF; // Invert byte
-              pBuf  += SSD1306_SEGMENTS; // Advance pointer 8 rows
+              pBuf += SSD1306_SEGMENTS; // Advance pointer 8 rows
               h -= 8;        // Subtract 8 rows from height
             } while (h >= 8);
           } else {
@@ -943,13 +943,13 @@ uint8_t *Adafruit_SSD1306::getBuffer(void) { return buffer; }
 void Adafruit_SSD1306::display(void) {
   TRANSACTION_START
   static const uint8_t PROGMEM dlist1[] = {
-    SSD1306_PAGEADDR,
-    0 };                       // Page start address
+      SSD1306_PAGEADDR,
+      0 };                    // Page start address
   ssd1306_commandList(dlist1, sizeof(dlist1));
   ssd1306_command1((HEIGHT + 7) / 8 - 1); // Page end address
   static const uint8_t PROGMEM dlist2[] = {
-    SSD1306_COLUMNADDR,
-    0 };                       // Column start address
+      SSD1306_COLUMNADDR,
+      0 };                    // Column start address
   ssd1306_commandList(dlist2, sizeof(dlist2));
   ssd1306_command1(SSD1306_SEGMENTS - 1); // Column end address
 
