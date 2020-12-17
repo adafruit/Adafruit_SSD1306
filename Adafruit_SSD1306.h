@@ -24,11 +24,12 @@
 #ifndef _Adafruit_SSD1306_H_
 #define _Adafruit_SSD1306_H_
 
-// ONE of the following four lines must be #defined:
+// ONE of the following lines must be #defined:
 //#define SSD1306_128_64 ///< DEPRECTAED: old way to specify 128x64 screen
 #define SSD1306_128_32 ///< DEPRECATED: old way to specify 128x32 screen
 //#define SSD1306_96_16  ///< DEPRECATED: old way to specify 96x16 screen
 //#define SSD1306_64_48  ///< DEPRECATED: old way to specify 64x48 screen
+//#define SSD1306_64_32  ///< DEPRECATED: old way to specify 64x32 screen
 // This establishes the screen dimensions in old Adafruit_SSD1306 sketches
 // (NEW CODE SHOULD IGNORE THIS, USE THE CONSTRUCTORS THAT ACCEPT WIDTH
 // AND HEIGHT ARGUMENTS).
@@ -125,6 +126,10 @@ typedef uint32_t PortMask;
  #define SSD1306_LCDWIDTH   64 ///< DEPRECATED: width w/SSD1306_64_48 defined
  #define SSD1306_LCDHEIGHT  48 ///< DEPRECATED: height w/SSD1306_64_48 defined
 #endif
+#if defined SSD1306_64_32
+ #define SSD1306_LCDWIDTH   64 ///< DEPRECATED: width w/SSD1306_64_32 defined
+ #define SSD1306_LCDHEIGHT  32 ///< DEPRECATED: height w/SSD1306_64_32 defined
+#endif
 
 /*!
     @brief  Class that stores state and functions for interacting with
@@ -153,11 +158,11 @@ public:
              bool reset = true, bool periphBegin = true);
   void display(void);
   void clearDisplay(void);
-  virtual void invertDisplay(bool i) override;
+  virtual void invertDisplay(bool i);
   void dim(bool dim);
-  virtual void drawPixel(int16_t x, int16_t y, uint16_t color) override;
-  virtual void drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color) override;
-  virtual void drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color) override;
+  virtual void drawPixel(int16_t x, int16_t y, uint16_t color);
+  virtual void drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color);
+  virtual void drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color);
   void startscrollright(uint8_t start, uint8_t stop);
   void startscrollleft(uint8_t start, uint8_t stop);
   void startscrolldiagright(uint8_t start, uint8_t stop);
