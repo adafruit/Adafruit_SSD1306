@@ -928,14 +928,14 @@ uint8_t *Adafruit_SSD1306::getBuffer(void) { return buffer; }
 */
 void Adafruit_SSD1306::display(void) {
   TRANSACTION_START
-  if((WIDTH == 64) && (HEIGHT == 32)) {
+  if ((WIDTH == 64) && (HEIGHT == 32)) {
     static const uint8_t PROGMEM dlist1[] = {
         SSD1306_PAGEADDR,
-        0,                      // Page start address
-        0xFF,                   // Page end (not really, but works here)
+        0,                         // Page start address
+        0xFF,                      // Page end (not really, but works here)
         SSD1306_COLUMNADDR, 0x20}; // Column start address
     ssd1306_commandList(dlist1, sizeof(dlist1));
-    ssd1306_command1(0x20 + (WIDTH-1)); // Column end address
+    ssd1306_command1(0x20 + (WIDTH - 1)); // Column end address
   } else {
     static const uint8_t PROGMEM dlist1[] = {
         SSD1306_PAGEADDR,
