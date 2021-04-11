@@ -107,7 +107,7 @@ typedef uint32_t PortMask;
 #define SSD1306_ACTIVATE_SCROLL 0x2F                      ///< Start scroll
 #define SSD1306_SET_VERTICAL_SCROLL_AREA 0xA3             ///< Set scroll range
 
-#define SSD1306_SEGMENTS			128 ///< See datasheet
+#define SSD1306_SEGMENTS 128 ///< See datasheet
 
 // Deprecated size stuff for backwards compatibility with old sketches
 #if defined SSD1306_128_64
@@ -123,12 +123,12 @@ typedef uint32_t PortMask;
 #define SSD1306_LCDHEIGHT 16 ///< DEPRECATED: height w/SSD1306_96_16 defined
 #endif
 #if defined SSD1306_64_48
- #define SSD1306_LCDWIDTH   64 ///< DEPRECATED: width w/SSD1306_64_48 defined
- #define SSD1306_LCDHEIGHT  48 ///< DEPRECATED: height w/SSD1306_64_48 defined
+#define SSD1306_LCDWIDTH 64  ///< DEPRECATED: width w/SSD1306_64_48 defined
+#define SSD1306_LCDHEIGHT 48 ///< DEPRECATED: height w/SSD1306_64_48 defined
 #endif
 #if defined SSD1306_64_32
- #define SSD1306_LCDWIDTH   64 ///< DEPRECATED: width w/SSD1306_64_32 defined
- #define SSD1306_LCDHEIGHT  32 ///< DEPRECATED: height w/SSD1306_64_32 defined
+#define SSD1306_LCDWIDTH 64  ///< DEPRECATED: width w/SSD1306_64_32 defined
+#define SSD1306_LCDHEIGHT 32 ///< DEPRECATED: height w/SSD1306_64_32 defined
 #endif
 
 /*!
