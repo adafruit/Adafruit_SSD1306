@@ -11,6 +11,7 @@ def main(fn, id):
         "#define {id}_height {h}\n"
         "\n"
         "const uint8_t PROGMEM {id}_data[] = {{\n"
+        "// clang-format off\n"
         .format(id=id, w=image.width, h=image.height), end='')
   for y in range(0, image.height):
     for x in range(0, (image.width + 7)//8 * 8):
@@ -27,6 +28,7 @@ def main(fn, id):
       if x % 8 == 7:
         print(",", end='')
     print()
+  print("// clang-format on\n")
   print("};")
 
 if __name__ == '__main__':
