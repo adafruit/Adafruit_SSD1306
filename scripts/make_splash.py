@@ -17,7 +17,7 @@ def main(fn, id):
       if x == 0:
         print("  ", end='')
       if x % 8 == 0:
-        print("B", end='')
+        print("0b", end='')
 
       bit = '0'
       if x < image.width and image.getpixel((x,y)) != 0:
