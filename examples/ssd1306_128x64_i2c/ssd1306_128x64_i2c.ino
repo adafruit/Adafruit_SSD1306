@@ -86,31 +86,33 @@ void setup() {
   // drawing operations and then update the screen all at once by calling
   // display.display(). These examples demonstrate both approaches...
 
-  testdrawline();      // Draw many lines
+  void testdrawline();      // Draw many lines
 
-  testdrawrect();      // Draw rectangles (outlines)
+  void testdrawrect();      // Draw rectangles (outlines)
 
-  testfillrect();      // Draw rectangles (filled)
+  void testfillrect();      // Draw rectangles (filled)
 
-  testdrawcircle();    // Draw circles (outlines)
+  void testdrawcircle();    // Draw circles (outlines)
 
-  testfillcircle();    // Draw circles (filled)
+  void testfillcircle();    // Draw circles (filled)
 
-  testdrawroundrect(); // Draw rounded rectangles (outlines)
+  void testdrawroundrect(); // Draw rounded rectangles (outlines)
 
-  testfillroundrect(); // Draw rounded rectangles (filled)
+  void testfillroundrect(); // Draw rounded rectangles (filled)
 
-  testdrawtriangle();  // Draw triangles (outlines)
+  void testdrawtriangle();  // Draw triangles (outlines)
 
-  testfilltriangle();  // Draw triangles (filled)
+  void testfilltriangle();  // Draw triangles (filled)
 
-  testdrawchar();      // Draw characters of the default font
+  void testdrawchar();      // Draw characters of the default font
 
-  testdrawstyles();    // Draw 'stylized' characters
+  void testdrawstyles();    // Draw 'stylized' characters
 
-  testscrolltext();    // Draw scrolling text
+  void testscrolltext();    // Draw scrolling text
 
-  testdrawbitmap();    // Draw a small bitmap image
+  void testdrawbitmap();    // Draw a small bitmap image
+ 
+  void testanimate(const uint8_t *bitmap, uint8_t w, uint8_t h);   // animate some special shapes
 
   // Invert and restore display, pausing in-between
   display.invertDisplay(true);
