@@ -42,7 +42,7 @@ Atmega2560  |      X     |            |          |
 ESP8266     |      X     |            |          | Change OLED_RESET to different pin if using default I2C pins D4/D5.
 ESP32       |      X     |            |          |
 ATSAM3X8E   |      X     |            |          |
-ATSAM21D    |      X     |            |          |
+ATSAMD21    |      X     |            |          |
 Intel Curie |      X     |            |          |
 WICED       |      X     |            |          | No hardware SPI - bitbang only
 ATtiny85    |            |      X     |          |
@@ -53,7 +53,7 @@ Particle    |      X     |            |          |
   * ATmega2560 : Arduino Mega
   * ESP8266 : Adafruit Huzzah
   * ATSAM3X8E : Arduino Due
-  * ATSAM21D : Arduino Zero, M0 Pro, Adafruit Metro Express, Feather M0
+  * ATSAMD21 : Arduino Zero, M0 Pro, Adafruit Metro Express, Feather M0
   * ATtiny85 : Adafruit Gemma, Arduino Gemma, Adafruit Trinket
   * Particle: Particle Argon
 
