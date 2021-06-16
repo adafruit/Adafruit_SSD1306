@@ -156,16 +156,21 @@ public:
   void startscrolldiagright(uint8_t start, uint8_t stop);
   void startscrolldiagleft(uint8_t start, uint8_t stop);
   void stopscroll(void);
-  void ssd1306_command(uint8_t c);
   bool getPixel(int16_t x, int16_t y);
   uint8_t *getBuffer(void);
+
+  // low level access to SSD1306 commands
+  void ssd1306_command(uint8_t cmd);
+  void ssd1306_command(uint8_t cmd, uint8_t a);
+  void ssd1306_command(uint8_t cmd, uint8_t a, uint8_t b);
+  void ssd1306_command(const uint8_t *cmd, uint8_t n);
 
 private:
   inline void SPIwrite(uint8_t d) __attribute__((always_inline));
   void drawFastHLineInternal(int16_t x, int16_t y, int16_t w, uint16_t color);
   void drawFastVLineInternal(int16_t x, int16_t y, int16_t h, uint16_t color);
-  void ssd1306_command1(uint8_t c);
-  void ssd1306_commandList(const uint8_t *c, uint8_t n);
+
+  class Transaction;
 
   SPIClass *spi;
   TwoWire *wire;
