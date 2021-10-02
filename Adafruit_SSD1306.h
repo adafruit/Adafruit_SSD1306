@@ -40,6 +40,8 @@ typedef class HardwareSPI SPIClass;
 #include <SPI.h>
 #include <Wire.h>
 
+typedef void (* dfunc_t)(void);
+
 #if defined(__AVR__)
 typedef volatile uint8_t PortReg;
 typedef uint8_t PortMask;
@@ -145,6 +147,7 @@ public:
   bool begin(uint8_t switchvcc = SSD1306_SWITCHCAPVCC, uint8_t i2caddr = 0,
              bool reset = true, bool periphBegin = true);
   void display(void);
+  void display_d(dfunc_t dfunc);
   void clearDisplay(void);
   void invertDisplay(bool i);
   void dim(bool dim);
@@ -160,7 +163,7 @@ public:
   bool getPixel(int16_t x, int16_t y);
   uint8_t *getBuffer(void);
 
-private:
+protected:
   inline void SPIwrite(uint8_t d) __attribute__((always_inline));
   void drawFastHLineInternal(int16_t x, int16_t y, int16_t w, uint16_t color);
   void drawFastVLineInternal(int16_t x, int16_t y, int16_t h, uint16_t color);

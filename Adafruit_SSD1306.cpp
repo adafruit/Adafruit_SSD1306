@@ -56,6 +56,8 @@
 
 // SOME DEFINES AND STATIC VARIABLES USED INTERNALLY -----------------------
 
+typedef void (* dfunc_t)(void);//void function pointer
+
 #if defined(I2C_BUFFER_LENGTH)
 #define WIRE_MAX min(256, I2C_BUFFER_LENGTH) ///< Particle or similar Wire lib
 #elif defined(BUFFER_LENGTH)
@@ -112,6 +114,7 @@
 // issuing data to the display, then restored to the default rate afterward
 // so other I2C device types still work).  All of these are encapsulated
 // in the TRANSACTION_* macros.
+
 
 // Check first if Wire, then hardware SPI, then soft SPI:
 #define TRANSACTION_START                                                      \
@@ -957,6 +960,71 @@ void Adafruit_SSD1306::display(void) {
       }
       WIRE_WRITE(*ptr++);
       bytesOut++;
+    }
+    wire->endTransmission();
+  } else { // SPI
+    SSD1306_MODE_DATA
+    while (count--)
+      SPIwrite(*ptr++);
+  }
+  TRANSACTION_END
+#if defined(ESP8266)
+  yield();
+#endif
+}
+
+/*!
+    @brief  display with added call to user function pointer
+    @param  dfunc pointer to users display function
+            
+    @return None (void).
+*/
+void Adafruit_SSD1306::display_d(dfunc_t dfunc){
+	  TRANSACTION_START
+  static const uint8_t PROGMEM dlist1[] = {
+      SSD1306_PAGEADDR,
+      0,                      // Page start address
+      0xFF,                   // Page end (not really, but works here)
+      SSD1306_COLUMNADDR, 0}; // Column start address
+  ssd1306_commandList(dlist1, sizeof(dlist1));
+  ssd1306_command1(WIDTH - 1); // Column end address
+
+#if defined(ESP8266)
+  // ESP8266 needs a periodic yield() call to avoid watchdog reset.
+  // With the limited size of SSD1306 displays, and the fast bitrate
+  // being used (1 MHz or more), I think one yield() immediately before
+  // a screen write and one immediately after should cover it.  But if
+  // not, if this becomes a problem, yields() might be added in the
+  // 32-byte transfer condition below.
+  yield();
+#endif
+  uint16_t count = WIDTH * ((HEIGHT + 7) / 8);
+  uint8_t *ptr = buffer;
+  if (wire) { // I2C
+    wire->beginTransmission(i2caddr);
+    WIRE_WRITE((uint8_t)0x40);
+    uint16_t bytesOut = 1;
+    while (count--) {
+      if (bytesOut >= WIRE_MAX) {
+        wire->endTransmission();
+        wire->beginTransmission(i2caddr);
+        WIRE_WRITE((uint8_t)0x40);
+        bytesOut = 1;
+      }
+      WIRE_WRITE(*ptr++);
+      bytesOut++;
+	  //every line give the dfunc a chance to run
+      if(dfunc !=NULL){
+        if(!(count % WIDTH)){
+          wire->endTransmission();
+          TRANSACTION_END
+            dfunc();
+          TRANSACTION_START
+          wire->beginTransmission(i2caddr);
+          WIRE_WRITE((uint8_t)0x40);
+          bytesOut = 1;
+        }
+      }
     }
     wire->endTransmission();
   } else { // SPI
