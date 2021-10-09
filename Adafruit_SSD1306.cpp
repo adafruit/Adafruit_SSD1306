@@ -720,7 +720,7 @@ void Adafruit_SSD1306::drawFastHLine(int16_t x, int16_t y, int16_t w,
 }
 
 /*!
-    @brief  Draw a horizontal line with a width and color. Used by public methonds drawFastHLine,drawFastVLine
+    @brief  Draw a horizontal line with a width and color. Used by public methods drawFastHLine,drawFastVLine
 	@param x 
 		   Leftmost column -- 0 at left to (screen width - 1) at right.
 	@param y
