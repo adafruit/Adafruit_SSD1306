@@ -167,9 +167,9 @@ protected:
   void ssd1306_command1(uint8_t c);
   void ssd1306_commandList(const uint8_t *c, uint8_t n);
 
-  /** protected: initialized during construction when using spi. See SPI.cpp SPI.h*/
+  /** protected: initialized during construction when using SPI. See SPI.cpp SPI.h*/
   SPIClass *spi;
-  /** protected:initialized during construction when using twi. See Wire.cpp Wire.h*/  
+  /** protected:initialized during construction when using I2C. See Wire.cpp Wire.h*/  
   TwoWire *wire;
   /** protected: data used for display buffer. Allocated when begin method is called.*/ 
   uint8_t *buffer;
