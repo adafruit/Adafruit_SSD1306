@@ -195,10 +195,10 @@ protected:
   PortMask mosiPinMask, clkPinMask, dcPinMask, csPinMask;
 #endif
 #if ARDUINO >= 157
-  uint32_t wireClk;    // Wire speed for SSD1306 transfers
-  uint32_t restoreClk; // Wire speed following SSD1306 transfers
+  uint32_t wireClk;    ///< Wire speed for SSD1306 transfers
+  uint32_t restoreClk; ///< Wire speed following SSD1306 transfers
 #endif
-  uint8_t contrast; // normal contrast setting for this device
+  uint8_t contrast; ///< normal contrast setting for this device
 #if defined(SPI_HAS_TRANSACTION)
 protected:
   // Allow sub-class to change
