@@ -171,11 +171,11 @@ protected:
   SPIClass *spi;
   /** protected:initialized during construction when using twi. See Wire.cpp Wire.h*/  
   TwoWire *wire;
-  /** protected: data used for display buffer. allocated when begin method is called*/ 
+  /** protected: data used for display buffer. Allocated when begin method is called.*/ 
   uint8_t *buffer;
-  /** protected: i2c address initialized when begin is called.*/ 
+  /** protected: i2c address initialized when begin method is called.*/ 
   int8_t i2caddr;
-  /** protected: VCC selection, set by begin method*/ 
+  /** protected: VCC selection, set by begin method.*/ 
   int8_t vccstate;
   /** protected: not used*/ 
   int8_t page_end;
