@@ -167,11 +167,29 @@ protected:
   void ssd1306_command1(uint8_t c);
   void ssd1306_commandList(const uint8_t *c, uint8_t n);
 
+  /** protected: initialized during construction when using spi. See SPI.cpp SPI.h*/
   SPIClass *spi;
+  /** protected:initialized during construction when using twi. See Wire.cpp Wire.h*/  
   TwoWire *wire;
+  /** protected: data used for display buffer. allocated when begin method is called*/ 
   uint8_t *buffer;
-  int8_t i2caddr, vccstate, page_end;
-  int8_t mosiPin, clkPin, dcPin, csPin, rstPin;
+  /** protected: i2c address initialized when begin is called.*/ 
+  int8_t i2caddr;
+  /** protected: VCC selection, set by begin method*/ 
+  int8_t vccstate;
+  /** protected: not used*/ 
+  int8_t page_end;
+  /** protected: (Master Out Slave In) set when using SPI set during construction. */ 
+  int8_t mosiPin;
+  /** protected: (Clock Pin) set when using SPI set during construction. */ 
+  int8_t clkPin;
+  /** protected: (Data Pin) set when using SPI set during construction. */ 
+  int8_t dcPin;
+  /** protected: (Chip Select Pin) set when using SPI set during construction. */
+  int8_t csPin;
+  /** protected: /** protected: Display reset pin. set during construction. */
+  int8_t rstPin;
+  
 #ifdef HAVE_PORTREG
   PortReg *mosiPort, *clkPort, *dcPort, *csPort;
   PortMask mosiPinMask, clkPinMask, dcPinMask, csPinMask;
