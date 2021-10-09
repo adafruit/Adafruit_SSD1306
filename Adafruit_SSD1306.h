@@ -187,7 +187,7 @@ protected:
   int8_t dcPin;
   /** protected: (Chip Select Pin) set when using SPI set during construction. */
   int8_t csPin;
-  /** protected: /** protected: Display reset pin. set during construction. */
+  /** protected: Display reset pin assignment. Set during construction. */
   int8_t rstPin;
   
 #ifdef HAVE_PORTREG
