@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['white',['WHITE',['../_adafruit___s_s_d1306_8h.html#a87b537f5fa5c109d3c05c13d6b18f382',1,'Adafruit_SSD1306.h']]],
-  ['wire_5fmax',['WIRE_MAX',['../_adafruit___s_s_d1306_8cpp.html#a9cc15bdad03e0e0b1eb2ca529c8900e9',1,'Adafruit_SSD1306.cpp']]],
-  ['wire_5fwrite',['WIRE_WRITE',['../_adafruit___s_s_d1306_8cpp.html#aa651e488d89d384a0c41ca3ff06e44f0',1,'Adafruit_SSD1306.cpp']]]
+  ['transaction_5fend',['TRANSACTION_END',['../_adafruit___s_s_d1306_8cpp.html#ad6c765c4ed0d6442f51e74c4f476b8a3',1,'Adafruit_SSD1306.cpp']]],
+  ['transaction_5fstart',['TRANSACTION_START',['../_adafruit___s_s_d1306_8cpp.html#a35c77c7a1b4f1a138123e83f03a8033e',1,'Adafruit_SSD1306.cpp']]]
 ];
