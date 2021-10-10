@@ -345,6 +345,16 @@ Adafruit_SSD1306::~Adafruit_SSD1306(void) {
 
 // Issue single byte out SPI, either soft or hardware as appropriate.
 // SPI transaction/selection must be performed in calling function.
+/*!
+    @brief  Write a single byte to the SPI port.
+
+    @param  d
+                        Data byte to be written.
+
+    @return void
+    @note   See HAVE_PORTREG which defines if the method uses a port or bit-bang
+   method
+*/
 inline void Adafruit_SSD1306::SPIwrite(uint8_t d) {
   if (spi) {
     (void)spi->transfer(d);
@@ -366,10 +376,18 @@ inline void Adafruit_SSD1306::SPIwrite(uint8_t d) {
   }
 }
 
-// Issue single command to SSD1306, using I2C or hard/soft SPI as needed.
-// Because command calls are often grouped, SPI transaction and selection
-// must be started/ended in calling function for efficiency.
-// This is a private function, not exposed (see ssd1306_command() instead).
+/*!
+    @brief Issue single command to SSD1306, using I2C or hard/soft SPI as
+   needed. Because command calls are often grouped, SPI transaction and
+   selection must be started/ended in calling function for efficiency. This is a
+   protected function, not exposed (see ssd1306_command() instead).
+
+        @param c
+                   the command character to send to the display.
+                   Refer to ssd1306 data sheet for commands
+    @return None (void).
+    @note
+*/
 void Adafruit_SSD1306::ssd1306_command1(uint8_t c) {
   if (wire) { // I2C
     wire->beginTransmission(i2caddr);
@@ -382,8 +400,18 @@ void Adafruit_SSD1306::ssd1306_command1(uint8_t c) {
   }
 }
 
-// Issue list of commands to SSD1306, same rules as above re: transactions.
-// This is a private function, not exposed.
+/*!
+    @brief Issue list of commands to SSD1306, same rules as above re:
+   transactions. This is a protected function, not exposed.
+        @param c
+                   pointer to list of commands
+
+        @param n
+                   number of commands in the list
+
+    @return None (void).
+    @note
+*/
 void Adafruit_SSD1306::ssd1306_commandList(const uint8_t *c, uint8_t n) {
   if (wire) { // I2C
     wire->beginTransmission(i2caddr);
@@ -695,6 +723,23 @@ void Adafruit_SSD1306::drawFastHLine(int16_t x, int16_t y, int16_t w,
     drawFastHLineInternal(x, y, w, color);
 }
 
+/*!
+    @brief  Draw a horizontal line with a width and color. Used by public
+   methods drawFastHLine,drawFastVLine
+        @param x
+                   Leftmost column -- 0 at left to (screen width - 1) at right.
+        @param y
+                   Row of display -- 0 at top to (screen height -1) at bottom.
+        @param w
+                   Width of line, in pixels.
+        @param color
+               Line color, one of: SSD1306_BLACK, SSD1306_WHITE or
+   SSD1306_INVERT.
+    @return None (void).
+    @note   Changes buffer contents only, no immediate effect on display.
+            Follow up with a call to display(), or with other graphics
+            commands as needed by one's own application.
+*/
 void Adafruit_SSD1306::drawFastHLineInternal(int16_t x, int16_t y, int16_t w,
                                              uint16_t color) {
 
@@ -778,6 +823,22 @@ void Adafruit_SSD1306::drawFastVLine(int16_t x, int16_t y, int16_t h,
     drawFastVLineInternal(x, y, h, color);
 }
 
+/*!
+    @brief  Draw a vertical line with a width and color. Used by public method
+   drawFastHLine,drawFastVLine
+        @param x
+                   Leftmost column -- 0 at left to (screen width - 1) at right.
+        @param __y
+                   Row of display -- 0 at top to (screen height -1) at bottom.
+        @param __h height of the line in pixels
+        @param color
+                   Line color, one of: SSD1306_BLACK, SSD1306_WHITE or
+   SSD1306_INVERT.
+    @return None (void).
+    @note   Changes buffer contents only, no immediate effect on display.
+            Follow up with a call to display(), or with other graphics
+            commands as needed by one's own application.
+*/
 void Adafruit_SSD1306::drawFastVLineInternal(int16_t x, int16_t __y,
                                              int16_t __h, uint16_t color) {
 

@@ -160,27 +160,39 @@ public:
   bool getPixel(int16_t x, int16_t y);
   uint8_t *getBuffer(void);
 
-private:
+protected:
   inline void SPIwrite(uint8_t d) __attribute__((always_inline));
   void drawFastHLineInternal(int16_t x, int16_t y, int16_t w, uint16_t color);
   void drawFastVLineInternal(int16_t x, int16_t y, int16_t h, uint16_t color);
   void ssd1306_command1(uint8_t c);
   void ssd1306_commandList(const uint8_t *c, uint8_t n);
 
-  SPIClass *spi;
-  TwoWire *wire;
-  uint8_t *buffer;
-  int8_t i2caddr, vccstate, page_end;
-  int8_t mosiPin, clkPin, dcPin, csPin, rstPin;
+  SPIClass *spi;   ///< Initialized during construction when using SPI. See
+                   ///< SPI.cpp, SPI.h
+  TwoWire *wire;   ///< Initialized during construction when using I2C. See
+                   ///< Wire.cpp, Wire.h
+  uint8_t *buffer; ///< Buffer data used for display buffer. Allocated when
+                   ///< begin method is called.
+  int8_t i2caddr;  ///< I2C address initialized when begin method is called.
+  int8_t vccstate; ///< VCC selection, set by begin method.
+  int8_t page_end; ///< not used
+  int8_t mosiPin;  ///< (Master Out Slave In) set when using SPI set during
+                   ///< construction.
+  int8_t clkPin;   ///< (Clock Pin) set when using SPI set during construction.
+  int8_t dcPin;    ///< (Data Pin) set when using SPI set during construction.
+  int8_t
+      csPin; ///< (Chip Select Pin) set when using SPI set during construction.
+  int8_t rstPin; ///< Display reset pin assignment. Set during construction.
+
 #ifdef HAVE_PORTREG
   PortReg *mosiPort, *clkPort, *dcPort, *csPort;
   PortMask mosiPinMask, clkPinMask, dcPinMask, csPinMask;
 #endif
 #if ARDUINO >= 157
-  uint32_t wireClk;    // Wire speed for SSD1306 transfers
-  uint32_t restoreClk; // Wire speed following SSD1306 transfers
+  uint32_t wireClk;    ///< Wire speed for SSD1306 transfers
+  uint32_t restoreClk; ///< Wire speed following SSD1306 transfers
 #endif
-  uint8_t contrast; // normal contrast setting for this device
+  uint8_t contrast; ///< normal contrast setting for this device
 #if defined(SPI_HAS_TRANSACTION)
 protected:
   // Allow sub-class to change
