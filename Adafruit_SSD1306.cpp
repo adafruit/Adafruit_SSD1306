@@ -352,7 +352,8 @@ Adafruit_SSD1306::~Adafruit_SSD1306(void) {
                         Data byte to be written.
 
     @return void
-    @note
+    @note   See HAVE_PORTREG which defines if the method uses a port or bit-bang
+   method
 */
 inline void Adafruit_SSD1306::SPIwrite(uint8_t d) {
   if (spi) {

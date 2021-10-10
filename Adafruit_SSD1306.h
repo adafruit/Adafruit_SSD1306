@@ -167,33 +167,22 @@ protected:
   void ssd1306_command1(uint8_t c);
   void ssd1306_commandList(const uint8_t *c, uint8_t n);
 
-  /** protected: initialized during construction when using SPI. See SPI.cpp
-   * SPI.h*/
-  SPIClass *spi;
-  /** protected:initialized during construction when using I2C. See Wire.cpp
-   * Wire.h*/
-  TwoWire *wire;
-  /** protected: data used for display buffer. Allocated when begin method is
-   * called.*/
-  uint8_t *buffer;
-  /** protected: i2c address initialized when begin method is called.*/
-  int8_t i2caddr;
-  /** protected: VCC selection, set by begin method.*/
-  int8_t vccstate;
-  /** protected: not used*/
-  int8_t page_end;
-  /** protected: (Master Out Slave In) set when using SPI set during
-   * construction. */
-  int8_t mosiPin;
-  /** protected: (Clock Pin) set when using SPI set during construction. */
-  int8_t clkPin;
-  /** protected: (Data Pin) set when using SPI set during construction. */
-  int8_t dcPin;
-  /** protected: (Chip Select Pin) set when using SPI set during construction.
-   */
-  int8_t csPin;
-  /** protected: Display reset pin assignment. Set during construction. */
-  int8_t rstPin;
+  SPIClass *spi;   ///< Initialized during construction when using SPI. See
+                   ///< SPI.cpp, SPI.h
+  TwoWire *wire;   ///< Initialized during construction when using I2C. See
+                   ///< Wire.cpp, Wire.h
+  uint8_t *buffer; ///< Buffer data used for display buffer. Allocated when
+                   ///< begin method is called.
+  int8_t i2caddr;  ///< I2C address initialized when begin method is called.
+  int8_t vccstate; ///< VCC selection, set by begin method.
+  int8_t page_end; ///< not used
+  int8_t mosiPin;  ///< (Master Out Slave In) set when using SPI set during
+                   ///< construction.
+  int8_t clkPin;   ///< (Clock Pin) set when using SPI set during construction.
+  int8_t dcPin;    ///< (Data Pin) set when using SPI set during construction.
+  int8_t
+      csPin; ///< (Chip Select Pin) set when using SPI set during construction.
+  int8_t rstPin; ///< Display reset pin assignment. Set during construction.
 
 #ifdef HAVE_PORTREG
   PortReg *mosiPort, *clkPort, *dcPort, *csPort;
