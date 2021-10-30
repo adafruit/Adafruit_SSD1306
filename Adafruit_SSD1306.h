@@ -24,10 +24,12 @@
 #ifndef _Adafruit_SSD1306_H_
 #define _Adafruit_SSD1306_H_
 
-// ONE of the following three lines must be #defined:
+// ONE of the following lines must be #defined:
 //#define SSD1306_128_64 ///< DEPRECTAED: old way to specify 128x64 screen
 #define SSD1306_128_32 ///< DEPRECATED: old way to specify 128x32 screen
 //#define SSD1306_96_16  ///< DEPRECATED: old way to specify 96x16 screen
+//#define SSD1306_64_48  ///< DEPRECATED: old way to specify 64x48 screen
+//#define SSD1306_64_32  ///< DEPRECATED: old way to specify 64x32 screen
 // This establishes the screen dimensions in old Adafruit_SSD1306 sketches
 // (NEW CODE SHOULD IGNORE THIS, USE THE CONSTRUCTORS THAT ACCEPT WIDTH
 // AND HEIGHT ARGUMENTS).
@@ -105,6 +107,8 @@ typedef uint32_t PortMask;
 #define SSD1306_ACTIVATE_SCROLL 0x2F                      ///< Start scroll
 #define SSD1306_SET_VERTICAL_SCROLL_AREA 0xA3             ///< Set scroll range
 
+#define SSD1306_SEGMENTS 128 ///< See datasheet
+
 // Deprecated size stuff for backwards compatibility with old sketches
 #if defined SSD1306_128_64
 #define SSD1306_LCDWIDTH 128 ///< DEPRECATED: width w/SSD1306_128_64 defined
@@ -117,6 +121,14 @@ typedef uint32_t PortMask;
 #if defined SSD1306_96_16
 #define SSD1306_LCDWIDTH 96  ///< DEPRECATED: width w/SSD1306_96_16 defined
 #define SSD1306_LCDHEIGHT 16 ///< DEPRECATED: height w/SSD1306_96_16 defined
+#endif
+#if defined SSD1306_64_48
+#define SSD1306_LCDWIDTH 64  ///< DEPRECATED: width w/SSD1306_64_48 defined
+#define SSD1306_LCDHEIGHT 48 ///< DEPRECATED: height w/SSD1306_64_48 defined
+#endif
+#if defined SSD1306_64_32
+#define SSD1306_LCDWIDTH 64  ///< DEPRECATED: width w/SSD1306_64_32 defined
+#define SSD1306_LCDHEIGHT 32 ///< DEPRECATED: height w/SSD1306_64_32 defined
 #endif
 
 /*!
