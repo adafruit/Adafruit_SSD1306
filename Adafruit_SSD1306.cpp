@@ -627,7 +627,8 @@ bool Adafruit_SSD1306::begin(uint8_t vcs, uint8_t addr, bool reset,
     @param  y
             Row of display -- 0 at top to (screen height -1) at bottom.
     @param  color
-            Pixel color, one of: SSD1306_BLACK, SSD1306_WHITE or SSD1306_INVERSE.
+            Pixel color, one of: SSD1306_BLACK, SSD1306_WHITE or
+            SSD1306_INVERSE.
     @return None (void).
     @note   Changes buffer contents only, no immediate effect on display.
             Follow up with a call to display(), or with other graphics
