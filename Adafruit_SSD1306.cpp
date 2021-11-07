@@ -496,7 +496,7 @@ bool Adafruit_SSD1306::begin(uint8_t vcs, uint8_t addr, bool reset,
 
   clearDisplay();
 
-#ifndef SSD1306_NO_SPLASH  
+#ifndef SSD1306_NO_SPLASH
   if (HEIGHT > 32) {
     drawBitmap((WIDTH - splash1_width) / 2, (HEIGHT - splash1_height) / 2,
                splash1_data, splash1_width, splash1_height, 1);
