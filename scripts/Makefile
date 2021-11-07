@@ -11,9 +11,11 @@ define HEADER
  */
 
 #ifndef SSD1306_NO_SPLASH
+/* clang-format off */
 endef
 
 define FOOTER
+/* clang-format on */
 #endif
 endef
 
