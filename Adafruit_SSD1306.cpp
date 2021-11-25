@@ -451,6 +451,19 @@ void Adafruit_SSD1306::ssd1306_command(uint8_t c) {
   TRANSACTION_END
 }
 
+// Send one data byte directly to the display, bypassing the library.
+// This allows for quick localized updates to the screen.
+/*
+	@brief  Write a single byte directly onto the SSD1306
+            display, bypassing the library.
+	@return None (void).
+*/
+void Adafruit_SSD1306::ssd1306_sendData(uint8_t d) {
+    wire->beginTransmission(i2caddr);	// begin I2C transmission   
+    WIRE_WRITE(0x40);					// data mode
+    WIRE_WRITE(d);						// send data
+    wire->endTransmission();			// stop I2C transmission
+}
 // ALLOCATE & INIT DISPLAY -------------------------------------------------
 
 /*!
