@@ -32,6 +32,9 @@
 // (NEW CODE SHOULD IGNORE THIS, USE THE CONSTRUCTORS THAT ACCEPT WIDTH
 // AND HEIGHT ARGUMENTS).
 
+// Uncomment to disable Adafruit splash logo
+//#define SSD1306_NO_SPLASH
+
 #if defined(ARDUINO_STM32_FEATHER)
 typedef class HardwareSPI SPIClass;
 #endif
