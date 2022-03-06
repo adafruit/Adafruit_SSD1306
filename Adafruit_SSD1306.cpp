@@ -1050,14 +1050,15 @@ void Adafruit_SSD1306::display(void) {
             called. Call after each graphics command, or after a whole set
             of graphics commands, as best needed by one's own application.
 */
-void Adafruit_SSD1306::displayRegional(int16_t x, int16_t y, int16_t w, int16_t h) {
-  if ((x < 0) || (x >= width()) || (y < 0) || (y >= height())){
+void Adafruit_SSD1306::displayRegional(int16_t x, int16_t y, int16_t w,
+                                       int16_t h) {
+  if ((x < 0) || (x >= width()) || (y < 0) || (y >= height())) {
     return;
   }
-  if ((w <= 0) || (h <= 0 )){
+  if ((w <= 0) || (h <= 0)) {
     return;
   }
-  if (((x + w) > width()) || ((y + h) > height())){
+  if (((x + w) > width()) || ((y + h) > height())) {
     return;
   }
   uint8_t startPage = y / 8;
@@ -1065,13 +1066,12 @@ void Adafruit_SSD1306::displayRegional(int16_t x, int16_t y, int16_t w, int16_t 
   uint8_t startColumn = x;
   uint8_t endColumn = x + w - 1;
   TRANSACTION_START
-  
-  uint8_t dlist[] = {
-      SSD1306_PAGEADDR, startPage, endPage,                  
-      SSD1306_COLUMNADDR, startColumn, endColumn};
-  
+
+  uint8_t dlist[] = {SSD1306_PAGEADDR,   startPage,   endPage,
+                     SSD1306_COLUMNADDR, startColumn, endColumn};
+
   {
-    //ssd1306_commandList need to write from progmem, using own version
+    // ssd1306_commandList need to write from progmem, using own version
     uint8_t *c = dlist;
     uint8_t n = sizeof(dlist);
     if (wire) { // I2C
@@ -1095,7 +1095,7 @@ void Adafruit_SSD1306::displayRegional(int16_t x, int16_t y, int16_t w, int16_t 
         SPIwrite((*c++));
     }
   }
-  
+
 #if defined(ESP8266)
   // ESP8266 needs a periodic yield() call to avoid watchdog reset.
   // With the limited size of SSD1306 displays, and the fast bitrate
@@ -1105,7 +1105,7 @@ void Adafruit_SSD1306::displayRegional(int16_t x, int16_t y, int16_t w, int16_t 
   // 32-byte transfer condition below.
   yield();
 #endif
-  uint16_t count = w * (endPage-startPage+1);
+  uint16_t count = w * (endPage - startPage + 1);
   uint16_t columnCount = 0;
   uint8_t *ptr = buffer + x + startPage * width();
   if (wire) { // I2C
@@ -1121,21 +1121,21 @@ void Adafruit_SSD1306::displayRegional(int16_t x, int16_t y, int16_t w, int16_t 
       }
       WIRE_WRITE(*ptr++);
       columnCount++;
-      if (columnCount >= w){
+      if (columnCount >= (uint16_t)w) {
         columnCount = 0;
-        ptr += (width()-w);
+        ptr += (width() - w);
       }
       bytesOut++;
     }
     wire->endTransmission();
   } else { // SPI
     SSD1306_MODE_DATA
-    while (count--){
+    while (count--) {
       SPIwrite(*ptr++);
       columnCount++;
-      if (columnCount >= w){
+      if (columnCount >= (uint16_t)w) {
         columnCount = 0;
-        ptr += (width()-w);
+        ptr += (width() - w);
       }
     }
   }
