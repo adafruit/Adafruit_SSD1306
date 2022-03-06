@@ -1035,6 +1035,110 @@ void Adafruit_SSD1306::display(void) {
 #endif
 }
 
+/*!
+    @brief  Push regional data currently in RAM to SSD1306 display.
+    @param  x
+            Column of display -- 0 at left to (screen width - 1) at right.
+    @param  y
+            Row of display -- 0 at top to (screen height -1) at bottom.
+    @param  w
+            Region width in pixels
+    @param  h
+            Region height in pixels
+    @return None (void).
+    @note   Drawing operations are not visible until this function is
+            called. Call after each graphics command, or after a whole set
+            of graphics commands, as best needed by one's own application.
+*/
+void Adafruit_SSD1306::displayRegional(int16_t x, int16_t y, int16_t w, int16_t h) {
+  if ((x < 0) || (x >= width()) || (y < 0) || (y >= height())){
+    return;
+  }
+  if ((w <= 0) || (h <= 0 )){
+    return;
+  }
+  if (((x + w) > width()) || ((y + h) > height())){
+    return;
+  }
+  uint8_t startPage = y / 8;
+  uint8_t endPage = (y + h - 1) / 8;
+  uint8_t startColumn = x;
+  uint8_t endColumn = x + w - 1;
+  TRANSACTION_START
+  
+  uint8_t dlist[] = {
+      SSD1306_PAGEADDR, startPage, endPage,                  
+      SSD1306_COLUMNADDR, startColumn, endColumn};
+  
+  {
+    //ssd1306_commandList need to write from progmem, using own version
+    uint8_t *c = dlist;
+    uint8_t n = sizeof(dlist);
+    if (wire) { // I2C
+      wire->beginTransmission(i2caddr);
+      WIRE_WRITE((uint8_t)0x00); // Co = 0, D/C = 0
+      uint16_t bytesOut = 1;
+      while (n--) {
+        if (bytesOut >= WIRE_MAX) {
+          wire->endTransmission();
+          wire->beginTransmission(i2caddr);
+          WIRE_WRITE((uint8_t)0x00); // Co = 0, D/C = 0
+          bytesOut = 1;
+        }
+        WIRE_WRITE((*c++));
+        bytesOut++;
+      }
+      wire->endTransmission();
+    } else { // SPI -- transaction started in calling function
+      SSD1306_MODE_COMMAND
+      while (n--)
+        SPIwrite((*c++));
+    }
+  }
+  
+#if defined(ESP8266)
+  // ESP8266 needs a periodic yield() call to avoid watchdog reset.
+  // With the limited size of SSD1306 displays, and the fast bitrate
+  // being used (1 MHz or more), I think one yield() immediately before
+  // a screen write and one immediately after should cover it.  But if
+  // not, if this becomes a problem, yields() might be added in the
+  // 32-byte transfer condition below.
+  yield();
+#endif
+  uint16_t count = w * (endPage-startPage+1);
+  uint16_t columnCount = 0;
+  uint8_t *ptr = buffer + x + startPage * width();
+  if (wire) { // I2C
+    wire->beginTransmission(i2caddr);
+    WIRE_WRITE((uint8_t)0x40);
+    uint16_t bytesOut = 1;
+    while (count--) {
+      if (bytesOut >= WIRE_MAX) {
+        wire->endTransmission();
+        wire->beginTransmission(i2caddr);
+        WIRE_WRITE((uint8_t)0x40);
+        bytesOut = 1;
+      }
+      WIRE_WRITE(*ptr++);
+      columnCount++;
+      if (columnCount >= w){
+        columnCount = 0;
+        ptr += (width()-w);
+      }
+      bytesOut++;
+    }
+    wire->endTransmission();
+  } else { // SPI
+    SSD1306_MODE_DATA
+    while (count--)
+      SPIwrite(*ptr++);
+  }
+  TRANSACTION_END
+#if defined(ESP8266)
+  yield();
+#endif
+}
+
 // SCROLLING FUNCTIONS -----------------------------------------------------
 
 /*!
