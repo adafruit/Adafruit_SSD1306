@@ -1130,8 +1130,14 @@ void Adafruit_SSD1306::displayRegional(int16_t x, int16_t y, int16_t w, int16_t 
     wire->endTransmission();
   } else { // SPI
     SSD1306_MODE_DATA
-    while (count--)
+    while (count--){
       SPIwrite(*ptr++);
+      columnCount++;
+      if (columnCount >= w){
+        columnCount = 0;
+        ptr += (width()-w);
+      }
+    }
   }
   TRANSACTION_END
 #if defined(ESP8266)
