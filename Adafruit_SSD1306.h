@@ -170,21 +170,22 @@ protected:
   void ssd1306_command1(uint8_t c);
   void ssd1306_commandList(const uint8_t *c, uint8_t n);
 
-  SPIClass *spi;   ///< Initialized during construction when using SPI. See
-                   ///< SPI.cpp, SPI.h
-  TwoWire *wire;   ///< Initialized during construction when using I2C. See
-                   ///< Wire.cpp, Wire.h
-  uint8_t *buffer; ///< Buffer data used for display buffer. Allocated when
-                   ///< begin method is called.
-  int8_t i2caddr;  ///< I2C address initialized when begin method is called.
-  int8_t vccstate; ///< VCC selection, set by begin method.
+  SPIClass *spi;      ///< Initialized during construction when using SPI. See
+                      ///< SPI.cpp, SPI.h
+  TwoWire *wire;      ///< Initialized during construction when using I2C. See
+                      ///< Wire.cpp, Wire.h
+  uint8_t *buffer;    ///< Buffer data used for display buffer. Allocated when
+                      ///< begin method is called.
+  int8_t i2caddr;     ///< I2C address initialized when begin method is called.
+  int8_t vccstate;    ///< VCC selection, set by begin method.
   uint8_t page_start; ///< display page start
   uint8_t page_end;   ///< display page end
-  int8_t mosiPin;  ///< (Master Out Slave In) set when using SPI set during
-                   ///< construction.
-  int8_t clkPin;   ///< (Clock Pin) set when using SPI set during construction.
-  int8_t dcPin;    ///< (Data Pin) set when using SPI set during construction.
-  int8_t csPin;    ///< (Chip Select Pin) set when using SPI set during construction.
+  int8_t mosiPin;     ///< (Master Out Slave In) set when using SPI set during
+                      ///< construction.
+  int8_t clkPin;      ///< (Clock Pin) set when using SPI set during construction.
+  int8_t dcPin;       ///< (Data Pin) set when using SPI set during construction.
+  int8_t csPin;
+      ///< (Chip Select Pin) set when using SPI set during construction.
   int8_t rstPin; ///< Display reset pin assignment. Set during construction.
 
 #ifdef HAVE_PORTREG
