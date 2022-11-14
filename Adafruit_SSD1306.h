@@ -33,7 +33,7 @@
 // AND HEIGHT ARGUMENTS).
 
 // Uncomment to disable Adafruit splash logo
-//#define SSD1306_NO_SPLASH
+#define SSD1306_NO_SPLASH
 
 #if defined(ARDUINO_STM32_FEATHER)
 typedef class HardwareSPI SPIClass;
@@ -178,13 +178,13 @@ protected:
                    ///< begin method is called.
   int8_t i2caddr;  ///< I2C address initialized when begin method is called.
   int8_t vccstate; ///< VCC selection, set by begin method.
-  int8_t page_end; ///< not used
+  uint8_t page_start; ///< display page start
+  uint8_t page_end;   ///< display page end
   int8_t mosiPin;  ///< (Master Out Slave In) set when using SPI set during
                    ///< construction.
   int8_t clkPin;   ///< (Clock Pin) set when using SPI set during construction.
   int8_t dcPin;    ///< (Data Pin) set when using SPI set during construction.
-  int8_t
-      csPin; ///< (Chip Select Pin) set when using SPI set during construction.
+  int8_t csPin;    ///< (Chip Select Pin) set when using SPI set during construction.
   int8_t rstPin; ///< Display reset pin assignment. Set during construction.
 
 #ifdef HAVE_PORTREG

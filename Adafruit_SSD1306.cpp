@@ -578,20 +578,27 @@ bool Adafruit_SSD1306::begin(uint8_t vcs, uint8_t addr, bool reset,
   ssd1306_command1((vccstate == SSD1306_EXTERNALVCC) ? 0x10 : 0x14);
 
   static const uint8_t PROGMEM init3[] = {SSD1306_MEMORYMODE, // 0x20
-                                          0x00, // 0x0 act like ks0108
+                                          0x00, // 0x0 act like ks0108, Horizontal addressing mode
                                           SSD1306_SEGREMAP | 0x1,
                                           SSD1306_COMSCANDEC};
   ssd1306_commandList(init3, sizeof(init3));
 
+  // display parameter default values
   uint8_t comPins = 0x02;
   contrast = 0x8F;
+  page_start = 0;
+  page_end = WIDTH-1;
 
   if ((WIDTH == 128) && (HEIGHT == 32)) {
-    comPins = 0x02;
-    contrast = 0x8F;
+    // default
   } else if ((WIDTH == 128) && (HEIGHT == 64)) {
     comPins = 0x12;
     contrast = (vccstate == SSD1306_EXTERNALVCC) ? 0x9F : 0xCF;
+  } else if ((WIDTH == 72) && (HEIGHT == 40)) {
+    comPins = 0x12;
+    contrast = (vccstate == SSD1306_EXTERNALVCC) ? 0x82 : 0xA0;
+    page_start = 28;
+    page_end = 28 + WIDTH - 1;
   } else if ((WIDTH == 96) && (HEIGHT == 16)) {
     comPins = 0x2; // ada x12
     contrast = (vccstate == SSD1306_EXTERNALVCC) ? 0x10 : 0xAF;
@@ -995,9 +1002,10 @@ void Adafruit_SSD1306::display(void) {
       SSD1306_PAGEADDR,
       0,                      // Page start address
       0xFF,                   // Page end (not really, but works here)
-      SSD1306_COLUMNADDR, 0}; // Column start address
+      SSD1306_COLUMNADDR,
+      page_start, // Column start address
+      page_end};  // Column end address
   ssd1306_commandList(dlist1, sizeof(dlist1));
-  ssd1306_command1(WIDTH - 1); // Column end address
 
 #if defined(ESP8266)
   // ESP8266 needs a periodic yield() call to avoid watchdog reset.
