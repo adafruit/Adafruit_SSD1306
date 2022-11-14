@@ -33,7 +33,7 @@
 // AND HEIGHT ARGUMENTS).
 
 // Uncomment to disable Adafruit splash logo
-#define SSD1306_NO_SPLASH
+// #define SSD1306_NO_SPLASH
 
 #if defined(ARDUINO_STM32_FEATHER)
 typedef class HardwareSPI SPIClass;
