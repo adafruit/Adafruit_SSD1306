@@ -1002,10 +1002,10 @@ void Adafruit_SSD1306::display(void) {
       SSD1306_PAGEADDR,
       0,                      // Page start address
       0xFF,                   // Page end (not really, but works here)
-      SSD1306_COLUMNADDR,
-      page_start, // Column start address
-      page_end};  // Column end address
+      SSD1306_COLUMNADDR};  
   ssd1306_commandList(dlist1, sizeof(dlist1));
+  ssd1306_command1(page_start); // Column start address
+  ssd1306_command1(page_end);   // Column end address
 
 #if defined(ESP8266)
   // ESP8266 needs a periodic yield() call to avoid watchdog reset.
