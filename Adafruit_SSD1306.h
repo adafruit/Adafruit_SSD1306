@@ -182,8 +182,8 @@ protected:
   uint8_t page_end;   ///< display page end
   int8_t mosiPin;     ///< (Master Out Slave In) set when using SPI set during
                       ///< construction.
-  int8_t clkPin;      ///< (Clock Pin) set when using SPI set during construction.
-  int8_t dcPin;       ///< (Data Pin) set when using SPI set during construction.
+  int8_t clkPin; ///< (Clock Pin) set when using SPI set during construction.
+  int8_t dcPin;  ///< (Data Pin) set when using SPI set during construction.
   int8_t
       csPin; ///< (Chip Select Pin) set when using SPI set during construction.
   int8_t rstPin; ///< Display reset pin assignment. Set during construction.
