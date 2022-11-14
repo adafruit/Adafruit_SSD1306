@@ -581,7 +581,7 @@ bool Adafruit_SSD1306::begin(uint8_t vcs, uint8_t addr, bool reset,
       SSD1306_MEMORYMODE, // 0x20
       0x00,               // 0x0 act like ks0108, Horizontal addressing mode
       SSD1306_SEGREMAP | 0x1, SSD1306_COMSCANDEC};
-   ssd1306_commandList(init3, sizeof(init3));
+  ssd1306_commandList(init3, sizeof(init3));
 
   // display parameter default values
   uint8_t comPins = 0x02;
@@ -1002,7 +1002,7 @@ void Adafruit_SSD1306::display(void) {
       SSD1306_PAGEADDR,
       0,    // Page start address
       0xFF, // Page end (not really, but works here)
-      SSD1306_COLUMNADDR};  
+      SSD1306_COLUMNADDR};
   ssd1306_commandList(dlist1, sizeof(dlist1));
   ssd1306_command1(page_start); // Column start address
   ssd1306_command1(page_end);   // Column end address

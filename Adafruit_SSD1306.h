@@ -184,8 +184,8 @@ protected:
                       ///< construction.
   int8_t clkPin;      ///< (Clock Pin) set when using SPI set during construction.
   int8_t dcPin;       ///< (Data Pin) set when using SPI set during construction.
-  int8_t csPin;
-      ///< (Chip Select Pin) set when using SPI set during construction.
+  int8_t
+      csPin; ///< (Chip Select Pin) set when using SPI set during construction.
   int8_t rstPin; ///< Display reset pin assignment. Set during construction.
 
 #ifdef HAVE_PORTREG
