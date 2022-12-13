@@ -31,9 +31,13 @@
 // On an arduino UNO:       A4(SDA), A5(SCL)
 // On an arduino MEGA 2560: 20(SDA), 21(SCL)
 // On an arduino LEONARDO:   2(SDA),  3(SCL), ...
+// modify this for spc. board in setup() func.
+
 #define OLED_RESET     -1 // Reset pin # (or -1 if sharing Arduino reset pin)
 #define SCREEN_ADDRESS 0x3C ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+//Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+TwoWire myWire;
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &myWire, OLED_RESET);
 
 #define NUMFLAKES     10 // Number of snowflakes in the animation example
 
@@ -59,6 +63,7 @@ static const unsigned char PROGMEM logo_bmp[] =
 
 void setup() {
   Serial.begin(9600);
+  myWire.begin(SDA, SCL);  //modify this for other board with diff PIN_SDA, PIN_SCL
 
   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
   if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
