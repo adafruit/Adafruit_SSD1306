@@ -36,7 +36,7 @@
  *
  */
 
-#ifdef __AVR__
+#if defined(__AVR__) || defined(ARDUINO_ARCH_RTTHREAD)
 #include <avr/pgmspace.h>
 #elif defined(ESP8266) || defined(ESP32) || defined(ARDUINO_ARCH_RP2040)
 #include <pgmspace.h>
