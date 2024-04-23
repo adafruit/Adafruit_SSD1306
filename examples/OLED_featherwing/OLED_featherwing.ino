@@ -10,6 +10,11 @@
   #define BUTTON_B 16
   #define BUTTON_C  2
   #define WIRE Wire
+#elif defined(ARDUINO_ADAFRUIT_FEATHER_ESP32C6)
+  #define BUTTON_A  7
+  #define BUTTON_B  6
+  #define BUTTON_C  5
+  #define WIRE Wire
 #elif defined(ESP32)
   #define BUTTON_A 15
   #define BUTTON_B 32
