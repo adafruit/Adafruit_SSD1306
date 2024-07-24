@@ -39,7 +39,7 @@
   #define BUTTON_A  9
   #define BUTTON_B  8
   #define BUTTON_C  7
-  #define WIRE Wire1
+  #define WIRE Wire
 #else // 32u4, M0, M4, nrf52840 and 328p
   #define BUTTON_A  9
   #define BUTTON_B  6
