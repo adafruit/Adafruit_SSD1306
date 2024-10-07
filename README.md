@@ -51,6 +51,7 @@ Intel Curie |      X     |            |          |
 WICED       |      X     |            |          | No hardware SPI - bitbang only
 ATtiny85    |            |      X     |          |
 Particle    |      X     |            |          |
+RTduino     |      X     |            |          |
 
   * ATmega328 : Arduino UNO, Adafruit Pro Trinket, Adafruit Metro 328, Adafruit Metro Mini
   * ATmega32u4 : Arduino Leonardo, Arduino Micro, Arduino Yun, Teensy 2.0, Adafruit Flora, Bluefruit Micro
@@ -60,5 +61,6 @@ Particle    |      X     |            |          |
   * ATSAMD21 : Arduino Zero, M0 Pro, Adafruit Metro Express, Feather M0
   * ATtiny85 : Adafruit Gemma, Arduino Gemma, Adafruit Trinket
   * Particle: Particle Argon
+  * RTduino : [RTduino](https://github.com/RTduino/RTduino) is the Arduino ecosystem compatibility layer for [RT-Thread RTOS](https://github.com/RT-Thread/rt-thread) BSPs
 
 <!-- END COMPATIBILITY TABLE -->
