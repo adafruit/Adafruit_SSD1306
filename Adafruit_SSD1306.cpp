@@ -38,7 +38,10 @@
 
 #if defined(__AVR__) || defined(ARDUINO_ARCH_RTTHREAD)
 #include <avr/pgmspace.h>
-#elif defined(ESP8266) || defined(ESP32) || defined(ARDUINO_ARCH_RP2040)
+#elif defined(ARDUINO_ARDUINO_NANO33BLE) ||                                    \
+    defined(ARDUINO_ARCH_MBED_RP2040) || defined(ARDUINO_ARCH_RP2040)
+#include <api/deprecated-avr-comp/avr/pgmspace.h>
+#elif defined(ESP8266) || defined(ESP32)
 #include <pgmspace.h>
 #else
 #define pgm_read_byte(addr)                                                    \
