@@ -49,7 +49,8 @@
 #endif
 
 #if !defined(__ARM_ARCH) && !defined(ENERGIA) && !defined(ESP8266) &&          \
-    !defined(ESP32) && !defined(__arc__) && !defined(__RL78__)
+    !defined(ESP32) && !defined(__arc__) && !defined(__RL78__) &&              \
+    !defined(CH32V20x)
 #include <util/delay.h>
 #endif
 
