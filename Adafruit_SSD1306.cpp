@@ -941,7 +941,7 @@ void Adafruit_SSD1306::drawFastVLineInternal(int16_t x, int16_t __y,
         }
       }
     } // endif positive height
-  }   // endif x in bounds
+  } // endif x in bounds
 }
 
 /*!
