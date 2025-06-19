@@ -50,7 +50,7 @@
 
 #if !defined(__ARM_ARCH) && !defined(ENERGIA) && !defined(ESP8266) &&          \
     !defined(ESP32) && !defined(__arc__) && !defined(__RL78__) &&              \
-    !defined(CH32V20x)
+    !defined(CH32V20x) && !defined(PICO_RISCV)
 #include <util/delay.h>
 #endif
 
