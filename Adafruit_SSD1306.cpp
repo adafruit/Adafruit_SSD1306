@@ -999,17 +999,17 @@ void Adafruit_SSD1306::display(void) {
   TRANSACTION_START
   static const uint8_t PROGMEM dlist1[] = {
       SSD1306_PAGEADDR,
-      0,                      // Page start address
-      0xFF,                   // Page end (not really, but works here)
+      0,                   // Page start address
+      0xFF,                // Page end (not really, but works here)
       SSD1306_COLUMNADDR}; // Column start address
   ssd1306_commandList(dlist1, sizeof(dlist1));
 
-  if (WIDTH == 64){
-    ssd1306_command1(0x20); // Column start
+  if (WIDTH == 64) {
+    ssd1306_command1(0x20);             // Column start
     ssd1306_command1(0x20 + WIDTH - 1); // Column end address
   } else {
-    ssd1306_command1(0); // Column start
-    ssd1306_command1((WIDTH-1)); // Column end address
+    ssd1306_command1(0);           // Column start
+    ssd1306_command1((WIDTH - 1)); // Column end address
   }
 
 #if defined(ESP8266)
