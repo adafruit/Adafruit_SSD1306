@@ -52,7 +52,9 @@ WICED       |      X     |            |          | No hardware SPI - bitbang onl
 ATtiny85    |            |      X     |          |
 Particle    |      X     |            |          |
 RTduino     |      X     |            |          |
-CH32 RISC-V |      X     |            |          | 
+CH32 RISC-V |      X     |            |          |
+RP2040      |      X     |            |          |
+RP2350      |      X     |            |          | ARM or RISC-V architecture 
 
   * ATmega328 : Arduino UNO, Adafruit Pro Trinket, Adafruit Metro 328, Adafruit Metro Mini
   * ATmega32u4 : Arduino Leonardo, Arduino Micro, Arduino Yun, Teensy 2.0, Adafruit Flora, Bluefruit Micro
@@ -64,5 +66,6 @@ CH32 RISC-V |      X     |            |          |
   * Particle: Particle Argon
   * RTduino : [RTduino](https://github.com/RTduino/RTduino) is the Arduino ecosystem compatibility layer for [RT-Thread RTOS](https://github.com/RT-Thread/rt-thread) BSPs
   * CH32 RISC-V: CH32V203
+  * RP2040, RP2350: Tested on Raspberry Pi Pico W/2W with [Arduino-Pico](https://github.com/earlephilhower/arduino-pico) core.
 
 <!-- END COMPATIBILITY TABLE -->
