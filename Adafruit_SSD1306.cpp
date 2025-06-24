@@ -599,6 +599,9 @@ bool Adafruit_SSD1306::begin(uint8_t vcs, uint8_t addr, bool reset,
   } else if ((WIDTH == 96) && (HEIGHT == 16)) {
     comPins = 0x2; // ada x12
     contrast = (vccstate == SSD1306_EXTERNALVCC) ? 0x10 : 0xAF;
+  } else if ((WIDTH == 64) && (HEIGHT == 32)) {
+    comPins = 0x12; // ada x12
+    contrast = (vccstate == SSD1306_EXTERNALVCC) ? 0x10 : 0xCF;
   } else {
     // Other screen varieties -- TBD
   }
@@ -997,11 +1000,18 @@ void Adafruit_SSD1306::display(void) {
   TRANSACTION_START
   static const uint8_t PROGMEM dlist1[] = {
       SSD1306_PAGEADDR,
-      0,                      // Page start address
-      0xFF,                   // Page end (not really, but works here)
-      SSD1306_COLUMNADDR, 0}; // Column start address
+      0,                   // Page start address
+      0xFF,                // Page end (not really, but works here)
+      SSD1306_COLUMNADDR}; // Column start address
   ssd1306_commandList(dlist1, sizeof(dlist1));
-  ssd1306_command1(WIDTH - 1); // Column end address
+
+  if (WIDTH == 64) {
+    ssd1306_command1(0x20);             // Column start
+    ssd1306_command1(0x20 + WIDTH - 1); // Column end address
+  } else {
+    ssd1306_command1(0);           // Column start
+    ssd1306_command1((WIDTH - 1)); // Column end address
+  }
 
 #if defined(ESP8266)
   // ESP8266 needs a periodic yield() call to avoid watchdog reset.
