@@ -602,6 +602,9 @@ bool Adafruit_SSD1306::begin(uint8_t vcs, uint8_t addr, bool reset,
   } else if ((WIDTH == 64) && (HEIGHT == 32)) {
     comPins = 0x12; // ada x12
     contrast = (vccstate == SSD1306_EXTERNALVCC) ? 0x10 : 0xCF;
+  } else if ((WIDTH == 64) && (HEIGHT == 48)) {
+    comPins = 0x12; // ada x12
+    contrast = (vccstate == SSD1306_EXTERNALVCC) ? 0x9F : 0xCF;
   } else {
     // Other screen varieties -- TBD
   }
