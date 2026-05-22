@@ -522,8 +522,19 @@ bool Adafruit_SSD1306::begin(uint8_t vcs, uint8_t addr, bool reset,
     // function if it has unusual circumstances (e.g. TWI variants that
     // can accept different SDA/SCL pins, or if two SSD1306 instances
     // with different addresses -- only a single begin() is needed).
-    if (periphBegin)
+    if (periphBegin) {
       wire->begin();
+#ifdef WIRE_HAS_TIMEOUT
+      // Avoid indefinite hangs in the Wire library when the I2C bus stops
+      // responding (e.g. SDA/SCL noise or the display disconnects). The
+      // setWireTimeout() API is exposed by Arduino cores that define
+      // WIRE_HAS_TIMEOUT (Arduino AVR core >= 1.8.6, see ArduinoCore-avr#42).
+      // We only set the timeout when we owned the begin() call -- if the
+      // caller managed Wire themselves, leave their configuration untouched.
+      // See Adafruit_SSD1306 issue #288.
+      wire->setWireTimeout(25000 /* us */, true /* reset on timeout */);
+#endif
+    }
   } else { // Using one of the SPI modes, either soft or hardware
     pinMode(dcPin, OUTPUT); // Set data/command pin as output
     pinMode(csPin, OUTPUT); // Same for chip select
