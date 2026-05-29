@@ -150,6 +150,7 @@ public:
   bool begin(uint8_t switchvcc = SSD1306_SWITCHCAPVCC, uint8_t i2caddr = 0,
              bool reset = true, bool periphBegin = true);
   void display(void);
+  void displayRegional(int16_t x, int16_t y, int16_t w, int16_t h);
   void clearDisplay(void);
   void invertDisplay(bool i);
   void dim(bool dim);
