@@ -1009,9 +1009,8 @@ uint8_t *Adafruit_SSD1306::getBuffer(void) { return buffer; }
 */
 void Adafruit_SSD1306::display(void) {
   TRANSACTION_START
-  static const uint8_t PROGMEM dlist1[] = {
-      SSD1306_PAGEADDR,
-      0}; // Page start address
+  static const uint8_t PROGMEM dlist1[] = {SSD1306_PAGEADDR,
+                                           0}; // Page start address
   ssd1306_commandList(dlist1, sizeof(dlist1));
   // Page end address must be a valid page index (0 to 7) per the SSD1306
   // datasheet's "Set Page Address" command -- it is a 3-bit hardware field,
