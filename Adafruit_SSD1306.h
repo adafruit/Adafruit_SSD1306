@@ -25,7 +25,7 @@
 #define _Adafruit_SSD1306_H_
 
 // ONE of the following three lines must be #defined:
-// #define SSD1306_128_64 ///< DEPRECTAED: old way to specify 128x64 screen
+// #define SSD1306_128_64 ///< DEPRECATED: old way to specify 128x64 screen
 #define SSD1306_128_32 ///< DEPRECATED: old way to specify 128x32 screen
 // #define SSD1306_96_16  ///< DEPRECATED: old way to specify 96x16 screen
 // This establishes the screen dimensions in old Adafruit_SSD1306 sketches
@@ -62,7 +62,7 @@ typedef uint32_t PortMask;
 #define HAVE_PORTREG
 #endif
 
-/// The following "raw" color names are kept for backwards client compatability
+/// The following "raw" color names are kept for backwards client compatibility
 /// They can be disabled by predefining this macro before including the Adafruit
 /// header client code will then need to be modified to use the scoped enum
 /// values directly
