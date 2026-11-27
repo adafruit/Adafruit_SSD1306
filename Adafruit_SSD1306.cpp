@@ -1009,12 +1009,23 @@ uint8_t *Adafruit_SSD1306::getBuffer(void) { return buffer; }
 */
 void Adafruit_SSD1306::display(void) {
   TRANSACTION_START
-  static const uint8_t PROGMEM dlist1[] = {
-      SSD1306_PAGEADDR,
-      0,                   // Page start address
-      0xFF,                // Page end (not really, but works here)
-      SSD1306_COLUMNADDR}; // Column start address
+  static const uint8_t PROGMEM dlist1[] = {SSD1306_PAGEADDR,
+                                           0}; // Page start address
   ssd1306_commandList(dlist1, sizeof(dlist1));
+  // Page end address must be a valid page index (0 to 7) per the SSD1306
+  // datasheet's "Set Page Address" command -- it is a 3-bit hardware field,
+  // so any value is silently truncated to its low 3 bits. Previously this
+  // was hardcoded to 0xFF (truncates to 7), which happens to be correct for
+  // 64-row displays (8 pages) but is wrong for any shorter display (32, 48,
+  // or 16 rows). In Horizontal Addressing Mode this went unnoticed because
+  // display() always writes exactly WIDTH * pages bytes, so the page-end
+  // wraparound is never actually exercised. In Vertical Addressing Mode,
+  // though, the page-end value is consulted after every single byte, so an
+  // incorrect value causes most of the transferred framebuffer to land on
+  // the wrong columns (or never be written at all). Compute the real last
+  // page in use instead.
+  ssd1306_command1(((HEIGHT + 7) / 8) - 1); // Page end address
+  ssd1306_command1(SSD1306_COLUMNADDR);     // Column start address
 
   if (WIDTH == 64) {
     ssd1306_command1(0x20);             // Column start
