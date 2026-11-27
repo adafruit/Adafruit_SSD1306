@@ -59,7 +59,7 @@ void setup() {
   Serial.println("OLED begun");
 
   // Show image buffer on the display hardware.
-  // Since the buffer is intialized with an Adafruit splashscreen
+  // Since the buffer is initialized with an Adafruit splashscreen
   // internally, this will display the splashscreen.
   display.display();
   delay(1000);
