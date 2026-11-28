@@ -57,6 +57,23 @@ static const unsigned char PROGMEM logo_bmp[] =
   0b01110000, 0b01110000,
   0b00000000, 0b00110000 };
 
+//define all the functions before calling them
+//not needed for Arduino but PlatformIO in VSCode requires it this way
+void testdrawline();      // Draw many lines
+void testdrawrect();      // Draw rectangles (outlines)
+void testfillrect();      // Draw rectangles (filled)
+void testdrawcircle();    // Draw circles (outlines)
+void testfillcircle();    // Draw circles (filled)
+void testdrawroundrect(); // Draw rounded rectangles (outlines)
+void testfillroundrect(); // Draw rounded rectangles (filled)
+void testdrawtriangle();  // Draw triangles (outlines)
+void testfilltriangle();  // Draw triangles (filled)
+void testdrawchar();      // Draw characters of the default font
+void testdrawstyles();    // Draw 'stylized' characters
+void testscrolltext();    // Draw scrolling tex
+void testdrawbitmap();    // Draw a small bitmap image
+void testanimate(const uint8_t *bitmap, uint8_t w, uint8_t h); //special animation
+
 void setup() {
   Serial.begin(9600);
 
